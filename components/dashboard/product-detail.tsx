@@ -42,7 +42,7 @@ export function ProductCard({
     return (
       <Card
         className={cn(
-          "w-full max-w-4xl border-none shadow-sm bg-gray-50/50",
+          "w-full max-w-4xl border-none shadow-sm bg-gray-50/50 dark:bg-slate-900/50",
           className,
         )}
       >
@@ -55,40 +55,40 @@ export function ProductCard({
 
         <CardContent className="space-y-4 -mx-4 -mt-2">
           {/* TOP SECTION SKELETON */}
-          <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+          <div className="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-slate-700/50">
             <div className="flex gap-4 mb-4">
-              <div className="h-12 w-24 bg-slate-100 rounded-md animate-pulse" />
-              <div className="h-12 w-24 bg-slate-100 rounded-md animate-pulse" />
+              <div className="h-12 w-24 bg-slate-100 dark:bg-slate-700 rounded-md animate-pulse" />
+              <div className="h-12 w-24 bg-slate-100 dark:bg-slate-700 rounded-md animate-pulse" />
             </div>
             <div className="space-y-2">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="flex gap-2 items-center">
-                  <div className="h-3 w-24 bg-slate-100 rounded animate-pulse ml-auto" />
-                  <div className="h-5 w-full max-w-[200px] bg-slate-200 rounded animate-pulse" />
+                  <div className="h-3 w-24 bg-slate-100 dark:bg-slate-700 rounded animate-pulse ml-auto" />
+                  <div className="h-5 w-full max-w-[200px] bg-slate-200 dark:bg-slate-600 rounded animate-pulse" />
                 </div>
               ))}
             </div>
           </div>
 
           {/* MIDDLE SECTION SKELETON */}
-          <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+          <div className="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-slate-700/50">
             <div className="flex justify-between mb-4">
               <div className="flex gap-2">
-                <div className="h-10 w-16 bg-slate-200 rounded-lg animate-pulse" />
-                <div className="h-10 w-16 bg-slate-200 rounded-lg animate-pulse" />
+                <div className="h-10 w-16 bg-slate-200 dark:bg-slate-700 rounded-lg animate-pulse" />
+                <div className="h-10 w-16 bg-slate-200 dark:bg-slate-700 rounded-lg animate-pulse" />
               </div>
-              <div className="h-8 w-32 bg-slate-100 rounded animate-pulse" />
+              <div className="h-8 w-32 bg-slate-100 dark:bg-slate-700 rounded animate-pulse" />
             </div>
-            <div className="h-[180px] w-full bg-slate-50 rounded animate-pulse" />
+            <div className="h-[180px] w-full bg-slate-50 dark:bg-slate-700/50 rounded animate-pulse" />
           </div>
 
           {/* BOTTOM SECTION SKELETON */}
-          <div className="rounded-xl border border-gray-200 overflow-hidden">
-            <div className="h-10 bg-slate-200 animate-pulse w-full" />
+          <div className="rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden">
+            <div className="h-10 bg-slate-200 dark:bg-slate-700 animate-pulse w-full" />
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="h-8 bg-white border-b border-gray-100 animate-pulse"
+                className="h-8 bg-white dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700 animate-pulse"
               />
             ))}
           </div>
@@ -115,67 +115,67 @@ export function ProductCard({
 
   return (
     <Card
-      className={cn("w-full  border-none shadow-sm bg-gray-50/50", className)}
+      className={cn("w-full bg-card dark:bg-[#1D293D] text-card-foreground border-border shadow-sm rounded-xl overflow-hidden", className)}
     >
       <CardHeader className="flex flex-row items-center gap-2">
         {getProductIcon(product)}{" "}
-        <CardTitle className="text-md font-bold text-slate-900">
+        <CardTitle className="text-md font-bold text-slate-900 dark:text-slate-100">
           {product} Detail
         </CardTitle>
       </CardHeader>
 
       <CardContent className="space-y-4 -mx-4 -mt-2">
         {/* --- TOP SECTION: Categories Breakdown --- */}
-        <div className="bg-white p-4 rounded-xl shadow-sm">
+        <div className="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100/50 dark:border-slate-700/50">
           <div className="flex gap-4 mb-4">
-            <div className="bg-gray-200 px-3 py-1 rounded-md">
-              <span className="text-xs font-bold text-slate-500 block">
+            <div className="bg-gray-100 dark:bg-slate-700/50 px-3 py-1.5 rounded-md border border-slate-200 dark:border-slate-700">
+              <span className="text-xs font-bold text-slate-500 dark:text-slate-400 block mb-0.5">
                 Total Ticket
               </span>
-              <span className="text-sm font-bold text-slate-700">
+              <span className="text-sm font-extrabold text-slate-700 dark:text-slate-200">
                 {connectivityData.total.toLocaleString("id-ID")}
               </span>
             </div>
-            <div className="bg-gray-200 px-3 py-1 rounded-md">
-              <span className="text-xs font-bold text-slate-500 block">
+            <div className="bg-gray-100 dark:bg-slate-700/50 px-3 py-1.5 rounded-md border border-slate-200 dark:border-slate-700">
+              <span className="text-xs font-bold text-slate-500 dark:text-slate-400 block mb-0.5">
                 %SLA ALL
               </span>
-              <span className="text-sm font-bold text-slate-700">
+              <span className="text-sm font-extrabold text-slate-700 dark:text-slate-200">
                 {connectivityData.pctSla}%
               </span>
             </div>
           </div>
 
-          <div className="grid grid-cols-8 gap-1 text-xs">
+          <div className="grid grid-cols-8 gap-1 text-xs mt-2">
             <div className="col-span-4 text-right font-bold text-slate-700"></div>
-            <div className="col-span-2 font-bold text-slate-900">
+            <div className="col-span-2 font-bold text-slate-900 dark:text-slate-300 tracking-wide text-[10px] uppercase">
               Total Ticket
             </div>
-            <div className="col-span-2 font-bold text-slate-900">%SLA</div>
+            <div className="col-span-2 font-bold text-slate-900 dark:text-slate-300 tracking-wide text-[10px] uppercase">%SLA</div>
 
             {connectivityData.topCategories.map((cat, idx) => (
               <React.Fragment key={idx}>
-                <div className="col-span-4 flex items-center justify-end text-right text-xs font-semibold text-slate-600 uppercase pr-2">
+                <div className="col-span-4 flex items-center justify-end text-right text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase pr-3 tracking-wider">
                   {cat.general_category}
                 </div>
                 <div className="col-span-2 flex items-center">
                   <div
-                    className="h-5 bg-[#0B1750] rounded-sm transition-all duration-500"
+                    className="h-4 bg-[#0B1750] dark:bg-sky-500/80 rounded-sm transition-all duration-500"
                     style={{
                       width: `${(cat.total / maxCategoryTotal) * 80}%`,
                       minWidth: "4px",
                     }}
                   />
-                  <span className="ml-2 text-xs font-bold text-slate-800">
+                  <span className="ml-2 text-[11px] font-bold text-slate-800 dark:text-slate-200">
                     {cat.total}
                   </span>
                 </div>
                 <div className="col-span-2 flex items-center">
                   <div
-                    className="h-5 bg-[#bfdbfe] rounded-sm transition-all duration-500"
+                    className="h-4 bg-[#bfdbfe] dark:bg-sky-900/60 rounded-sm transition-all duration-500"
                     style={{ width: `${parseFloat(cat.catSla)}%` }}
                   />
-                  <span className="ml-2 text-xs font-bold text-slate-800">
+                  <span className="ml-2 text-[11px] font-bold text-slate-800 dark:text-slate-200">
                     {cat.catSla}%
                   </span>
                 </div>
@@ -185,21 +185,21 @@ export function ProductCard({
         </div>
 
         {/* --- MIDDLE SECTION: Trend Chart --- */}
-        <div className="bg-white p-4 rounded-xl shadow-sm relative">
+        <div className="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm relative border border-slate-100/50 dark:border-slate-700/50">
           <div className="flex justify-between items-start mb-6">
             <div className="flex gap-2">
-              <div className="bg-[#0B1750] text-white px-4 py-2 rounded-lg text-center min-w-[70px]">
-                <div className="text-[10px] font-bold">Open</div>
-                <div className="text-sm font-bold">{connectivityData.open}</div>
+              <div className="bg-[#0B1750] dark:bg-slate-700/80 border border-transparent dark:border-slate-600 text-white px-4 py-2 rounded-lg text-center min-w-[70px] shadow-sm">
+                <div className="text-[10px] font-bold tracking-wider uppercase text-slate-300">Open</div>
+                <div className="text-sm font-black">{connectivityData.open}</div>
               </div>
-              <div className="bg-[#0B1750] text-white px-4 py-2 rounded-lg text-center min-w-[70px]">
+              <div className="bg-[#0B1750] dark:bg-slate-700/80 border border-transparent dark:border-slate-600 text-white px-4 py-2 rounded-lg text-center min-w-[70px] shadow-sm">
                 {product === "Connectivity" || product === "DAds" ? (
-                  <div className="text-[10px] font-bold">&gt;3H</div>
+                  <div className="text-[10px] font-bold tracking-wider uppercase text-slate-300">&gt;3H</div>
                 ) : (
-                  <div className="text-[10px] font-bold">&gt;6H</div>
+                  <div className="text-[10px] font-bold tracking-wider uppercase text-slate-300">&gt;6H</div>
                 )}
 
-                <div className="text-sm font-bold">
+                <div className="text-sm font-black">
                   {connectivityData.over3h}
                 </div>
               </div>
@@ -259,7 +259,8 @@ export function ProductCard({
                 <Bar
                   yAxisId="left"
                   dataKey="total"
-                  fill="#0B1750"
+                  fill="currentColor"
+                  className="text-[#0B1750] dark:text-sky-500"
                   barSize={10}
                   radius={[2, 2, 0, 0]}
                 >
@@ -292,49 +293,46 @@ export function ProductCard({
               </ComposedChart>
             </ResponsiveContainer>
             <div className="flex justify-center gap-4 -mt-6">
-              <div className="flex items-center gap-1">
-                <div className="w-3 h-1 bg-[#0B1750]"></div>
-                <span className="text-[10px] text-slate-600">Total</span>
+              <div className="flex items-center gap-1.5">
+                <div className="w-3 h-1 bg-[#0B1750] dark:bg-sky-500 rounded-full"></div>
+                <span className="text-[10px] text-slate-600 dark:text-slate-400 font-medium">Total</span>
               </div>
-              <div className="flex items-center gap-1">
-                <div className="w-3 h-1 bg-gray-400"></div>
-                <span className="text-[10px] text-slate-600">SLA</span>
+              <div className="flex items-center gap-1.5">
+                <div className="w-3 h-1 bg-gray-400 dark:bg-slate-500 rounded-full"></div>
+                <span className="text-[10px] text-slate-600 dark:text-slate-400 font-medium">SLA</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* --- BOTTOM SECTION: Top KIP Table --- */}
-        <div className="overflow-hidden rounded-xl border border-gray-200">
+        <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-slate-700/80 shadow-sm">
           <table className="w-full text-sm text-left">
-            <thead className="bg-[#0B1750] text-white">
+            <thead className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-b border-gray-200 dark:border-slate-700/80">
               <tr>
-                <th className="px-4 py-2 font-semibold">Top KIP</th>
-                <th className="px-4 py-2 font-semibold text-center">
+                <th className="px-4 py-2.5 font-bold text-[10px] uppercase tracking-wider">Top KIP</th>
+                <th className="px-4 py-2.5 font-bold text-center text-[10px] uppercase tracking-wider">
                   Total Tiket
                 </th>
-                <th className="px-4 py-2 font-semibold text-center">%SLA</th>
+                <th className="px-4 py-2.5 font-bold text-center text-[10px] uppercase tracking-wider">%SLA</th>
               </tr>
             </thead>
-            <tbody className="text-xs divide-y divide-gray-100 bg-blue-50/30">
+            <tbody className="text-xs divide-y divide-gray-100 dark:divide-slate-700/50 bg-white dark:bg-slate-900/30">
               {connectivityData.topKips.map((kip, idx) => (
                 <tr
                   key={idx}
-                  className={cn(
-                    "hover:bg-blue-50/80 transition-colors",
-                    idx % 2 === 1 ? "bg-white" : "bg-blue-50/30",
-                  )}
+                  className="hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors"
                 >
                   <td
-                    className="px-4 py-0.5 text-slate-700 truncate max-w-[200px]"
+                    className="px-4 py-2 text-[11px] text-slate-700 dark:text-slate-300 font-medium truncate max-w-[200px]"
                     title={kip.detail_category}
                   >
                     {kip.detail_category}
                   </td>
-                  <td className="px-4 py-0.5 text-center font-bold text-slate-800">
+                  <td className="px-4 py-2 text-[11px] text-center font-bold text-slate-800 dark:text-slate-200">
                     {kip.total}
                   </td>
-                  <td className="px-4 py-0.5 text-center font-bold text-slate-800">
+                  <td className="px-4 py-2 text-[11px] text-center font-bold text-slate-800 dark:text-slate-200">
                     {kip.kipSla}%
                   </td>
                 </tr>

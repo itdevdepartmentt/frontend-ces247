@@ -4,6 +4,10 @@ export function proxy(request: NextRequest) {
   // 1. Generate a random nonce
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
 
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "";
+  // Ambil origin: "http://localhost:3000/api" → "http://localhost:3000"
+  const apiOrigin = apiUrl ? new URL(apiUrl).origin : "";
+
   // 2. Define a strict CSP using the nonce
   // Note: 'strict-dynamic' helps automate trust for legitimate sub-scripts
   const cspHeader = `
@@ -33,13 +37,11 @@ export function proxy(request: NextRequest) {
       'sha256-441zG27rExd4/il+NvIqyL8zFx5XmyNQtE381kSkUJk='
       'sha256-PlumsSlvJ7vvWzjqibGAYKq92O3y/4JTxWWsWJvyUYA='
       ;
-    img-src 'self' blob: data: ${process.env.NEST_PUBLIC_API_URL} ${process.env.NEXT_PUBLIC_API_URL};
+     img-src 'self' blob: data: ${apiOrigin};
     font-src 'self';
-    connect-src 'self' ${process.env.NEST_PUBLIC_API_URL} ${process.env.NEXT_PUBLIC_API_URL};
-    frame-src 'self' ${process.env.NEST_PUBLIC_API_URL} ${process.env.NEXT_PUBLIC_API_URL};
-
+    connect-src 'self' ${apiOrigin};
+    frame-src 'self' ${apiOrigin};
     frame-ancestors 'self';
-
     base-uri 'self';
     form-action 'self';
   `

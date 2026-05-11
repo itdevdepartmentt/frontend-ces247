@@ -117,14 +117,14 @@ export function EscalationCard({
   return (
     <div
       className={cn(
-        "flex flex-col dark:bg-[#F1F3F4] p-2 rounded-xl shadow-sm border dark:border-slate-200",
+        "flex flex-col bg-[#F1F3F4] dark:bg-[#1D293D] p-2 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700",
         className,
       )}
     >
       {/* Header Section */}
       <div className="flex justify-between items-start mb-1">
         <div>
-          <h2 className="text-md font-black text-red-600 tracking-tight leading-none mb-4">
+          <h2 className="text-md font-black text-red-600 dark:text-red-500 tracking-tight leading-none mb-4">
             {title}
           </h2>
           <div className="flex gap-2">
@@ -149,7 +149,7 @@ export function EscalationCard({
 
         {/* Controls Section */}
         <div className="flex flex-col items-end gap-1.5">
-          <span className="text-[10px] font-bold text-slate-900 mr-1">
+          <span className="text-[10px] font-bold text-slate-900 dark:text-slate-200 mr-1">
             Ticket Search
           </span>
           <div className="relative group">
@@ -158,23 +158,23 @@ export function EscalationCard({
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="h-6 w-35 pl-7 pr-2 rounded border border-slate-400 bg-white text-black text-[10px] focus:outline-none focus:ring-1 focus:ring-blue-400"
+              className="h-6 w-35 pl-7 pr-2 rounded border border-slate-400 dark:border-slate-600 bg-white dark:bg-slate-900 text-black dark:text-white text-[10px] focus:outline-none focus:ring-1 focus:ring-blue-400"
             />
           </div>
           <Button
             variant="ghost"
-            className="h-5 w-35 bg-[#D1D5DB] hover:bg-[#BEC3C9] text-slate-800 text-[10px] font-bold shadow-sm justify-between px-2 rounded"
+            className="h-5 w-35 bg-[#D1D5DB] dark:bg-slate-700 hover:bg-[#BEC3C9] dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 text-[10px] font-bold shadow-sm justify-between px-2 rounded"
           >
             SLA Filter
-            <Filter className="h-3 w-3 fill-slate-500 text-slate-500" />
+            <Filter className="h-3 w-3 fill-slate-500 dark:fill-slate-400 text-slate-500 dark:text-slate-400" />
           </Button>
         </div>
       </div>
 
       {/* Table Section */}
-      <div className="relative mb-4">
+      <div className="relative mb-4 mt-2">
         {isLoading && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-50/50 rounded-md">
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-50/50 dark:bg-slate-900/50 rounded-md">
             <Loader2 className="h-6 w-6 animate-spin text-red-600" />
           </div>
         )}
@@ -183,7 +183,7 @@ export function EscalationCard({
 
       {/* Footer / Pagination Section */}
       <div className="flex items-center justify-end -mt-2 gap-2">
-        <span className="text-[11px] font-black text-slate-900 mr-1">Page</span>
+        <span className="text-[11px] font-black text-slate-900 dark:text-slate-200 mr-1">Page</span>
         <div className="flex gap-1">
           {/* Loop through the Smart Pagination Items */}
           {getPaginationItems().map((item, index) => (
@@ -200,7 +200,7 @@ export function EscalationCard({
                     "h-7 w-7 rounded-none p-0 text-xs transition-colors",
                     page === item
                       ? "bg-[#C20000] text-white hover:bg-[#a00000]"
-                      : "bg-gray-300 text-slate-600 hover:bg-gray-400",
+                      : "bg-gray-300 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-gray-400 dark:hover:bg-slate-600",
                   )}
                 >
                   {item}
@@ -213,13 +213,13 @@ export function EscalationCard({
         {/* Nav Arrows */}
         <div className="flex gap-1 ml-1">
           <button
-            className="h-6 w-6 rounded-full border-2 border-slate-900 flex items-center justify-center text-slate-900 hover:bg-slate-200"
+            className="h-6 w-6 rounded-full border-2 border-slate-900 dark:border-slate-400 flex items-center justify-center text-slate-900 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
             onClick={handlePrev}
           >
             <ChevronLeft className="h-4 w-4 stroke-[3px]" />
           </button>
           <button
-            className="h-6 w-6 rounded-full border-2 border-slate-900 flex items-center justify-center text-slate-900 hover:bg-slate-200"
+            className="h-6 w-6 rounded-full border-2 border-slate-900 dark:border-slate-400 flex items-center justify-center text-slate-900 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
             onClick={handleNext}
           >
             <ChevronRight className="h-4 w-4 stroke-[3px]" />

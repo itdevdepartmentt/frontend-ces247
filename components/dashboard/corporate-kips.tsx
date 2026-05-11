@@ -139,12 +139,12 @@ export function SlaCustomerKipCard({
     const isSmall = value < 25;
 
     return (
-      <div className="relative w-[120px] sm:w-[150px] h-4 sm:h-5 bg-gray-200 rounded-sm overflow-hidden">
+      <div className="relative w-[120px] sm:w-[150px] h-4 sm:h-5 bg-muted rounded-sm overflow-hidden">
         {/* Progress bar */}
         <div
           className={cn(
             "h-full transition-all duration-500 relative",
-            isMain ? "bg-[#0B1750]" : "bg-[#2b6cb0]",
+            isMain ? "bg-[#0B1750] dark:bg-emerald-500" : "bg-[#2b6cb0] dark:bg-emerald-400",
           )}
           style={{ width: `${value}%` }}
         >
@@ -171,20 +171,20 @@ export function SlaCustomerKipCard({
   // }, [data, searchTerm]);
 
   return (
-    <Card className="w-full border-none bg-[#F3F4F6] shadow-sm">
+    <Card className="w-full border border-border bg-card dark:bg-[#1D293D] text-card-foreground shadow-sm">
       {/* Header with Search */}
       <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-6">
         <CardTitle className="text-md font-bold text-red-600">
           SLA Customer to KIP
         </CardTitle>
         <div className="flex flex-col gap-1 w-full sm:w-auto mt-2 sm:mt-0">
-          <label className="text-xs font-bold text-slate-800 ml-1">
+          <label className="text-xs font-bold text-foreground ml-1">
             Corp Search
           </label>
           <div className="relative">
             <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-gray-500" />
             <Input
-              className="h-7 w-full sm:w-[200px] bg-white border-gray-300 pl-7 text-xs"
+              className="h-7 w-full sm:w-[200px] bg-background border-input text-foreground pl-7 text-xs"
               placeholder=""
               value={searchTerm}
               onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
@@ -204,11 +204,11 @@ export function SlaCustomerKipCard({
             {data.map((corp, index) => (
               <div
                 key={index}
-                className="flex flex-col border-b border-gray-300 pb-2 last:border-0 animate-in fade-in slide-in-from-bottom-2 duration-300"
+                className="flex flex-col border-b border-border pb-2 last:border-0 animate-in fade-in slide-in-from-bottom-2 duration-300"
               >
                 {/* Main Corporate Row */}
                 <div className="flex items-center justify-between mb-1">
-                  <span className="font-bold text-xs text-slate-900 truncate pr-4">
+                  <span className="font-bold text-xs text-foreground truncate pr-4">
                     {corp.company}
                   </span>
                   <ProgressBar
@@ -224,7 +224,7 @@ export function SlaCustomerKipCard({
                       key={subIndex}
                       className="flex items-center justify-between pl-4"
                     >
-                      <span className="text-[8pt] text-slate-700 truncate pr-4 bg-gray-100/50">
+                      <span className="text-[8pt] text-muted-foreground truncate pr-4 bg-muted/50 rounded-sm px-1">
                         {item.detail_category}
                       </span>
                       <ProgressBar
@@ -240,7 +240,7 @@ export function SlaCustomerKipCard({
 
           {/* --- 2. UPDATED Footer Pagination --- */}
           <div className="mt-6 flex items-center justify-center gap-2 select-none">
-            <span className="text-sm font-bold text-slate-900 mr-2">Page</span>
+            <span className="text-sm font-bold text-foreground mr-2">Page</span>
 
             {/* Loop through the Smart Pagination Items */}
             {getPaginationItems().map((item, index) => (
@@ -257,7 +257,7 @@ export function SlaCustomerKipCard({
                       "h-7 w-7 rounded-none p-0 text-xs transition-colors",
                       currentPage === item
                         ? "bg-[#C20000] text-white hover:bg-[#a00000]"
-                        : "bg-gray-300 text-slate-600 hover:bg-gray-400",
+                        : "bg-secondary text-secondary-foreground hover:bg-secondary/80",
                     )}
                   >
                     {item}
@@ -273,9 +273,9 @@ export function SlaCustomerKipCard({
                 size="icon"
                 onClick={handlePrev}
                 disabled={currentPage === 1}
-                className="h-7 w-7 rounded-full border-2 border-slate-800 p-0 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-100"
+                className="h-7 w-7 rounded-full border-2 border-primary p-0 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-secondary transition-colors"
               >
-                <ChevronLeft className="h-4 w-4 text-slate-800" />
+                <ChevronLeft className="h-4 w-4 text-primary" />
               </Button>
 
               <Button
@@ -283,9 +283,9 @@ export function SlaCustomerKipCard({
                 size="icon"
                 onClick={handleNext}
                 disabled={currentPage >= totalPages}
-                className="h-7 w-7 rounded-full border-2 border-slate-800 p-0 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-100"
+                className="h-7 w-7 rounded-full border-2 border-primary p-0 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-secondary transition-colors"
               >
-                <ChevronRight className="h-4 w-4 text-slate-800" />
+                <ChevronRight className="h-4 w-4 text-primary" />
               </Button>
             </div>
           </div>

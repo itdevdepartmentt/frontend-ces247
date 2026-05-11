@@ -18,6 +18,30 @@ export interface Priority {
   extra: number;
 }
 
+export type PriorityType = 'roaming' | 'extra' | 'vip' | 'pareto' | 'urgent' | 'cc';
+
+export interface PriorityTicket {
+  ticketNumber: string;
+  customerName: string | null;
+  subject: string | null;
+  channel: string | null;
+  status: string | null;
+  priority: string | null;
+  createdAt: string;
+}
+
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface PriorityTicketResponse {
+  data: PriorityTicket[];
+  meta: PaginationMeta;
+}
+
 export interface CsatScore {
   date: string;
   totalsurvey: number;

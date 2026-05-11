@@ -55,7 +55,7 @@ const IncidentCard = ({
 
   return (
     <div
-      className={`min-w-[300px] max-w-[350px] flex-shrink-0 flex flex-col gap-2 border-r border-slate-300 last:border-r-0 px-4 first:pl-0 group relative ${!data.isActive ? "opacity-50 grayscale" : ""}`}
+      className={`min-w-[300px] max-w-[350px] flex-shrink-0 flex flex-col gap-2 border-r border-slate-300 dark:border-slate-700 last:border-r-0 px-4 first:pl-0 group relative ${!data.isActive ? "opacity-50 grayscale" : ""}`}
     >
       {/* Title & Action Row */}
       <div className="flex justify-between items-start mb-2">
@@ -63,8 +63,8 @@ const IncidentCard = ({
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="bg-white shadow-sm border border-slate-200 rounded-md py-1 px-3 w-fit max-w-[80%] cursor-default">
-                <h3 className="font-bold text-slate-900 text-sm truncate">
+              <div className="bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700 rounded-md py-1 px-3 w-fit max-w-[80%] cursor-default">
+                <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm truncate">
                   {data.title}
                 </h3>
               </div>
@@ -98,7 +98,7 @@ const IncidentCard = ({
       </div>
 
       {/* Description */}
-      <div className="text-xs text-slate-700 leading-relaxed whitespace-pre-wrap font-sans max-h-[120px] overflow-y-auto">
+      <div className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap font-sans max-h-[120px] overflow-y-auto">
         {data.description}
       </div>
 
@@ -270,18 +270,18 @@ export default function IncidentWidget() {
       </div>
 
       {/* --- Content Area --- */}
-      <div className="bg-slate-100 border border-slate-300 rounded-sm p-4 relative ml-2 min-h-[200px]">
+      <div className="bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-sm p-4 relative ml-2 min-h-[200px]">
         {incidentToShow.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-40 text-slate-400">
+          <div className="flex flex-col items-center justify-center h-40 text-slate-400 dark:text-slate-500">
             {showSolved ? (
               <p className="text-sm">No incidents found in history.</p>
             ) : (
               <>
                 <Check className="w-8 h-8 mb-2 text-green-500 opacity-50" />
-                <p className="text-sm font-medium text-slate-600">
+                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
                   All systems operational.
                 </p>
-                <p className="text-xs text-slate-400">No active incidents.</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500">No active incidents.</p>
               </>
             )}
           </div>
