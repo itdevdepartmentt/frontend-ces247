@@ -42,7 +42,17 @@ const getChannelIcon = (channelName: string) => {
   return <Globe className="text-slate-500" />;
 };
 
-export default function DashboardPage() {
+interface DashboardPageContentProps {
+  title?: string;
+  isFcr?: boolean;
+  showIncidentWidget?: boolean;
+}
+
+export function DashboardPageContent({
+  title = "Dashboard",
+  isFcr,
+  showIncidentWidget = true,
+}: DashboardPageContentProps) {
   const [syncingTickets, setSyncingTickets] = useState(false); // For the Daily Ticket sync
   const [syncingJobId, setSyncingJobId] = useState<string | null>(null);
   const [isJobProcessing, setIsJobProcessing] = useState(false);
@@ -71,6 +81,7 @@ export default function DashboardPage() {
 
   const { summary, channels, lastSync, isLoading, refetch } = useDashboardData({
     dateRange: normalizedDateRange,
+    isFcr,
   });
 
   // 1. Polling Effect: Runs only when we have a jobId to track
@@ -185,7 +196,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 mt-12 md:mt-0">
       <div className="flex flex-col md:flex-row md:items-center justify-between space-y-2 md:space-y-0 mb-6">
-        <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+        <h2 className="text-3xl font-bold tracking-tight">{title}</h2>
         <div className="flex flex-col w-full sm:w-auto space-y-2 sm:space-y-0 sm:flex-row sm:items-center sm:space-x-2">
           <div className="flex items-center space-x-2">
             {/* ACTION 1: DAILY TICKET SYNC (THE NEW BUTTON) */}
@@ -251,7 +262,11 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <IncidentWidget />
+      {showIncidentWidget && <IncidentWidget />}
     </div>
   );
+}
+
+export default function DashboardPage() {
+  return <DashboardPageContent />;
 }

@@ -11,13 +11,15 @@ interface UseDashboardProps {
     from?: string;
     to?: string;
   };
+  isFcr?: boolean;
 }
 
-export function useDashboardData({ dateRange }: UseDashboardProps) {
+export function useDashboardData({ dateRange, isFcr }: UseDashboardProps) {
   // Helper to format dates for API (assuming API takes YYYY-MM-DD)
   const queryParams = {
     startDate: dateRange?.from ? dateRange.from : undefined,
     endDate: dateRange?.to ? dateRange.to : undefined,
+    isFcr,
   };
 
   const summaryQuery = useQuery({

@@ -9,6 +9,7 @@ import {
   Download,
   FileUp,
   LayoutDashboard,
+  LayoutPanelTop,
   LogOut,
   Menu,
   Newspaper,
@@ -62,6 +63,12 @@ export function Sidebar() {
       title: "Overview",
       href: "/dashboard",
       icon: LayoutDashboard,
+      roles: ["USER", "ADMIN"],
+    },
+    {
+      title: "Dashboard FCR",
+      href: "/dashboard-fcr",
+      icon: LayoutPanelTop,
       roles: ["USER", "ADMIN"],
     },
     {
