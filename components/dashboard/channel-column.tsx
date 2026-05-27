@@ -12,14 +12,14 @@ interface ChannelColumnProps {
   isLoading?: boolean;
 }
 
-const corporateColumns = [
+const corporateColumns: { key: keyof TopItem; label: string }[] = [
   { key: "name", label: "Perusahaan" },
   { key: "total", label: "Interaksi" },
   { key: "ticket", label: "Tiket" },
   { key: "pctFcr", label: "%FCR" },
 ];
 
-const kipColumns = [
+const kipColumns: { key: keyof TopItem; label: string }[] = [
   { key: "name", label: "Kategori" },
   { key: "total", label: "Interaksi" },
   { key: "ticket", label: "Tiket" },
@@ -28,17 +28,17 @@ const kipColumns = [
 
 function FcrBadge({ value }: { value: string | number }) {
   const num = Number(value);
-  const isGood = num >= 100;
-  const isMid = num >= 80 && num < 100;
+  const isRed = num < 75;
+  const isYellow = num >= 75 && num <= 82;
   return (
     <span
       className={cn(
         "inline-flex items-center justify-center font-black text-[9px] px-1.5 py-0.5 rounded-md tabular-nums",
-        isGood
-          ? "bg-emerald-500/15 text-emerald-500 dark:text-emerald-400 ring-1 ring-emerald-500/30"
-          : isMid
+        isRed
+          ? "bg-rose-500/15 text-rose-500 dark:text-rose-400 ring-1 ring-rose-500/30"
+          : isYellow
           ? "bg-amber-500/15 text-amber-500 dark:text-amber-400 ring-1 ring-amber-500/30"
-          : "bg-rose-500/15 text-rose-500 dark:text-rose-400 ring-1 ring-rose-500/30"
+          : "bg-emerald-500/15 text-emerald-500 dark:text-emerald-400 ring-1 ring-emerald-500/30"
       )}
     >
       {value}%
@@ -54,7 +54,7 @@ function DataTable({
 }: {
   label: string;
   accentColor: string;
-  columns: { key: string; label: string }[];
+  columns: { key: keyof TopItem; label: string }[];
   data: TopItem[];
 }) {
   return (
@@ -113,17 +113,20 @@ function DataTable({
                 </div>
 
                 {/* Numeric columns */}
-                {columns.slice(1).map((col) => (
-                  <div key={col.key} className="flex items-center justify-center px-1 py-1.5">
-                    {col.key === "pctFcr" ? (
-                      <FcrBadge value={row[col.key]} />
-                    ) : (
-                      <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 tabular-nums">
-                        {Number(row[col.key]).toLocaleString("id-ID")}
-                      </span>
-                    )}
-                  </div>
-                ))}
+                {columns.slice(1).map((col) => {
+                  const value = row[col.key] ?? (col.key === "pctFcr" ? "0" : 0);
+                  return (
+                    <div key={col.key} className="flex items-center justify-center px-1 py-1.5">
+                      {col.key === "pctFcr" ? (
+                        <FcrBadge value={String(value)} />
+                      ) : (
+                        <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 tabular-nums">
+                          {Number(value).toLocaleString("id-ID")}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             ))}
           </div>
@@ -156,12 +159,32 @@ export function ChannelColumn({
   }
 
   const slaNum = parseFloat(sla);
-  const slaColor =
-    slaNum >= 100
-      ? "text-emerald-500 dark:text-emerald-400"
-      : slaNum >= 80
-      ? "text-amber-500 dark:text-amber-400"
-      : "text-rose-500 dark:text-rose-400";
+  const isRed = slaNum < 75;
+  const isYellow = slaNum >= 75 && slaNum <= 82;
+
+  const slaColor = isRed
+    ? "text-rose-500 dark:text-rose-400"
+    : isYellow
+    ? "text-amber-500 dark:text-amber-400"
+    : "text-emerald-500 dark:text-emerald-400";
+
+  const slaBoxBgClass = isRed
+    ? "bg-rose-50 dark:bg-rose-950/25 border-rose-100/80 dark:border-rose-800/30"
+    : isYellow
+    ? "bg-amber-50 dark:bg-amber-950/25 border-amber-100/80 dark:border-amber-800/30"
+    : "bg-emerald-50 dark:bg-emerald-950/25 border-emerald-100/80 dark:border-emerald-800/30";
+
+  const slaLabelClass = isRed
+    ? "text-rose-600/80 dark:text-rose-500"
+    : isYellow
+    ? "text-amber-600/80 dark:text-amber-500"
+    : "text-emerald-600/80 dark:text-emerald-500";
+
+  const slaIndicatorBgClass = isRed
+    ? "bg-rose-500 shadow-[0_0_5px_2px_rgba(244,63,94,0.5)]"
+    : isYellow
+    ? "bg-amber-500 shadow-[0_0_5px_2px_rgba(245,158,11,0.5)]"
+    : "bg-emerald-500 shadow-[0_0_5px_2px_rgba(16,185,129,0.5)]";
 
   // ─── REAL CONTENT ───
   return (
@@ -187,10 +210,10 @@ export function ChannelColumn({
       <div className="grid grid-cols-3 gap-1.5 px-3 pt-0.5">
 
         {/* SLA */}
-        <div className="group/m flex flex-col items-center justify-center gap-0.5 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/25 border border-emerald-100/80 dark:border-emerald-800/30 hover:-translate-y-0.5 transition-transform duration-200 cursor-default">
+        <div className={cn("group/m flex flex-col items-center justify-center gap-0.5 py-2 rounded-xl border hover:-translate-y-0.5 transition-transform duration-200 cursor-default", slaBoxBgClass)}>
           <div className="flex items-center gap-1">
-            <span className="w-1 h-1 rounded-full bg-emerald-500 shadow-[0_0_5px_2px_rgba(16,185,129,0.5)] animate-pulse" />
-            <span className="text-[7.5px] font-black tracking-[0.2em] uppercase text-emerald-600/80 dark:text-emerald-500">SLA</span>
+            <span className={cn("w-1 h-1 rounded-full animate-pulse", slaIndicatorBgClass)} />
+            <span className={cn("text-[7.5px] font-black tracking-[0.2em] uppercase", slaLabelClass)}>SLA</span>
           </div>
           <span className={cn("text-[13px] font-black leading-none tabular-nums", slaColor)}>
             {sla}

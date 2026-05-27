@@ -16,6 +16,7 @@ export interface Priority {
   pareto: number;
   roaming: number;
   extra: number;
+  cc: number;
 }
 
 export type PriorityType = 'roaming' | 'extra' | 'vip' | 'pareto' | 'urgent' | 'cc';
@@ -43,7 +44,6 @@ export interface PriorityTicketResponse {
 }
 
 export interface CsatScore {
-  date: string;
   totalsurvey: number;
   totaldijawab: number;
   totaljawaban45: number;
@@ -66,6 +66,8 @@ export interface HourlyTrend {
 export interface TopItem {
   name: string;
   total: number;
+  ticket?: number;
+  pctFcr?: string;
 }
 
 export interface ChannelData {

@@ -207,6 +207,177 @@
   pointer-events: none;
 }
 
+/* Tiptap Editor Styling */
+.tiptap-editor .ProseMirror {
+  outline: none;
+}
+
+.tiptap-editor .ProseMirror p {
+  margin-bottom: 1rem;
+}
+
+/* Respect TipTap saved alignment without inline styles (CSP-safe) */
+.tiptap-editor .ProseMirror [data-text-align="left"],
+.editorial-prose [data-text-align="left"] {
+  text-align: left;
+}
+.tiptap-editor .ProseMirror [data-text-align="center"],
+.editorial-prose [data-text-align="center"] {
+  text-align: center;
+}
+.tiptap-editor .ProseMirror [data-text-align="right"],
+.editorial-prose [data-text-align="right"] {
+  text-align: right;
+}
+.tiptap-editor .ProseMirror [data-text-align="justify"],
+.editorial-prose [data-text-align="justify"] {
+  text-align: justify;
+}
+
+/* Image width presets saved as data attributes */
+.tiptap-editor .ProseMirror img[data-width="33%"],
+.editorial-prose img[data-width="33%"] {
+  width: 33%;
+}
+.tiptap-editor .ProseMirror img[data-width="50%"],
+.editorial-prose img[data-width="50%"] {
+  width: 50%;
+}
+.tiptap-editor .ProseMirror img[data-width="75%"],
+.editorial-prose img[data-width="75%"] {
+  width: 75%;
+}
+.tiptap-editor .ProseMirror img[data-width="100%"],
+.editorial-prose img[data-width="100%"] {
+  width: 100%;
+}
+
+.tiptap-editor .ProseMirror img[data-width],
+.editorial-prose img[data-width] {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Image alignment saved as data attributes */
+.tiptap-editor .ProseMirror img[data-align="left"],
+.editorial-prose img[data-align="left"] {
+  margin: 0 auto 0 0;
+}
+.tiptap-editor .ProseMirror img[data-align="center"],
+.editorial-prose img[data-align="center"] {
+  margin: 0 auto;
+}
+.tiptap-editor .ProseMirror img[data-align="right"],
+.editorial-prose img[data-align="right"] {
+  margin: 0 0 0 auto;
+}
+
+.tiptap-editor .ProseMirror h1 {
+  font-size: 2.25rem !important;
+  font-weight: 800 !important;
+  color: #0f172a !important;
+  letter-spacing: -0.025em;
+  margin-top: 2rem !important;
+  margin-bottom: 1rem !important;
+  display: block !important;
+}
+
+:is(.dark) .tiptap-editor .ProseMirror h1 {
+  color: #f1f5f9 !important;
+}
+
+.tiptap-editor .ProseMirror h2 {
+  font-size: 1.75rem !important;
+  font-weight: 800 !important;
+  color: #0f172a !important;
+  letter-spacing: -0.025em;
+  margin-top: 1.75rem !important;
+  margin-bottom: 0.75rem !important;
+  display: block !important;
+  border-bottom: 2px solid #e2e8f0 !important;
+  padding-bottom: 0.5rem !important;
+}
+
+:is(.dark) .tiptap-editor .ProseMirror h2 {
+  color: #f1f5f9 !important;
+  border-bottom: 2px solid #1e293b !important;
+}
+
+.tiptap-editor .ProseMirror h3 {
+  font-size: 1.35rem !important;
+  font-weight: 800 !important;
+  color: #0f172a !important;
+  letter-spacing: -0.025em;
+  margin-top: 1.5rem !important;
+  margin-bottom: 0.5rem !important;
+  display: block !important;
+}
+
+:is(.dark) .tiptap-editor .ProseMirror h3 {
+  color: #f1f5f9 !important;
+}
+
+.tiptap-editor .ProseMirror blockquote {
+  border-left: 4px solid #6366f1;
+  background-color: rgba(99, 102, 241, 0.04);
+  padding: 1rem 1.5rem;
+  border-radius: 0 12px 12px 0;
+  font-style: italic;
+  color: #e2e8f0;
+  margin: 1.5rem 0;
+}
+
+.tiptap-editor .ProseMirror ul,
+.tiptap-editor .ProseMirror ol {
+  margin: 1rem 0 !important;
+  padding-left: 2rem !important;
+  display: block !important;
+}
+
+.tiptap-editor .ProseMirror ul {
+  list-style: disc !important;
+  list-style-type: disc !important;
+  list-style-position: outside !important;
+}
+
+.tiptap-editor .ProseMirror ol {
+  list-style: decimal !important;
+  list-style-type: decimal !important;
+  list-style-position: outside !important;
+}
+
+.tiptap-editor .ProseMirror li {
+  margin-bottom: 0.25rem !important;
+  display: list-item !important;
+  list-style: inherit !important;
+}
+
+.tiptap-editor .ProseMirror pre {
+  background-color: #020617 !important;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 1rem;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+}
+
+.tiptap-editor .ProseMirror code {
+  font-family: monospace;
+  color: #f43f5e;
+  background-color: rgba(244, 63, 94, 0.06);
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 0.85em;
+}
+
+.tiptap-editor .ProseMirror pre code {
+  background-color: transparent;
+  color: #e2e8f0;
+  padding: 0;
+  font-size: 0.9em;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -215,3 +386,302 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* ===== Editorial Rich Text Styling ===== */
+.editorial-prose {
+  line-height: 1.8;
+  color: #334155;
+}
+:is(.dark) .editorial-prose {
+  color: #cbd5e1;
+}
+.editorial-prose p {
+  margin-bottom: 1.5rem;
+  font-size: 1.05rem;
+}
+
+/* Foolproof Editorial Headings Styling (Directly applies typography, sizes, weights, and colors) */
+.editorial-prose h1,
+.editorial-prose h2,
+.editorial-prose h3 {
+  font-weight: 850 !important;
+  letter-spacing: -0.025em !important;
+  display: block !important;
+  line-height: 1.3 !important;
+}
+
+.editorial-prose h1 *,
+.editorial-prose h2 *,
+.editorial-prose h3 * {
+  font-weight: 850 !important;
+  letter-spacing: -0.025em !important;
+  line-height: 1.3 !important;
+}
+
+.editorial-prose h1,
+.editorial-prose h1 * {
+  font-size: 2.25rem !important;
+  margin-top: 2.5rem !important;
+  margin-bottom: 1.25rem !important;
+  color: #0f172a !important;
+}
+
+.editorial-prose h2 {
+  font-size: 1.75rem !important;
+  margin-top: 2rem !important;
+  margin-bottom: 1rem !important;
+  color: #0f172a !important;
+  border-bottom: 2px solid #e2e8f0 !important;
+  padding-bottom: 0.5rem !important;
+}
+
+.editorial-prose h2 * {
+  font-size: 1.75rem !important;
+  color: #0f172a !important;
+}
+
+.editorial-prose h3,
+.editorial-prose h3 * {
+  font-size: 1.35rem !important;
+  margin-top: 1.75rem !important;
+  margin-bottom: 0.75rem !important;
+  color: #0f172a !important;
+}
+
+/* Dark Mode Headings (Safe selector to bypass Tailwind v4 variant processor stripping) */
+:is(.dark) .editorial-prose h1,
+:is(.dark) .editorial-prose h1 *,
+:is(.dark) .editorial-prose h2,
+:is(.dark) .editorial-prose h2 *,
+:is(.dark) .editorial-prose h3,
+:is(.dark) .editorial-prose h3 * {
+  color: #f1f5f9 !important;
+}
+
+:is(.dark) .editorial-prose h2 {
+  border-bottom: 2px solid #1e293b !important;
+}
+
+/* Table styling */
+.editorial-prose table {
+  width: 100% !important;
+  border-collapse: collapse;
+  margin: 2.5rem 0;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+  background-color: rgba(248, 250, 252, 0.5);
+}
+:is(.dark) .editorial-prose table {
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+  background-color: rgba(2, 6, 23, 0.2);
+}
+.editorial-prose th, .editorial-prose td {
+  padding: 14px 18px;
+  border: 1px solid rgba(0,0,0,0.05);
+  font-size: 0.95rem;
+}
+:is(.dark) .editorial-prose th, :is(.dark) .editorial-prose td {
+  border: 1px solid rgba(255,255,255,0.05);
+}
+.editorial-prose th {
+  background-color: rgba(99, 102, 241, 0.05);
+  font-weight: 700;
+  text-align: left;
+  color: #4f46e5;
+}
+:is(.dark) .editorial-prose th {
+  color: #818cf8;
+}
+.editorial-prose tr:hover {
+  background-color: rgba(0,0,0,0.01);
+}
+:is(.dark) .editorial-prose tr:hover {
+  background-color: rgba(255,255,255,0.015);
+}
+
+/* Blockquote styling */
+.editorial-prose blockquote {
+  border-left: 4px solid #6366f1;
+  background-color: rgba(99, 102, 241, 0.03);
+  padding: 1.5rem 2rem;
+  border-radius: 0 20px 20px 0;
+  font-style: italic;
+  color: #334155;
+  margin: 2rem 0;
+}
+:is(.dark) .editorial-prose blockquote {
+  background-color: rgba(99, 102, 241, 0.04);
+  color: #e2e8f0;
+}
+
+/* Image styling */
+.editorial-prose img {
+  border-radius: 24px;
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+  margin: 3rem auto;
+  display: block;
+  max-width: 100%;
+}
+.editorial-prose img.align-left {
+  float: left;
+  margin: 1rem 1.5rem 1.5rem 0;
+  display: inline-block;
+}
+.editorial-prose img.align-right {
+  float: right;
+  margin: 1rem 0 1.5rem 1.5rem;
+  display: inline-block;
+}
+.editorial-prose img.align-center {
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+}
+:is(.dark) .editorial-prose img {
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+/* Code block styling */
+.editorial-prose pre {
+  background-color: #f8fafc !important;
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 20px;
+  padding: 1.5rem;
+  margin: 2rem 0;
+  overflow-x: auto;
+}
+:is(.dark) .editorial-prose pre {
+  background-color: #020617 !important;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.editorial-prose code {
+  font-family: var(--font-geist-mono), monospace;
+  color: #e11d48;
+  background-color: rgba(244, 63, 94, 0.06);
+  padding: 3px 6px;
+  border-radius: 6px;
+  font-size: 0.85em;
+}
+:is(.dark) .editorial-prose code {
+  color: #f43f5e;
+}
+.editorial-prose pre code {
+  background-color: transparent;
+  color: #334155;
+  padding: 0;
+  font-size: 0.9em;
+}
+:is(.dark) .editorial-prose pre code {
+  color: #e2e8f0;
+}
+
+/* Lists styling */
+.editorial-prose ul, .editorial-prose ol {
+  margin: 1.5rem 0 !important;
+  padding-left: 2rem !important;
+  display: block !important;
+}
+.editorial-prose ul {
+  list-style: disc !important;
+  list-style-type: disc !important;
+  list-style-position: outside !important;
+}
+.editorial-prose ol {
+  list-style: decimal !important;
+  list-style-type: decimal !important;
+  list-style-position: outside !important;
+}
+.editorial-prose li {
+  margin-bottom: 0.5rem !important;
+  display: list-item !important;
+  list-style: inherit !important;
+}
+
+/* Custom resets to enable formatting tags visually in canvas and article views */
+.tiptap-editor .ProseMirror u,
+.editorial-prose u {
+  text-decoration: underline !important;
+}
+
+/* Respect TipTap saved font families without inline styles (CSP-safe) */
+.tiptap-editor .ProseMirror [data-font-family="Arial, sans-serif"],
+.editorial-prose [data-font-family="Arial, sans-serif"] {
+  font-family: Arial, sans-serif !important;
+}
+.tiptap-editor .ProseMirror [data-font-family="'Courier New', Courier, monospace"],
+.tiptap-editor .ProseMirror [data-font-family="Courier New, Courier, monospace"],
+.editorial-prose [data-font-family="'Courier New', Courier, monospace"],
+.editorial-prose [data-font-family="Courier New, Courier, monospace"] {
+  font-family: 'Courier New', Courier, monospace !important;
+}
+.tiptap-editor .ProseMirror [data-font-family="Georgia, serif"],
+.editorial-prose [data-font-family="Georgia, serif"] {
+  font-family: Georgia, serif !important;
+}
+.tiptap-editor .ProseMirror [data-font-family="Helvetica, Arial, sans-serif"],
+.editorial-prose [data-font-family="Helvetica, Arial, sans-serif"] {
+  font-family: Helvetica, Arial, sans-serif !important;
+}
+.tiptap-editor .ProseMirror [data-font-family="Impact, Charcoal, sans-serif"],
+.editorial-prose [data-font-family="Impact, Charcoal, sans-serif"] {
+  font-family: Impact, Charcoal, sans-serif !important;
+}
+.tiptap-editor .ProseMirror [data-font-family="'Times New Roman', Times, serif"],
+.tiptap-editor .ProseMirror [data-font-family="Times New Roman, Times, serif"],
+.editorial-prose [data-font-family="'Times New Roman', Times, serif"],
+.editorial-prose [data-font-family="Times New Roman, Times, serif"] {
+  font-family: 'Times New Roman', Times, serif !important;
+}
+.tiptap-editor .ProseMirror [data-font-family="Verdana, Geneva, sans-serif"],
+.editorial-prose [data-font-family="Verdana, Geneva, sans-serif"] {
+  font-family: Verdana, Geneva, sans-serif !important;
+}
+
+/* Respect TipTap saved colors without inline styles (CSP-safe) */
+.tiptap-editor .ProseMirror [data-text-color="#000000"],
+.editorial-prose [data-text-color="#000000"] {
+  color: #000000 !important;
+}
+.tiptap-editor .ProseMirror [data-text-color="#334155"],
+.editorial-prose [data-text-color="#334155"] {
+  color: #334155 !important;
+}
+.tiptap-editor .ProseMirror [data-text-color="#ef4444"],
+.editorial-prose [data-text-color="#ef4444"] {
+  color: #ef4444 !important;
+}
+.tiptap-editor .ProseMirror [data-text-color="#f97316"],
+.editorial-prose [data-text-color="#f97316"] {
+  color: #f97316 !important;
+}
+.tiptap-editor .ProseMirror [data-text-color="#eab308"],
+.editorial-prose [data-text-color="#eab308"] {
+  color: #eab308 !important;
+}
+.tiptap-editor .ProseMirror [data-text-color="#22c55e"],
+.editorial-prose [data-text-color="#22c55e"] {
+  color: #22c55e !important;
+}
+.tiptap-editor .ProseMirror [data-text-color="#3b82f6"],
+.editorial-prose [data-text-color="#3b82f6"] {
+  color: #3b82f6 !important;
+}
+.tiptap-editor .ProseMirror [data-text-color="#a855f7"],
+.editorial-prose [data-text-color="#a855f7"] {
+  color: #a855f7 !important;
+}
+.tiptap-editor .ProseMirror [data-text-color="#ec4899"],
+.editorial-prose [data-text-color="#ec4899"] {
+  color: #ec4899 !important;
+}
+.tiptap-editor .ProseMirror [data-text-color="#6366f1"],
+.editorial-prose [data-text-color="#6366f1"] {
+  color: #6366f1 !important;
+}
+
+

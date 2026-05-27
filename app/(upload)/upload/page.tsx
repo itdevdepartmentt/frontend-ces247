@@ -13,6 +13,7 @@ import {
   Clock,
   CalendarIcon,
   RefreshCw,
+  Download,
 } from "lucide-react";
 import {
   Card,
@@ -202,13 +203,29 @@ export default function UploadPage() {
   return (
     <div className="min-h-screen w-full dark:bg-slate-950 mt-12 lg:mt-0 p-6 dark:text-slate-200">
       <div className="mx-auto space-y-6">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">
-            Report Management
-          </h2>
-          <p className="dark:text-slate-400 mt-2">
-            Upload and process system reports to the processing queue.
-          </p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight">
+              Report Management
+            </h2>
+            <p className="dark:text-slate-400 mt-2">
+              Upload and process system reports to the processing queue.
+            </p>
+          </div>
+          <Button
+            asChild
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-medium shadow-md shadow-blue-500/20 hover:shadow-blue-500/30 transition-all duration-300 hover:-translate-y-0.5 shrink-0 self-start sm:self-center"
+          >
+            <a
+              href="https://drive.google.com/drive/folders/1aLST1pakPfiGUQ_Pww5I7CQiNw1bMCDv"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2"
+            >
+              <Download className="h-4 w-4" />
+              <span>Download Template Upload</span>
+            </a>
+          </Button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

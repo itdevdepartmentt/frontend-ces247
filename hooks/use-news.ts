@@ -8,12 +8,20 @@ export interface NewsArticle {
   content: any; // TipTap JSON
   summary: string;
   authorName: string;
+  category?: string;
+  status?: string;
   createdAt: string;
   updatedAt: string;
 }
 // hooks/useNews.ts
 export function useNews(
-  params?: { page?: number; limit?: number; search?: string },
+  params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    category?: string;
+    status?: string;
+  },
   id?: string,
 ) {
   const queryClient = useQueryClient();
@@ -22,11 +30,11 @@ export function useNews(
   const listQuery = useQuery({
     queryKey: ["news", params],
     queryFn: async () => {
-      const { data } = await api.get<NewsArticle[]>("/news", { params });
-      return data as unknown as {
+      const { data } = await api.get<{
         data: NewsArticle[];
         meta: { total: number; lastPage: number; page: number };
-      };
+      }>("/news", { params });
+      return data;
     },
   });
 
@@ -63,7 +71,7 @@ export function useNews(
     mutationFn: async (file: File) => {
       const formData = new FormData();
       formData.append("file", file);
-      const { data } = await api.post<{ url: string; name: string }>(
+      const { data } = await api.post<{ url: string; name: string; extractedText?: string }>(
         "/news/upload",
         formData,
         { headers: { "Content-Type": "multipart/form-data" } },

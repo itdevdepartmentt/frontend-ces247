@@ -60,6 +60,30 @@ export function TopRow({ summary }: TopRowProps) {
   const slaDiff = parseFloat(todaySla) - parseFloat(yesterdaySla);
   const slaDirection = slaDiff >= 0 ? "up" : "down";
 
+  const currentSlaVal = summary ? parseFloat(summary.slaPercentage) : 0;
+  const isRed = summary && currentSlaVal < 75;
+  const isYellow = summary && currentSlaVal >= 75 && currentSlaVal <= 82;
+
+  const cardSlaBgClass = isRed
+    ? "bg-red-100/50 border-red-200 dark:bg-red-900/20 dark:border-red-900/50"
+    : isYellow
+    ? "bg-amber-100/50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-900/50"
+    : "bg-green-100/50 border-green-200 dark:bg-green-900/20 dark:border-green-900/50";
+
+  const cardSlaTextClass = isRed
+    ? "text-red-600 dark:text-red-500"
+    : isYellow
+    ? "text-amber-600 dark:text-amber-500"
+    : "text-green-600 dark:text-green-500";
+
+  const cardSlaIcon = isRed ? (
+    <TrendingDown className="h-6 w-6 text-red-500" />
+  ) : isYellow ? (
+    <AlertCircle className="h-6 w-6 text-amber-500" />
+  ) : (
+    <CheckCircle className="h-6 w-6 text-green-500" />
+  );
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-6 2xl:grid-cols-32 gap-4 mb-4">
       <MetricCard
@@ -67,18 +91,9 @@ export function TopRow({ summary }: TopRowProps) {
         value={summary ? `${summary.slaPercentage}%` : "..."}
         subtitle="Achieved"
         trend={{ value: `${slaDiff.toFixed(2)}%`, direction: slaDirection }}
-        icon={<CheckCircle className="h-6 w-6 text-green-500" />}
-        className={`
-        /* Light Mode: Fresh, soft green */
-        bg-green-100/50 border-green-200 
-        
-        /* Dark Mode: Deep, glowing green */
-        dark:bg-green-900/20 dark:border-green-900/50 
-        
-        lg:col-span-1 2xl:col-span-4 transition-colors
-      `}
-        /* Text remains green-500 or green-600 for better contrast on light */
-        contentClassName="text-green-600 dark:text-green-500"
+        icon={cardSlaIcon}
+        className={`${cardSlaBgClass} lg:col-span-1 2xl:col-span-4 transition-colors`}
+        contentClassName={cardSlaTextClass}
       />
 
       <Card className="dark:bg-slate-800 dark:border-slate-700 col-span-1 lg:col-span-2 2xl:col-span-7">
@@ -236,7 +251,7 @@ export function TopRow({ summary }: TopRowProps) {
         />
         <CsatMetricCard
           title="CSAT"
-          value={summary?.csatScore?.scorecsat.toFixed(2) ?? 0}
+          value={(summary?.csatScore?.scorecsat ?? 0).toFixed(2)}
           showChart={true}
           chartColor="#10b981" // emerald-500
           trend={{ value: "12%", direction: "up" }}

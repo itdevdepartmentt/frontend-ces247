@@ -37,7 +37,7 @@ export default async function RootLayout({
 }>) {
   const nonce = (await headers()).get("x-nonce") || "";
   return (
-    <html lang="en" nonce={nonce}>
+    <html lang="en" nonce={nonce} suppressHydrationWarning>
       {/* Passing nonce to Head ensures inline styles are allowed without 'unsafe-inline' */}
       <head />
       <body>

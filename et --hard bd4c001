@@ -1,0 +1,65 @@
+[33md6fab21[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mupdate-fcr[m[33m)[m Merge remote-tracking branch 'origin/add-dashboard-fcr' into update-fcr
+[33m1ddafd8[m penambahan fitur pop up fcr
+[33ma361cfd[m[33m ([m[1;31morigin/add-dashboard-fcr[m[33m)[m feat: implement dashboard fcr
+[33m17d04a0[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m style: change news header to sticky
+[33m956ed86[m feat: implement download page
+[33mc324c3e[m feat: add delete all feature and bulk upload from csv
+[33m2ee08fb[m style: change lookup management dark theme
+[33m304c897[m[33m ([m[1;31morigin/add-lookup-data-table[m[33m)[m feat: implement lookup management feature
+[33mbe73f3c[m fix: change baseURL for api call
+[33m848f95d[m Merge remote-tracking branch 'origin/implement-reverse-proxy-using-traefik'
+[33m0172c1b[m feat: add icon and image of CES
+[33mb062c61[m fix: eskalasi act_name and unit_name
+[33m682bbc9[m fix: change channel name
+[33m71900af[m feat: add near sla and over sla information
+[33m42e599c[m[33m ([m[1;31morigin/implement-reverse-proxy-using-traefik[m[33m)[m feat: change api url for reverse proxy (traefik)
+[33m7f0dfca[m style: change sla percentage color text
+[33m095f19b[m style: change responsivenes for news form
+[33ma71bb0a[m[33m ([m[1;31morigin/add-white-theme[m[33m)[m feat: add white theme for the dashboard application
+[33m059cbd0[m style: change margin for hourly trend
+[33mf0cc9df[m fix: change ticket per 3 hour to per hour
+[33m99701ae[m fix: progress bar for sla kip
+[33m0b47eb1[m feat: implement news page
+[33m1dcf1bd[m fix: proxy url connect-src
+[33md4c48e8[m fix: add style-src nonce
+[33m2fd3d5c[m feat: set csp header and other header for security
+[33m8723a28[m style: change incident card to scrollable when description too long
+[33mb3ef17f[m style: change scrollbar style
+[33mba8718f[m style: improve mobile responsiveness
+[33m5615abc[m perf: change logic to show sync data faster on the dashboard
+[33me1afe65[m feat: implement incident report
+[33mbfcde52[m feat: implement last sync date
+[33m3f71490[m fix: refetch escalation data when dateRange change
+[33mefe4a40[m feat: implement priority summary
+[33m12e0be5[m feat: implement csat score
+[33m3dc8f92[m feat: implement escalation summary
+[33m9ac477e[m fix: responsive mobile view for upload page
+[33m0b98b8a[m hotfix: change title
+[33mf8d9a78[m fix: display 1 month on mobile view and resizing product dads detail
+[33mf604546[m feat: implement sync daily oca button
+[33mb306323[m feat: implement manual report sync
+[33m521bd96[m feat: implement upload report functionality
+[33mfe46c8c[m fix: change access control for incident report
+[33mb538c98[m feat: change accessibility for register to admin
+[33m00ca09d[m fix: implement top kips and vip corporate
+[33mffcf0f0[m fix: sla percentage difference
+[33m6ef5e78[m fix: apply skeleton loading
+[33m4bd550b[m refactor: separate company kips and corporate detail data query
+[33m1f3f8a3[m feat: add incident report
+[33mc35578d[m feat: implement incident report
+[33m38ae419[m fix: fix the pagination
+[33m79e4604[m fix: difference between ticket created today and lastday
+[33m519a866[m fix: adjust date filter range to match utc timezone
+[33mbcf930e[m fix: change sidebar icon
+[33m029b7b5[m refactor: pretify
+[33m46e18f4[m fix: difference between ticket created today and lastday
+[33mee21c75[m fix: adjust date filter range to match utc timezone
+[33m637d750[m hotfix: left column styling for mobile
+[33m7a1e8cd[m feat: implement daily and hourly trend
+[33m3aad4b3[m feat: implement corporate kips
+[33m202044c[m feat: implement product detail page
+[33mcfd466f[m feat: implement corporate detail page
+[33m0082095[m feat: add breakdown channel page
+[33me0f4273[m fix: sidebar for mobile view
+[33m5ae2f14[m feat: implement first page dashboard
+[33m7f3268c[m first commit

@@ -10,16 +10,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import {
-  Calendar,
-  ChevronLeft,
-  ChevronRight,
-  Edit,
-  Plus,
-  Search,
-  Trash2,
-  User2,
+import { 
+  ChevronLeft, 
+  ChevronRight, 
+  Edit, 
+  Plus, 
+  Search, 
+  Trash2, 
+  Newspaper, 
+  Info, 
+  FileQuestion, 
+  AlertCircle 
 } from "lucide-react";
 import { useNews } from "@/hooks/use-news";
 import { useAuth } from "@/hooks/use-auth";
@@ -28,61 +29,78 @@ import { format } from "date-fns";
 import { Input } from "@/components/ui/input";
 import React from "react";
 import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
+
+// Recursively find the first image node in TipTap JSON
+const extractFirstImage = (content: any): string | null => {
+  if (!content) return null;
+  if (content.type === "image" && content.attrs?.src) {
+    return content.attrs.src;
+  }
+  if (Array.isArray(content.content)) {
+    for (const child of content.content) {
+      const img = extractFirstImage(child);
+      if (img) return img;
+    }
+  }
+  return null;
+};
 
 export default function NewsPage({ isAdmin }: { isAdmin: boolean }) {
   const { user } = useAuth(true);
   const [input, setInput] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(6); // Default 6 is better for large card layouts
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [isViewingDrafts, setIsViewingDrafts] = useState(false);
 
   const [selectedNews, setSelectedNews] = useState<any>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  // Determine status and category filters based on the selected tab
+  const currentStatus = isViewingDrafts ? "DRAFT" : "PUBLISHED";
+  const currentCategory = selectedCategory !== "All" ? selectedCategory : undefined;
+
   const { news, meta, createNews, updateNews, deleteNews, isLoading } = useNews(
     {
       page,
-      limit: 10,
-      search: debouncedSearch,
+      limit,
+      search: debouncedSearch.trim(), // Trimming spaces on client query
+      category: currentCategory,
+      status: currentStatus,
     },
   );
   const totalPages = meta ? meta.lastPage : 1;
   const currentPage = meta ? meta.page : 1;
 
-  // --- 1. Smart Pagination Logic ---
+  // --- Smart Pagination Logic ---
   const getPaginationItems = () => {
     const items: (number | string)[] = [];
-
-    // Always show fewer items on mobile (optional tweak)
     const siblingCount = 1;
 
-    // Case: Total pages are small (<= 7), just show them all
     if (totalPages <= 7) {
       return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
 
-    // Always include first page
     items.push(1);
 
-    // Calculate start and end of "window" around current page
     const startPage = Math.max(2, currentPage - siblingCount);
     const endPage = Math.min(totalPages - 1, currentPage + siblingCount);
 
-    // Add left ellipsis if needed
     if (startPage > 2) {
-      items.push("..."); // represent gap
+      items.push("...");
     }
 
-    // Add middle pages
     for (let i = startPage; i <= endPage; i++) {
       items.push(i);
     }
 
-    // Add right ellipsis if needed
     if (endPage < totalPages - 1) {
-      items.push("..."); // represent gap
+      items.push("...");
     }
 
-    // Always include last page
     if (totalPages > 1) {
       items.push(totalPages);
     }
@@ -103,13 +121,31 @@ export default function NewsPage({ isAdmin }: { isAdmin: boolean }) {
   };
 
   const handleSubmit = async (payload: any) => {
-    if (selectedNews) {
-      await updateNews({ id: selectedNews.id, ...payload });
-    } else {
-      await createNews(payload);
+    try {
+      const isDraft = payload.status === "DRAFT";
+      if (selectedNews) {
+        await updateNews({ id: selectedNews.id, ...payload });
+        toast.success(isDraft ? "Draft berhasil diperbarui" : "Berita berhasil diperbarui");
+      } else {
+        await createNews(payload);
+        toast.success(isDraft ? "Draft berhasil disimpan" : "Berita berhasil dipublikasikan");
+      }
+      setIsDialogOpen(false);
+      setSelectedNews(null);
+    } catch (error) {
+      toast.error("Terjadi kesalahan saat menyimpan berita.");
     }
-    setIsDialogOpen(false);
-    setSelectedNews(null);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (window.confirm("Apakah Anda yakin ingin menghapus berita ini?")) {
+      try {
+        await deleteNews(id);
+        toast.success("Berita berhasil dihapus");
+      } catch (error) {
+        toast.error("Terjadi kesalahan saat menghapus berita.");
+      }
+    }
   };
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -117,7 +153,17 @@ export default function NewsPage({ isAdmin }: { isAdmin: boolean }) {
     setPage(1); // Reset to page 1 on new search
   };
 
-  // 3. Debounce Logic: Wait 500ms after typing stops before updating query
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategory(category);
+    setPage(1);
+  };
+
+  const handleLimitChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setLimit(Number(e.target.value));
+    setPage(1);
+  };
+
+  // Debounce search query to prevent excessive backend stress
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(input);
@@ -127,132 +173,257 @@ export default function NewsPage({ isAdmin }: { isAdmin: boolean }) {
   }, [input]);
 
   const router = useRouter();
+  const categoryOptions = ["All", "Informasi", "Permintaan", "Komplain"];
 
   return (
-    <div className="p-10 space-y-6 mt-12 md:mt-0">
-      <div className="flex flex-col md:flex-row justify-between md:items-center">
-        <h1 className="text-3xl font-bold">Latest News</h1>
+    <div className="p-6 md:p-10 space-y-8 mt-12 md:mt-0 select-none">
+      
+      {/* Premium Sleek Header */}
+      <div className="flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
+        <div>
+          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-transparent dark:bg-gradient-to-r dark:from-slate-100 dark:via-slate-200 dark:to-indigo-300 dark:bg-clip-text tracking-tight">
+            Berita dan Informasi
+          </h1>
+        </div>
 
-        <div className="flex w-full mt-4 md:w-auto items-center gap-2">
-          {/* Search Bar */}
-          <div className="relative w-full md:w-64">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          
+          {/* Glowing Search Bar */}
+          <div className="relative w-full sm:w-72 group">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-slate-500 group-focus-within:text-indigo-400 transition-colors" />
             <Input
-              placeholder="Search news..."
-              className="pl-8 dark:bg-slate-900 dark:border-slate-700"
+              placeholder="Cari berita..."
+              className="pl-9 pr-8 py-5 rounded-2xl bg-white/80 dark:bg-slate-950/45 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-600 focus-visible:ring-1 focus-visible:ring-indigo-500/50 focus-visible:border-indigo-500/50 shadow-sm dark:shadow-inner transition-all duration-200"
               value={input}
               onChange={handleSearch}
             />
+            {input && (
+              <span className="absolute right-3 top-3 text-[10px] bg-slate-100 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 px-1.5 py-0.5 rounded font-mono">
+                ESC
+              </span>
+            )}
           </div>
 
+          {/* Rows Limit Controls */}
+          <div className="flex items-center gap-2.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-950/45 px-3 py-2 shadow-sm dark:shadow-inner">
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Baris</span>
+            <select
+              value={limit}
+              onChange={handleLimitChange}
+              className="bg-transparent text-xs font-bold text-slate-700 dark:text-slate-300 outline-none cursor-pointer pr-1"
+            >
+              <option value={6} className="bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300">6 Baris</option>
+              <option value={10} className="bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300">10 Baris</option>
+              <option value={16} className="bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300">16 Baris</option>
+            </select>
+          </div>
+
+          {/* Create News Pop-Up (Admins Only) */}
           {user?.role === "ADMIN" && (
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <>
+              <Button
+                variant={isViewingDrafts ? "default" : "outline"}
+                className={cn(
+                  "rounded-2xl py-5 px-5 font-semibold transition-all duration-200 cursor-pointer shadow-sm border-slate-200 dark:border-slate-800",
+                  isViewingDrafts 
+                    ? "bg-amber-500 hover:bg-amber-600 text-white border-amber-500 shadow-amber-500/20" 
+                    : "bg-white/80 dark:bg-slate-950/45 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900"
+                )}
+                onClick={() => setIsViewingDrafts(!isViewingDrafts)}
+              >
+                <FileQuestion className="mr-1.5 h-4 w-4" /> 
+                {isViewingDrafts ? "Lihat Publikasi" : "Lihat Draft"}
+              </Button>
+
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button
-                  variant="outline"
-                  className="bg-slate-800 border-slate-700 hover:bg-slate-700 text-white transition-all"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl py-5 px-5 font-semibold shadow-lg shadow-indigo-900/20 hover:shadow-indigo-900/40 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
                   onClick={() => setSelectedNews(null)}
                 >
-                  <Plus className="mr-1 h-4 w-4" /> Create News
+                  <Plus className="mr-1.5 h-4 w-4" /> Tambah Berita
                 </Button>
               </DialogTrigger>
-              <DialogContent className="w-[95vw] max-w-sm sm:max-w-7xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>
-                    {selectedNews ? "Edit News" : "Create News"}
+              
+              {/* Jaw-dropping Premium Pop-Up Container */}
+              <DialogContent className="w-[98vw] sm:max-w-[96vw] lg:max-w-6xl rounded-[28px] border border-slate-200 dark:border-slate-800/80 bg-white/95 dark:bg-slate-950/98 backdrop-blur-md max-h-[92vh] overflow-y-auto p-5 md:p-8 shadow-[0_0_80px_rgba(99,102,241,0.08)] dark:shadow-[0_0_80px_rgba(99,102,241,0.16)]">
+                <DialogHeader className="border-b border-slate-100 dark:border-slate-900 pb-4 mb-4">
+                  <DialogTitle className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100 flex items-center gap-2.5">
+                    <div className="rounded-xl bg-indigo-500/10 p-2 text-indigo-650 dark:text-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.15)]">
+                      <Newspaper className="h-5 w-5" />
+                    </div>
+                    <span className="font-bold text-slate-900 dark:text-transparent dark:bg-gradient-to-r dark:from-slate-100 dark:to-indigo-200 dark:bg-clip-text">
+                      {selectedNews ? "Edit Berita Korporat" : "Buat Pengumuman Baru"}
+                    </span>
                   </DialogTitle>
                 </DialogHeader>
                 <NewsForm initialData={selectedNews} onSubmit={handleSubmit} />
               </DialogContent>
-            </Dialog>
+              </Dialog>
+            </>
           )}
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-1 2xl:grid-cols-2">
-        {news.map((item) => (
-          <Card key={item.id} className="relative dark:bg-slate-900">
-            <CardHeader>
-              <CardTitle className="text-xl md:text-2xl">
-                {item.title}
-              </CardTitle>
-              <div className="flex flex-row space-x-4">
-                <div className="flex flex-row items-center">
-                  <User2 className="mr-1 h-3 w-3" />
-                  <p className="text-sm text-muted-foreground">
-                    Posted By: {item.authorName}
-                  </p>
-                </div>
-                <div className="flex flex-row items-center">
-                  <Calendar className="mr-1 h-3 w-3" />
-                  <p className="text-sm text-muted-foreground">
-                    {format(item.createdAt, "yyyy-MM-dd HH:mm:ss")}
-                  </p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="flex flex-col h-full justify-between">
-              <p className="text-sm text-muted-foreground line-clamp-3">
-                {item.summary}
-              </p>
-
-              <div className="mt-4 flex gap-2">
-                {user?.role === "ADMIN" && (
-                  <>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setSelectedNews(item);
-                        setIsDialogOpen(true);
-                      }}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => deleteNews(item.id)}
-                      className="bg-red-600 hover:bg-red-700 text-white"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </>
-                )}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => router.push(`/news/${item.id}`)}
-                  className="bg-red-600 hover:bg-red-700 text-white"
-                >
-                  Read More
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      {/* Segmented Category Filter Toolbar */}
+      <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800/80 pb-4">
+        <div className="flex flex-wrap gap-1.5 rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-white/60 dark:bg-slate-950/40 p-1 backdrop-blur-sm shadow-sm dark:shadow-inner">
+          {categoryOptions.map((option) => (
+            <button
+              key={option}
+              onClick={() => handleCategoryChange(option)}
+              className={cn(
+                "rounded-xl px-4 py-2 text-xs font-semibold transition-all duration-200 cursor-pointer",
+                selectedCategory === option
+                  ? "bg-indigo-600 text-white shadow-lg shadow-indigo-950/30"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-900/60"
+              )}
+            >
+              {option}
+            </button>
+          ))}
+        </div>
       </div>
-      {/* Pagination Controls */}
-      {meta && (
-        <div className="mt-6 flex items-center justify-center gap-2 select-none">
-          <span className="text-sm font-bold dark:text-slate-200 mr-2">Page</span>
 
-          {/* Loop through the Smart Pagination Items */}
+      {/* Main Grid: Larger Cards (md:grid-cols-2 for massive aesthetic space) */}
+      <div className="grid gap-8 md:grid-cols-2">
+        {isLoading ? (
+          Array.from({ length: limit }).map((_, i) => (
+            <div key={i} className="rounded-3xl border border-slate-850 bg-slate-950/40 p-6 space-y-4">
+              <div className="flex justify-between items-start">
+                <div className="space-y-2 w-full">
+                  <Skeleton className="h-3 w-16 bg-slate-800" />
+                  <Skeleton className="h-7 w-[80%] bg-slate-800" />
+                </div>
+                <Skeleton className="h-3 w-20 bg-slate-800" />
+              </div>
+              <div className="space-y-2 pt-2">
+                <Skeleton className="h-4 w-full bg-slate-800" />
+                <Skeleton className="h-4 w-full bg-slate-800" />
+                <Skeleton className="h-4 w-[60%] bg-slate-800" />
+              </div>
+              <div className="flex justify-between items-center pt-4 border-t border-slate-900">
+                <Skeleton className="h-6 w-24 bg-slate-800" />
+                <Skeleton className="h-8 w-20 bg-slate-800" />
+              </div>
+            </div>
+          ))
+        ) : news.length === 0 ? (
+          <div className="col-span-full rounded-3xl border border-dashed border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20 p-12 text-center text-slate-450 dark:text-slate-500">
+            <Newspaper className="h-12 w-12 mx-auto text-slate-400 dark:text-slate-600 mb-3" />
+            <p className="text-base font-semibold text-slate-700 dark:text-slate-400">Tidak Ada Pengumuman</p>
+            <p className="text-xs text-slate-550 dark:text-slate-600 mt-1">
+              Tidak ada pengumuman yang cocok dengan pencarian kata kunci atau filter kategori Anda.
+            </p>
+          </div>
+        ) : (
+          news.map((item) => {
+            return (
+              <div 
+                key={item.id} 
+                onClick={() => router.push(`/news/${item.id}`)}
+                className="group relative overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-950/45 p-0 shadow-xl dark:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 hover:border-slate-300 dark:hover:border-slate-700/80 hover:shadow-indigo-950/5 dark:hover:shadow-indigo-950/15 cursor-pointer"
+              >
+                {/* Card Main Body */}
+                <div className="p-6 md:p-8 space-y-4">
+                  {/* Category & Status inline badges */}
+                  <div className="flex items-center gap-2">
+                    <span className={cn(
+                      "rounded-full border px-3.5 py-1 text-[10px] font-bold uppercase tracking-wider backdrop-blur-md shadow-lg",
+                      item.category === "Informasi" && "bg-emerald-500/10 border-emerald-500/30 text-emerald-400",
+                      item.category === "Permintaan" && "bg-blue-500/10 border-blue-500/30 text-blue-400",
+                      item.category === "Komplain" && "bg-rose-500/10 border-rose-500/30 text-rose-400",
+                      (!item.category || item.category === "All") && "bg-indigo-500/10 border-indigo-500/30 text-indigo-400"
+                    )}>
+                      {item.category || "Informasi"}
+                    </span>
+                    {item.status === "DRAFT" && (
+                      <span className="rounded-full border bg-amber-500/10 border-amber-500/30 text-amber-500 px-3.5 py-1 text-[10px] font-bold uppercase tracking-wider backdrop-blur-md shadow-lg">
+                        DRAFT
+                      </span>
+                    )}
+                  </div>
+
+                  <h2 className="text-xl md:text-2xl font-bold text-slate-850 dark:text-slate-100 leading-snug group-hover:text-indigo-650 dark:group-hover:text-white transition-colors line-clamp-2">
+                    {item.title}
+                  </h2>
+
+                  <p className="text-sm leading-relaxed text-slate-550 dark:text-slate-400 line-clamp-3">
+                    {item.summary}
+                  </p>
+
+                  <div className="h-px bg-slate-150 dark:bg-slate-900/80 my-4" />
+
+                  <div className="flex items-center justify-between gap-4 pt-2">
+                    {/* Author details with profile avatar badge */}
+                    <div className="flex items-center gap-3">
+                      <div className="h-9 w-9 rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-sm font-bold text-slate-700 dark:text-slate-300">
+                        {item.authorName?.charAt(0).toUpperCase() || "A"}
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{item.authorName || "Anonim"}</span>
+                        <span className="text-[10px] text-slate-450 dark:text-slate-505 font-medium mt-0.5">
+                          {item.createdAt ? format(new Date(item.createdAt), "yyyy-MM-dd HH:mm") : ""}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Highly responsive CTA Actions */}
+                    <div className="flex items-center gap-2">
+                      {user?.role === "ADMIN" && (
+                        <>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-9 w-9 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedNews(item);
+                              setIsDialogOpen(true);
+                            }}
+                          >
+                            <Edit className="h-4.5 w-4.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-9 w-9 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-rose-500 hover:text-rose-600 dark:hover:text-rose-450 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-colors"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDelete(item.id);
+                            }}
+                          >
+                            <Trash2 className="h-4.5 w-4.5" />
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* Rethemed pagination controls */}
+      {meta && (
+        <div className="mt-8 flex items-center justify-center gap-2 select-none">
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-500 mr-2">Halaman</span>
+
           {getPaginationItems().map((item, index) => (
             <React.Fragment key={index}>
               {item === "..." ? (
-                // Render Ellipsis
-                <span className="px-2 text-slate-400 text-xs">...</span>
+                <span className="px-2 text-slate-400 dark:text-slate-600 text-xs">...</span>
               ) : (
-                // Render Page Button
                 <Button
                   size="sm"
                   onClick={() => setPage(item as number)}
                   className={cn(
-                    "h-7 w-7 rounded-none p-0 text-xs transition-colors",
+                    "h-8 w-8 rounded-xl p-0 text-xs font-bold transition-all duration-255 cursor-pointer",
                     currentPage === item
-                      ? "bg-[#C20000] text-white hover:bg-[#a00000]"
-                      : "bg-gray-300 text-slate-600 hover:bg-gray-400",
+                      ? "bg-indigo-600 text-white shadow-lg shadow-indigo-950/30"
+                      : "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-850 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-850",
                   )}
                 >
                   {item}
@@ -261,16 +432,15 @@ export default function NewsPage({ isAdmin }: { isAdmin: boolean }) {
             </React.Fragment>
           ))}
 
-          {/* Navigation Arrows */}
           <div className="flex gap-1 ml-2">
             <Button
               variant="outline"
               size="icon"
               onClick={handlePrev}
               disabled={currentPage === 1}
-              className="h-7 w-7 rounded-full border-2 border-slate-800 p-0 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-100"
+              className="h-8 w-8 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-0 text-slate-500 dark:text-slate-400 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-850 hover:text-slate-800 dark:hover:text-slate-200 cursor-pointer"
             >
-              <ChevronLeft className="h-4 w-4 text-slate-800" />
+              <ChevronLeft className="h-4 w-4" />
             </Button>
 
             <Button
@@ -278,9 +448,9 @@ export default function NewsPage({ isAdmin }: { isAdmin: boolean }) {
               size="icon"
               onClick={handleNext}
               disabled={currentPage >= totalPages}
-              className="h-7 w-7 rounded-full border-2 border-slate-800 p-0 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-100"
+              className="h-8 w-8 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-0 text-slate-500 dark:text-slate-400 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-850 hover:text-slate-800 dark:hover:text-slate-200 cursor-pointer"
             >
-              <ChevronRight className="h-4 w-4 text-slate-800" />
+              <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
         </div>

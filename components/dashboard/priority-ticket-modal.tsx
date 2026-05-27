@@ -21,6 +21,11 @@ import {
 } from "lucide-react";
 import { usePriorityTickets } from "@/hooks/use-priority-tickets";
 import { PriorityType } from "@/types/dashboard";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
 
 // ─── Label map ───────────────────────────────────────────────
 const PRIORITY_LABELS: Record<PriorityType, string> = {
@@ -163,8 +168,17 @@ export function PriorityTicketModal({
                           <span className="italic text-slate-400">—</span>
                         )}
                       </td>
-                      <td className="px-3 py-2.5 text-slate-600 dark:text-slate-400 max-w-[220px] truncate">
-                        {t.subject ?? (
+                      <td className="px-3 py-2.5 text-slate-600 dark:text-slate-400 max-w-[220px]">
+                        {t.subject ? (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="cursor-help block truncate">{t.subject}</span>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-[320px] bg-slate-950 text-slate-200 border border-slate-800 p-2.5 text-xs rounded-md shadow-xl whitespace-normal break-words">
+                              {t.subject}
+                            </TooltipContent>
+                          </Tooltip>
+                        ) : (
                           <span className="italic text-slate-400">—</span>
                         )}
                       </td>

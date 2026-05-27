@@ -102,8 +102,8 @@ export function Sidebar() {
       roles: ["ADMIN"],
     },
     {
-      title: "Create User Account",
-      href: "/register",
+      title: "Account Management",
+      href: "/accounts",
       icon: UserRoundPlus,
       roles: ["ADMIN"],
     },

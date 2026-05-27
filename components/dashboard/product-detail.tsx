@@ -136,14 +136,20 @@ export function ProductCard({
                 {connectivityData.total.toLocaleString("id-ID")}
               </span>
             </div>
-            <div className="bg-gray-100 dark:bg-slate-700/50 px-3 py-1.5 rounded-md border border-slate-200 dark:border-slate-700">
-              <span className="text-xs font-bold text-slate-500 dark:text-slate-400 block mb-0.5">
-                %SLA ALL
-              </span>
-              <span className="text-sm font-extrabold text-slate-700 dark:text-slate-200">
-                {connectivityData.pctSla}%
-              </span>
-            </div>
+            {(() => {
+              const allSlaVal = parseFloat(connectivityData.pctSla);
+              const allSlaStyles = allSlaVal < 75
+                ? "bg-rose-50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-900/30 text-rose-700 dark:text-rose-400"
+                : allSlaVal <= 82
+                ? "bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900/30 text-amber-700 dark:text-amber-400"
+                : "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900/30 text-emerald-700 dark:text-emerald-400";
+              return (
+                <div className={cn("px-3 py-1.5 rounded-md border transition-colors", allSlaStyles)}>
+                  <span className="text-xs font-bold block mb-0.5 opacity-90">%SLA ALL</span>
+                  <span className="text-sm font-extrabold">{connectivityData.pctSla}%</span>
+                </div>
+              );
+            })()}
           </div>
 
           <div className="grid grid-cols-8 gap-1 text-xs mt-2">
@@ -171,10 +177,20 @@ export function ProductCard({
                   </span>
                 </div>
                 <div className="col-span-2 flex items-center">
-                  <div
-                    className="h-4 bg-[#bfdbfe] dark:bg-sky-900/60 rounded-sm transition-all duration-500"
-                    style={{ width: `${parseFloat(cat.catSla)}%` }}
-                  />
+                  {(() => {
+                    const catSlaVal = parseFloat(cat.catSla);
+                    const progressBgClass = catSlaVal < 75
+                      ? "bg-rose-500/80 dark:bg-rose-600/70"
+                      : catSlaVal <= 82
+                      ? "bg-amber-400/80 dark:bg-amber-500/70"
+                      : "bg-emerald-500/80 dark:bg-emerald-600/70";
+                    return (
+                      <div
+                        className={cn("h-4 rounded-sm transition-all duration-500", progressBgClass)}
+                        style={{ width: `${catSlaVal}%` }}
+                      />
+                    );
+                  })()}
                   <span className="ml-2 text-[11px] font-bold text-slate-800 dark:text-slate-200">
                     {cat.catSla}%
                   </span>
@@ -332,8 +348,19 @@ export function ProductCard({
                   <td className="px-4 py-2 text-[11px] text-center font-bold text-slate-800 dark:text-slate-200">
                     {kip.total}
                   </td>
-                  <td className="px-4 py-2 text-[11px] text-center font-bold text-slate-800 dark:text-slate-200">
-                    {kip.kipSla}%
+                  <td className="px-4 py-2 text-center align-middle">
+                    <span
+                      className={cn(
+                        "inline-flex items-center justify-center font-black text-[9px] px-1.5 py-0.5 rounded-md tabular-nums",
+                        parseFloat(kip.kipSla) < 75
+                          ? "bg-rose-500/15 text-rose-500 dark:text-rose-400 ring-1 ring-rose-500/30"
+                          : parseFloat(kip.kipSla) <= 82
+                          ? "bg-amber-500/15 text-amber-500 dark:text-amber-400 ring-1 ring-amber-500/30"
+                          : "bg-emerald-500/15 text-emerald-500 dark:text-emerald-400 ring-1 ring-emerald-500/30"
+                      )}
+                    >
+                      {kip.kipSla}%
+                    </span>
                   </td>
                 </tr>
               ))}

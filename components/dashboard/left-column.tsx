@@ -70,7 +70,7 @@ export function LeftColumn({ summary, dateRange }: LeftColumnProps) {
           />
           <BadgePriority
             label="CC"
-            value={0}
+            value={summary?.priority?.cc ?? 0}
             onClick={() => setSelectedPriority("cc")}
           />
           <BadgePriority

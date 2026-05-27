@@ -7,6 +7,7 @@ interface QueryParams {
   page?: number;
   limit?: number;
   search?: string;
+  filters?: Record<string, string | boolean | string[] | null>;
 }
 
 interface PaginatedResponse<T> {
@@ -21,7 +22,11 @@ function createLookupHooks<T extends { id: number }>(endpoint: string, qKey: str
     useQuery<PaginatedResponse<T>>({
       queryKey: [qKey, params],
       queryFn: async () => {
-        const { data } = await api.get<PaginatedResponse<T>>(endpoint, { params });
+        const queryParams = { ...params };
+        if (params.filters) {
+          (queryParams as any).filters = JSON.stringify(params.filters);
+        }
+        const { data } = await api.get<PaginatedResponse<T>>(endpoint, { params: queryParams });
         return data;
       },
     });
