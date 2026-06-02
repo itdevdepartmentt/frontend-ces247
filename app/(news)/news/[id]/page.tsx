@@ -87,14 +87,15 @@ export default function NewsDetailPage() {
           <span className={cn(
             "inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-xs font-extrabold uppercase tracking-widest backdrop-blur-md shadow-md",
             article.category === "Informasi" && "bg-emerald-500/10 border-emerald-500/30 text-emerald-400",
-            article.category === "Permintaan" && "bg-blue-500/10 border-blue-500/30 text-blue-400",
+            article.category === "Permintaan" && "bg-purple-500/10 border-purple-500/30 text-purple-500 dark:text-purple-400",
             article.category === "Komplain" && "bg-rose-500/10 border-rose-500/30 text-rose-400",
+            article.category === "News" && "bg-sky-500/10 border-sky-500/30 text-sky-500 dark:text-sky-400",
             (!article.category || article.category === "All") && "bg-indigo-500/10 border-indigo-500/30 text-indigo-400"
           )}>
             {article.category === "Informasi" && <Info className="h-3.5 w-3.5" />}
             {article.category === "Permintaan" && <FileQuestion className="h-3.5 w-3.5" />}
             {article.category === "Komplain" && <AlertCircle className="h-3.5 w-3.5" />}
-            {(!article.category || article.category === "All") && <Newspaper className="h-3.5 w-3.5" />}
+            {(article.category === "News" || !article.category || article.category === "All") && <Newspaper className="h-3.5 w-3.5" />}
             {article.category || "Informasi"}
           </span>
 

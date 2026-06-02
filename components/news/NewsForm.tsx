@@ -35,6 +35,7 @@ import {
   Info,
   FileQuestion,
   AlertCircle,
+  Newspaper,
   Clock,
   Sparkles,
   CheckCircle2,
@@ -1620,6 +1621,13 @@ export function NewsForm({
             <div className="grid grid-cols-1 gap-2.5 w-full">
               {[
                 { 
+                  name: "News", 
+                  icon: Newspaper, 
+                  activeClass: "bg-sky-500/10 border-sky-500/40 text-sky-650 dark:text-sky-400 shadow-[0_0_20px_rgba(14,165,233,0.12)]", 
+                  hoverClass: "hover:border-sky-300 dark:hover:border-sky-950/60 hover:bg-sky-50/30 dark:hover:bg-sky-950/5",
+                  glowBg: "sky"
+                },
+                { 
                   name: "Informasi", 
                   icon: Info, 
                   activeClass: "bg-emerald-500/10 border-emerald-500/40 text-emerald-650 dark:text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.12)]", 
@@ -1629,9 +1637,9 @@ export function NewsForm({
                 { 
                   name: "Permintaan", 
                   icon: FileQuestion, 
-                  activeClass: "bg-blue-500/10 border-blue-500/40 text-blue-650 dark:text-blue-400 shadow-[0_0_20px_rgba(59,130,246,0.12)]", 
-                  hoverClass: "hover:border-blue-300 dark:hover:border-blue-950/60 hover:bg-blue-50/30 dark:hover:bg-blue-950/5",
-                  glowBg: "blue"
+                  activeClass: "bg-purple-500/10 border-purple-500/40 text-purple-650 dark:text-purple-400 shadow-[0_0_20px_rgba(168,85,247,0.12)]", 
+                  hoverClass: "hover:border-purple-300 dark:hover:border-purple-950/60 hover:bg-purple-50/30 dark:hover:bg-purple-950/5",
+                  glowBg: "purple"
                 },
                 { 
                   name: "Komplain", 
@@ -1666,8 +1674,9 @@ export function NewsForm({
                       <span className={cn(
                         "h-2 w-2 rounded-full",
                         cat.glowBg === "emerald" && "bg-emerald-400 animate-pulse",
-                        cat.glowBg === "blue" && "bg-blue-400 animate-pulse",
-                        cat.glowBg === "rose" && "bg-rose-400 animate-pulse"
+                        cat.glowBg === "purple" && "bg-purple-400 animate-pulse",
+                        cat.glowBg === "rose" && "bg-rose-400 animate-pulse",
+                        cat.glowBg === "sky" && "bg-sky-400 animate-pulse"
                       )} />
                     ) : (
                       <ArrowRight className="h-3 w-3 opacity-0 group-hover:opacity-100 text-slate-600 transition-opacity" />

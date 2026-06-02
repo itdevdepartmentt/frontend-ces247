@@ -24,10 +24,10 @@ import {
 } from "lucide-react";
 import { useNews } from "@/hooks/use-news";
 import { useAuth } from "@/hooks/use-auth";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { format } from "date-fns";
 import { Input } from "@/components/ui/input";
-import React from "react";
+import React, { Suspense } from "react";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
@@ -47,14 +47,69 @@ const extractFirstImage = (content: any): string | null => {
   return null;
 };
 
-export default function NewsPage({ isAdmin }: { isAdmin: boolean }) {
+function NewsPageContent({ isAdmin }: { isAdmin: boolean }) {
   const { user } = useAuth(true);
-  const [input, setInput] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [page, setPage] = useState(1);
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
+
+  // Read initial states from search parameters
+  const initialPage = Number(searchParams.get("page") || 1);
+  const initialCategory = searchParams.get("category") || "All";
+  const initialSearch = searchParams.get("search") || "";
+
+  const [input, setInput] = useState(initialSearch);
+  const [debouncedSearch, setDebouncedSearch] = useState(initialSearch);
+  const [page, setPage] = useState(initialPage);
   const [limit, setLimit] = useState(6); // Default 6 is better for large card layouts
-  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [isViewingDrafts, setIsViewingDrafts] = useState(false);
+
+  // Sync state to URL search parameters
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (page > 1) {
+      params.set("page", String(page));
+    } else {
+      params.delete("page");
+    }
+
+    if (selectedCategory && selectedCategory !== "All") {
+      params.set("category", selectedCategory);
+    } else {
+      params.delete("category");
+    }
+
+    if (debouncedSearch.trim()) {
+      params.set("search", debouncedSearch.trim());
+    } else {
+      params.delete("search");
+    }
+
+    const newUrl = `${pathname}?${params.toString()}`;
+    if (window.location.search !== `?${params.toString()}`) {
+      router.replace(newUrl, { scroll: false });
+    }
+  }, [page, selectedCategory, debouncedSearch, pathname, router, searchParams]);
+
+  // Handle browser back/forward navigation
+  useEffect(() => {
+    const pageParam = searchParams.get("page");
+    const categoryParam = searchParams.get("category");
+    const searchParam = searchParams.get("search");
+
+    const p = pageParam ? parseInt(pageParam, 10) : 1;
+    const cat = categoryParam || "All";
+    const s = searchParam || "";
+
+    if (p !== page) setPage(p);
+    if (cat !== selectedCategory) setSelectedCategory(cat);
+    if (s !== input) {
+      setInput(s);
+      setDebouncedSearch(s);
+    }
+  }, [searchParams]);
 
   const [selectedNews, setSelectedNews] = useState<any>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -171,9 +226,7 @@ export default function NewsPage({ isAdmin }: { isAdmin: boolean }) {
 
     return () => clearTimeout(timer);
   }, [input]);
-
-  const router = useRouter();
-  const categoryOptions = ["All", "Informasi", "Permintaan", "Komplain"];
+  const categoryOptions = ["All", "News", "Informasi", "Permintaan", "Komplain"];
 
   return (
     <div className="p-6 md:p-10 space-y-8 mt-12 md:mt-0 select-none">
@@ -331,8 +384,9 @@ export default function NewsPage({ isAdmin }: { isAdmin: boolean }) {
                     <span className={cn(
                       "rounded-full border px-3.5 py-1 text-[10px] font-bold uppercase tracking-wider backdrop-blur-md shadow-lg",
                       item.category === "Informasi" && "bg-emerald-500/10 border-emerald-500/30 text-emerald-400",
-                      item.category === "Permintaan" && "bg-blue-500/10 border-blue-500/30 text-blue-400",
+                      item.category === "Permintaan" && "bg-purple-500/10 border-purple-500/30 text-purple-550 dark:text-purple-400",
                       item.category === "Komplain" && "bg-rose-500/10 border-rose-500/30 text-rose-400",
+                      item.category === "News" && "bg-sky-500/10 border-sky-500/30 text-sky-500 dark:text-sky-400",
                       (!item.category || item.category === "All") && "bg-indigo-500/10 border-indigo-500/30 text-indigo-400"
                     )}>
                       {item.category || "Informasi"}
@@ -456,5 +510,17 @@ export default function NewsPage({ isAdmin }: { isAdmin: boolean }) {
         </div>
       )}
     </div>
+  );
+}
+
+export default function NewsPage(props: { isAdmin: boolean }) {
+  return (
+    <Suspense fallback={
+      <div className="p-6 md:p-10 space-y-8 mt-12 md:mt-0 select-none">
+        <div className="h-10 w-48 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
+      </div>
+    }>
+      <NewsPageContent {...props} />
+    </Suspense>
   );
 }
