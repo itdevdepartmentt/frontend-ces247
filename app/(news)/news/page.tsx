@@ -427,7 +427,7 @@ function NewsPageContent({ isAdmin }: { isAdmin: boolean }) {
                       <div className="flex flex-col">
                         <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{item.authorName || "Anonim"}</span>
                         <span className="text-[10px] text-slate-450 dark:text-slate-505 font-medium mt-0.5">
-                          {item.createdAt ? format(new Date(item.createdAt), "yyyy-MM-dd HH:mm") : ""}
+                          {item.updatedAt ? format(new Date(item.updatedAt), "yyyy-MM-dd HH:mm") : ""}
                         </span>
                       </div>
                     </div>
