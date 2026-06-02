@@ -57,11 +57,12 @@ function NewsPageContent({ isAdmin }: { isAdmin: boolean }) {
   const initialPage = Number(searchParams.get("page") || 1);
   const initialCategory = searchParams.get("category") || "All";
   const initialSearch = searchParams.get("search") || "";
+  const initialLimit = Number(searchParams.get("limit") || 6);
 
   const [input, setInput] = useState(initialSearch);
   const [debouncedSearch, setDebouncedSearch] = useState(initialSearch);
   const [page, setPage] = useState(initialPage);
-  const [limit, setLimit] = useState(6); // Default 6 is better for large card layouts
+  const [limit, setLimit] = useState(initialLimit); // Default 6 is better for large card layouts
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [isViewingDrafts, setIsViewingDrafts] = useState(false);
 
@@ -87,21 +88,29 @@ function NewsPageContent({ isAdmin }: { isAdmin: boolean }) {
       params.delete("search");
     }
 
+    if (limit !== 6) {
+      params.set("limit", String(limit));
+    } else {
+      params.delete("limit");
+    }
+
     const newUrl = `${pathname}?${params.toString()}`;
     if (window.location.search !== `?${params.toString()}`) {
       router.replace(newUrl, { scroll: false });
     }
-  }, [page, selectedCategory, debouncedSearch, pathname, router, searchParams]);
+  }, [page, selectedCategory, debouncedSearch, limit, pathname, router, searchParams]);
 
   // Handle browser back/forward navigation
   useEffect(() => {
     const pageParam = searchParams.get("page");
     const categoryParam = searchParams.get("category");
     const searchParam = searchParams.get("search");
+    const limitParam = searchParams.get("limit");
 
     const p = pageParam ? parseInt(pageParam, 10) : 1;
     const cat = categoryParam || "All";
     const s = searchParam || "";
+    const lim = limitParam ? parseInt(limitParam, 10) : 6;
 
     if (p !== page) setPage(p);
     if (cat !== selectedCategory) setSelectedCategory(cat);
@@ -109,6 +118,7 @@ function NewsPageContent({ isAdmin }: { isAdmin: boolean }) {
       setInput(s);
       setDebouncedSearch(s);
     }
+    if (lim !== limit) setLimit(lim);
   }, [searchParams]);
 
   const [selectedNews, setSelectedNews] = useState<any>(null);
