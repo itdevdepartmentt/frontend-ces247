@@ -434,32 +434,32 @@ function NewsPageContent({ isAdmin }: { isAdmin: boolean }) {
 
                     {/* Highly responsive CTA Actions */}
                     <div className="flex items-center gap-2">
+                      {user?.role === "ADMIN" && user?.email === "qcnyaces@gmail.com" && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-9 w-9 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedNews(item);
+                            setIsDialogOpen(true);
+                          }}
+                        >
+                          <Edit className="h-4.5 w-4.5" />
+                        </Button>
+                      )}
                       {user?.role === "ADMIN" && (
-                        <>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-9 w-9 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedNews(item);
-                              setIsDialogOpen(true);
-                            }}
-                          >
-                            <Edit className="h-4.5 w-4.5" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-9 w-9 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-rose-500 hover:text-rose-600 dark:hover:text-rose-450 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-colors"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDelete(item.id);
-                            }}
-                          >
-                            <Trash2 className="h-4.5 w-4.5" />
-                          </Button>
-                        </>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-9 w-9 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-rose-500 hover:text-rose-600 dark:hover:text-rose-450 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-colors"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(item.id);
+                          }}
+                        >
+                          <Trash2 className="h-4.5 w-4.5" />
+                        </Button>
                       )}
                     </div>
                   </div>
