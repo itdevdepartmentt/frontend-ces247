@@ -115,8 +115,15 @@ export default function NewsDetailPage() {
             
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4 text-slate-400 dark:text-slate-500" />
-              <span>{format(new Date(article.createdAt), "MMMM d, yyyy HH:mm")}</span>
+              <span><span className="font-semibold text-slate-600 dark:text-slate-400">Created: </span>{format(new Date(article.createdAt), "MMMM d, yyyy HH:mm")}</span>
             </div>
+
+            {article.updatedAt && article.updatedAt !== article.createdAt && (
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-slate-400 dark:text-slate-500" />
+                <span><span className="font-semibold text-slate-600 dark:text-slate-400">Last Updated: </span>{format(new Date(article.updatedAt), "MMMM d, yyyy HH:mm")}</span>
+              </div>
+            )}
 
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-slate-400 dark:text-slate-500" />
