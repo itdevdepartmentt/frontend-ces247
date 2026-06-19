@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120">
+  <style>
+    .tsel { font-family: 'Arial', sans-serif; font-weight: 900; font-size: 72px; fill: #ed0226; letter-spacing: -2px; }
+    .ent { font-family: 'Arial', sans-serif; font-weight: 800; font-size: 28px; fill: #001a41; letter-spacing: 3px; }
+  </style>
+  <text x="20" y="70" class="tsel">Telkomsel</text>
+  <text x="135" y="105" class="ent">ENTERPRISE</text>
+</svg>

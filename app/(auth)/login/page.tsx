@@ -127,11 +127,20 @@ export default function LoginPage() {
                 )}
               />
               <Button
-                className="w-full"
+                className="w-full relative"
                 type="submit"
                 disabled={loginMutation.isPending}
               >
-                {loginMutation.isPending ? "Logging in..." : "Login"}
+                {loginMutation.isPending ? (
+                  <>
+                    <span className="opacity-0">Login</span>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    </div>
+                  </>
+                ) : (
+                  "Login"
+                )}
               </Button>
             </form>
           </Form>

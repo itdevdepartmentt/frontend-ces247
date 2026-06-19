@@ -16,6 +16,7 @@ import {
   ShoppingBasket,
   TicketPercent,
   UserRoundPlus,
+  ClipboardList,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -108,7 +109,7 @@ export function Sidebar() {
       roles: ["ADMIN"],
     },
     {
-      title: "Berita dan Informasi",
+      title: "BISA",
       href: "/news",
       icon: Newspaper,
       roles: ["USER", "ADMIN"],
@@ -117,6 +118,12 @@ export function Sidebar() {
       title: "Lookup Management",
       href: "/lookup-management",
       icon: DatabaseZap,
+      roles: ["ADMIN"],
+    },
+    {
+      title: "Survey Management",
+      href: "/survey-management",
+      icon: ClipboardList,
       roles: ["ADMIN"],
     },
   ];

@@ -7,7 +7,7 @@ import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import Image from "@tiptap/extension-image";
 import { Extension, Mark, mergeAttributes } from "@tiptap/core";
-import { useMemo } from "react";
+import { useMemo, useEffect, useRef } from "react";
 
 const CustomImage = Image.extend({
   addAttributes() {
@@ -64,6 +64,7 @@ const TextAlignExtension = Extension.create({
               if (!attributes.textAlign || attributes.textAlign === "left") return {};
               return {
                 "data-text-align": attributes.textAlign,
+                style: `text-align: ${attributes.textAlign} !important;`,
               };
             },
           },
@@ -166,6 +167,43 @@ const TextColor = Mark.create({
   },
 });
 
+const FontSize = Mark.create({
+  name: "fontSize",
+
+  addAttributes() {
+    return {
+      fontSize: {
+        default: null,
+        parseHTML: (element) => element.getAttribute("data-font-size") || element.style.fontSize?.replace(/['"]/g, ""),
+        renderHTML: (attributes) => {
+          if (!attributes.fontSize) {
+            return {};
+          }
+          return {
+            "data-font-size": attributes.fontSize,
+            style: `font-size: ${attributes.fontSize} !important;`,
+          };
+        },
+      },
+    };
+  },
+
+  parseHTML() {
+    return [
+      {
+        tag: "span[data-font-size]",
+      },
+      {
+        style: "font-size",
+      },
+    ];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return ["span", mergeAttributes(HTMLAttributes), 0];
+  },
+});
+
 const CustomLink = Mark.create({
   name: "customLink",
 
@@ -227,8 +265,33 @@ const HiddenText = Mark.create({
     return ['span', mergeAttributes(this.options.HTMLAttributes, HTMLAttributes), 0]
   },
 });
+import { Node as TiptapNode } from "@tiptap/core";
+
+const PdfEmbed = TiptapNode.create({
+  name: "pdfEmbed",
+  group: "block",
+  atom: true,
+
+  addAttributes() {
+    return {
+      src: { default: null },
+      fileName: { default: null },
+    };
+  },
+
+  parseHTML() {
+    return [{ tag: 'div[data-pdf-embed]' }];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    // Render as hidden element — PDF viewer is shown separately
+    return ["div", { "data-pdf-embed": "", style: "display:none;", ...HTMLAttributes }];
+  },
+});
 
 export function NewsRenderer({ content }: { content: any }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
   // Convert TipTap JSON schema to high-fidelity HTML output
   const output = useMemo(() => {
     if (!content) return "";
@@ -244,12 +307,32 @@ export function NewsRenderer({ content }: { content: any }) {
       HiddenText,
       Underline,
       FontFamily,
+      FontSize,
       TextColor,
       CustomLink,
+      PdfEmbed,
     ]);
 
     // Clean up standard XML namespaces that prevent clean rendering
-    return html.replace(/xmlns="http:\/\/www\.w3\.org\/1999\/xhtml"/g, "");
+    html = html.replace(/xmlns="http:\/\/www\.w3\.org\/1999\/xhtml"/g, "");
+
+    // Remove PDF link text from article body (PDFs are shown in the dedicated viewer below)
+    // Remove <p> tags that only contain a PDF link (with optional emoji/whitespace)
+    html = html.replace(/<p[^>]*>\s*(?:📄\s*)?<a[^>]*href="[^"]*\.pdf"[^>]*>[^<]*<\/a>\s*<\/p>/gi, "");
+    // Remove standalone PDF links not wrapped in <p>
+    html = html.replace(/(?:📄\s*)?<a[^>]*href="[^"]*\.pdf"[^>]*>[^<]*<\/a>/gi, "");
+    // Remove hidden-pdf-text spans
+    html = html.replace(/<span[^>]*class="hidden-pdf-text"[^>]*>[^<]*<\/span>/gi, "");
+
+    // Fix broken images from hardcoded localhost or relative paths in DB
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+    const apiOrigin = apiUrl.replace(/\/api$/, "");
+    
+    html = html.replace(/src="http:\/\/localhost:\d+\/api\/uploads/g, `src="${apiOrigin}/api/uploads`);
+    html = html.replace(/src="\/api\/uploads/g, `src="${apiOrigin}/api/uploads`);
+
+    console.log("DEBUG_HTML_OUTPUT:", html);
+    return html;
   }, [content]);
 
   // Recursively extract PDF links from JSON structure to show them inside visual high-end iframe wrappers
@@ -260,9 +343,13 @@ export function NewsRenderer({ content }: { content: any }) {
 
     const findPdfs = (nodes: any[]) => {
       nodes.forEach((node) => {
+        // Detect legacy pdfEmbed nodes
+        if (node.type === "pdfEmbed" && node.attrs?.src) {
+          files.push({ url: node.attrs.src, name: node.attrs.fileName || "Document" });
+        }
         if (node.marks) {
           const link = node.marks.find(
-            (m: any) => m.type === "link" && m.attrs?.href?.endsWith(".pdf"),
+            (m: any) => (m.type === "link" || m.type === "customLink") && m.attrs?.href?.endsWith(".pdf"),
           );
           if (link) {
             files.push({ url: link.attrs.href, name: node.text || "Document" });
@@ -276,10 +363,45 @@ export function NewsRenderer({ content }: { content: any }) {
     return files;
   }, [content]);
 
+  // Foolproof fallback to guarantee styles are applied (bypasses CSP HTML parser blocks and CSS specificity wars)
+  useEffect(() => {
+    if (!containerRef.current) return;
+    
+    const container = containerRef.current;
+    
+    // Force Font Size
+    const fontElements = container.querySelectorAll('[data-font-size]');
+    fontElements.forEach(el => {
+      const size = el.getAttribute('data-font-size');
+      if (size) {
+        (el as HTMLElement).style.setProperty('font-size', size, 'important');
+      }
+    });
+
+    // Force Text Align
+    const alignElements = container.querySelectorAll('[data-text-align]');
+    alignElements.forEach(el => {
+      const align = el.getAttribute('data-text-align');
+      if (align) {
+        (el as HTMLElement).style.setProperty('text-align', align, 'important');
+      }
+    });
+
+    // Force Text Color
+    const colorElements = container.querySelectorAll('[data-text-color]');
+    colorElements.forEach(el => {
+      const color = el.getAttribute('data-text-color');
+      if (color) {
+        (el as HTMLElement).style.setProperty('color', color, 'important');
+      }
+    });
+  }, [output]);
+
   return (
     <div className="space-y-8">
       {/* Main Content Render Box */}
       <div
+        ref={containerRef}
         className="editorial-prose prose prose-slate dark:prose-invert max-w-none dark:text-slate-300"
         dangerouslySetInnerHTML={{ __html: output }}
       />

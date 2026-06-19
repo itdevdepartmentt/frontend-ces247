@@ -12,8 +12,8 @@ export function proxy(request: NextRequest) {
   // Note: 'strict-dynamic' helps automate trust for legitimate sub-scripts
   const cspHeader = `
     default-src 'self';
-    script-src 'self' 'nonce-${nonce}' 'strict-dynamic';
-    style-src 'self' 'nonce-${nonce}'
+    script-src 'self' 'nonce-${nonce}' 'unsafe-eval' 'strict-dynamic';
+    style-src 'self' 'unsafe-inline' 'nonce-${nonce}'
       'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='
       'sha256-CIxDM5jnsGiKqXs2v7NKCY5MzdR9gu6TtiMJrDw29AY='
       'sha256-vGQdhYJbTuF+M8iCn1IZCHpdkiICocWHDq4qnQF4Rjw='

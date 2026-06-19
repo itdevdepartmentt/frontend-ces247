@@ -47,6 +47,7 @@ import {
   AlignLeft,
   AlignCenter,
   AlignRight,
+  AlignJustify,
   Underline as UnderlineIcon,
   Eraser,
   Link as LinkIcon,
@@ -326,6 +327,7 @@ const Toolbar = ({
               ))}
             </PopoverContent>
           </Popover>
+          <FontSizeSelector editor={editor} />
         </div>
 
         {/* Group 4: Text Color Selector */}
@@ -407,6 +409,8 @@ const Toolbar = ({
                       <AlignCenter className="h-4 w-4" />
                     ) : editor.isActive({ textAlign: "right" }) ? (
                       <AlignRight className="h-4 w-4" />
+                    ) : editor.isActive({ textAlign: "justify" }) ? (
+                      <AlignJustify className="h-4 w-4" />
                     ) : (
                       <AlignLeft className="h-4 w-4" />
                     )}
@@ -415,7 +419,7 @@ const Toolbar = ({
               </TooltipTrigger>
               <TooltipContent className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-slate-800 text-xs">Pilih Perataan Paragraf</TooltipContent>
             </Tooltip>
-            <PopoverContent className="w-32 p-1 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl flex flex-col gap-0.5" align="start">
+            <PopoverContent className="w-40 p-1 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl flex flex-col gap-0.5" align="start">
               <Button
                 variant="ghost"
                 size="sm"
@@ -448,6 +452,17 @@ const Toolbar = ({
                 onClick={() => (editor as any).chain().focus().setTextAlign("right").run()}
               >
                 <AlignRight className="h-3.5 w-3.5" /> Rata Kanan
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn(
+                  "justify-start gap-2 text-xs font-medium rounded-lg h-8 px-2",
+                  editor.isActive({ textAlign: "justify" }) && "bg-slate-100 dark:bg-slate-800 font-bold"
+                )}
+                onClick={() => (editor as any).chain().focus().setTextAlign("justify").run()}
+              >
+                <AlignJustify className="h-3.5 w-3.5" /> Justify (Rata Penuh)
               </Button>
             </PopoverContent>
           </Popover>
@@ -641,6 +656,64 @@ const FontFamily = Mark.create({
   },
 });
 
+const FontSize = Mark.create({
+  name: "fontSize",
+
+  addOptions() {
+    return {
+      HTMLAttributes: {},
+    };
+  },
+
+  addAttributes() {
+    return {
+      fontSize: {
+        default: null,
+        parseHTML: (element) => element.getAttribute("data-font-size") || element.style.fontSize?.replace(/['"]/g, ""),
+        renderHTML: (attributes) => {
+          if (!attributes.fontSize) {
+            return {};
+          }
+          return {
+            "data-font-size": attributes.fontSize,
+            style: `font-size: ${attributes.fontSize} !important;`,
+          };
+        },
+      },
+    };
+  },
+
+  parseHTML() {
+    return [
+      {
+        tag: "span[data-font-size]",
+      },
+      {
+        style: "font-size",
+      },
+    ];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return ["span", mergeAttributes(this.options.HTMLAttributes, HTMLAttributes), 0];
+  },
+
+  addCommands() {
+    return {
+      setFontSize:
+        (fontSize: string) =>
+        ({ commands }: { commands: any }) => {
+          return commands.setMark(this.name, { fontSize });
+        },
+      unsetFontSize:
+        () =>
+        ({ commands }: { commands: any }) => {
+          return commands.unsetMark(this.name);
+        },
+    } as any;
+  },
+});
+
 const TextColor = Mark.create({
   name: "textColor",
 
@@ -774,6 +847,99 @@ const colors = [
   { name: "Pink", value: "#ec4899" },
   { name: "Indigo", value: "#6366f1" },
 ];
+
+const fontSizes = [
+  { name: "Normal", value: "" },
+  { name: "10px", value: "10px" },
+  { name: "12px", value: "12px" },
+  { name: "14px", value: "14px" },
+  { name: "16px", value: "16px" },
+  { name: "18px", value: "18px" },
+  { name: "20px", value: "20px" },
+  { name: "24px", value: "24px" },
+  { name: "30px", value: "30px" },
+  { name: "36px", value: "36px" },
+];
+
+const FontSizeSelector = ({ editor }: { editor: any }) => {
+  const currentFontSizeValue = (editor as any).getAttributes("fontSize").fontSize || "";
+  const [inputValue, setInputValue] = useState(currentFontSizeValue ? parseInt(currentFontSizeValue).toString() : "");
+
+  useEffect(() => {
+    setInputValue(currentFontSizeValue ? parseInt(currentFontSizeValue).toString() : "");
+  }, [currentFontSizeValue]);
+
+  const handleApply = (value: string) => {
+    const num = parseInt(value);
+    if (!isNaN(num) && num > 0) {
+      (editor as any).chain().focus().setFontSize(`${num}px`).run();
+      setInputValue(num.toString());
+    } else {
+      (editor as any).chain().focus().unsetFontSize().run();
+      setInputValue("");
+    }
+  };
+
+  return (
+    <div className="flex items-center ml-1 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 rounded-md shadow-2xs h-8">
+      <input
+        type="text"
+        className="w-8 h-full bg-transparent text-xs text-center border-none outline-none focus:ring-0 text-slate-700 dark:text-slate-200"
+        value={inputValue}
+        onChange={(e) => setInputValue(e.target.value)}
+        onBlur={() => handleApply(inputValue)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            handleApply(inputValue);
+          }
+        }}
+        placeholder="Aa"
+      />
+      <Popover>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <PopoverTrigger asChild>
+              <button className="h-full px-1 border-l border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center text-slate-500 rounded-r-md transition-colors cursor-pointer">
+                <ChevronDown className="h-3 w-3 opacity-80" />
+              </button>
+            </PopoverTrigger>
+          </TooltipTrigger>
+          <TooltipContent className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-slate-800 text-xs">
+            Pilih Ukuran Teks
+          </TooltipContent>
+        </Tooltip>
+        <PopoverContent className="w-32 p-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 rounded-xl shadow-xl flex flex-col gap-0.5" align="start">
+          {fontSizes.map((f) => (
+            <Button
+              key={f.name}
+              variant="ghost"
+              size="sm"
+              className={cn(
+                "justify-between text-xs font-medium rounded-lg h-8 px-2.5 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 w-full flex items-center gap-2 border border-transparent",
+                (f.value ? currentFontSizeValue === f.value : !currentFontSizeValue) && "bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-bold border-indigo-100 dark:border-indigo-900/40"
+              )}
+              onClick={() => {
+                if (f.value) {
+                  (editor as any).chain().focus().setFontSize(f.value).run();
+                  setInputValue(parseInt(f.value).toString());
+                } else {
+                  (editor as any).chain().focus().unsetFontSize().run();
+                  setInputValue("");
+                }
+              }}
+            >
+              <span>{f.name}</span>
+              {(f.value ? currentFontSizeValue === f.value : !currentFontSizeValue) && (
+                <Check className="h-3 w-3 text-indigo-600 dark:text-indigo-400 shrink-0" />
+              )}
+            </Button>
+          ))}
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+};
 
 const LinkPopoverButton = ({ editor }: { editor: any }) => {
   const [linkUrl, setLinkUrl] = useState("");
@@ -973,6 +1139,7 @@ const TextAlignExtension = Extension.create({
               if (!attributes.textAlign || attributes.textAlign === "left") return {};
               return {
                 "data-text-align": attributes.textAlign,
+                style: `text-align: ${attributes.textAlign} !important;`,
               };
             },
           },
@@ -1102,6 +1269,7 @@ export function NewsForm({
       HiddenText,
       Underline,
       FontFamily,
+      FontSize,
       TextColor,
       CustomLink,
     ],
@@ -1260,7 +1428,27 @@ export function NewsForm({
         editor
           ?.chain()
           .focus()
-          .insertContent(`📄 <a href="${fullUrl}" target="_blank" rel="noreferrer" class="text-indigo-600 dark:text-indigo-400 hover:underline font-bold">${data.name}</a>`)
+          .insertContent({
+            type: 'paragraph',
+            content: [
+              {
+                type: 'text',
+                text: data.name,
+                marks: [
+                  {
+                    type: 'customLink',
+                    attrs: {
+                      href: fullUrl,
+                      target: '_blank',
+                    },
+                  },
+                  {
+                    type: 'hiddenText',
+                  },
+                ],
+              },
+            ],
+          })
           .run();
       }
       toast.success("File berhasil diunggah", { id: toastId });
@@ -1339,7 +1527,32 @@ export function NewsForm({
     }
 
     const contentJson = editor.getJSON();
-    const rawText = editor.getText().trim();
+    
+    // Custom text extractor that ignores PDF links and embeds
+    const extractCleanText = (node: any): string => {
+      if (!node) return "";
+      let text = "";
+      if (node.type === "text") {
+        const isPdfLink = node.marks?.some(
+          (m: any) => (m.type === "link" || m.type === "customLink") && m.attrs?.href?.endsWith(".pdf")
+        );
+        if (!isPdfLink) {
+          text += node.text;
+        }
+      } else if (node.type === "pdfEmbed") {
+        // skip legacy pdf embeds
+      } else if (node.content) {
+        node.content.forEach((child: any) => {
+          text += extractCleanText(child);
+        });
+        if (node.type === "paragraph" || node.type === "heading") {
+          text += " ";
+        }
+      }
+      return text;
+    };
+
+    const rawText = extractCleanText(contentJson).replace(/\s{2,}/g, " ").trim();
 
     if (!title.trim() || !rawText) {
       setError("Judul dan isi artikel wajib diisi.");

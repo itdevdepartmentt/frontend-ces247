@@ -10,6 +10,7 @@ export interface NewsArticle {
   authorName: string;
   category?: string;
   status?: string;
+  viewCount?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -36,6 +37,9 @@ export function useNews(
       }>("/news", { params });
       return data;
     },
+    // Data list dianggap fresh selama 30 detik
+    staleTime: 30_000,
+    gcTime: 5 * 60_000,
   });
 
   // 2. Fetch Single (for editing)
@@ -46,6 +50,9 @@ export function useNews(
       return data;
     },
     enabled: !!id, // Only run if an ID is provided
+    // Detail artikel fresh selama 2 menit
+    staleTime: 2 * 60_000,
+    gcTime: 10 * 60_000,
   });
 
   const createMutation = useMutation({
@@ -80,18 +87,21 @@ export function useNews(
     },
   });
 
+  // 4. Delete (moved outside return to avoid creating new hook on every render)
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => api.delete(`/news/${id}`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["news"] }),
+  });
+
   return {
     news: listQuery.data?.data ?? [],
     meta: listQuery.data?.meta,
     article: detailQuery.data,
-    isLoading: listQuery.isLoading,
+    isLoading: id ? detailQuery.isLoading : listQuery.isLoading,
     createNews: createMutation.mutateAsync,
     updateNews: updateMutation.mutateAsync,
     uploadFile: uploadMutation.mutateAsync,
     isUploading: uploadMutation.isPending,
-    deleteNews: useMutation({
-      mutationFn: (id: string) => api.delete(`/news/${id}`),
-      onSuccess: () => queryClient.invalidateQueries({ queryKey: ["news"] }),
-    }).mutateAsync,
+    deleteNews: deleteMutation.mutateAsync,
   };
 }

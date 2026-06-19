@@ -1,12 +1,59 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { format } from "date-fns";
-import { NewsRenderer } from "@/components/news/NewsRenderer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useNews } from "@/hooks/use-news";
-import { ArrowLeft, Clock, Calendar, User, Newspaper, Info, FileQuestion, AlertCircle } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+import {
+  ArrowLeft, Clock, Calendar, User, Newspaper,
+  Info, FileQuestion, AlertCircle, Eye, Edit,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useEffect, useState, lazy, Suspense } from "react";
+import api from "@/lib/api";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle,
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
+
+const NewsRenderer = lazy(() => import("@/components/news/NewsRenderer").then(m => ({ default: m.NewsRenderer })));
+const NewsForm = lazy(() => import("@/components/news/NewsForm").then(m => ({ default: m.NewsForm })));
+
+// Skeleton untuk NewsForm saat lazy loading
+function NewsFormSkeleton() {
+  return (
+    <div className="space-y-5 py-2">
+      <div className="space-y-2">
+        <Skeleton className="h-3 w-20 bg-slate-200 dark:bg-slate-800" />
+        <Skeleton className="h-10 w-full bg-slate-200 dark:bg-slate-800 rounded-xl" />
+      </div>
+      <div className="space-y-2">
+        <Skeleton className="h-3 w-16 bg-slate-200 dark:bg-slate-800" />
+        <Skeleton className="h-10 w-full bg-slate-200 dark:bg-slate-800 rounded-xl" />
+      </div>
+      <div className="space-y-2">
+        <Skeleton className="h-3 w-24 bg-slate-200 dark:bg-slate-800" />
+        <Skeleton className="h-[300px] w-full bg-slate-200 dark:bg-slate-800 rounded-xl" />
+      </div>
+      <Skeleton className="h-10 w-32 bg-slate-200 dark:bg-slate-800 rounded-xl ml-auto" />
+    </div>
+  );
+}
+
+// Skeleton untuk NewsRenderer
+function NewsRendererSkeleton() {
+  return (
+    <div className="space-y-4 py-4">
+      <Skeleton className="h-4 w-full bg-slate-200 dark:bg-slate-800" />
+      <Skeleton className="h-4 w-[95%] bg-slate-200 dark:bg-slate-800" />
+      <Skeleton className="h-4 w-[80%] bg-slate-200 dark:bg-slate-800" />
+      <Skeleton className="h-[200px] w-full bg-slate-200 dark:bg-slate-800 rounded-2xl my-4" />
+      <Skeleton className="h-4 w-[90%] bg-slate-200 dark:bg-slate-800" />
+      <Skeleton className="h-4 w-full bg-slate-200 dark:bg-slate-800" />
+    </div>
+  );
+}
 
 // Recursively find the first image in TipTap JSON
 const extractFirstImage = (content: any): string | null => {
@@ -42,9 +89,40 @@ const calculateReadingTime = (content: any): number => {
   return Math.max(1, Math.ceil(words / 200));
 };
 
+const ALLOWED_EDIT_EMAIL = "qcnyaces@gmail.com";
+
 export default function NewsDetailPage() {
   const { id } = useParams();
-  const { article, isLoading } = useNews({}, id as string);
+  const router = useRouter();
+  const { user } = useAuth(false);
+  const { article, isLoading, updateNews } = useNews({}, id as string);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [localViewCount, setLocalViewCount] = useState<number | null>(null);
+
+  // Increment view count once on mount
+  useEffect(() => {
+    if (id) {
+      api.patch(`/news/${id}/view`).catch(() => {});
+      // Optimistically reflect +1 once article is loaded
+    }
+  }, [id]);
+
+  // Sync local view count from article data + optimistic +1
+  useEffect(() => {
+    if (article) {
+      setLocalViewCount((article.viewCount ?? 0) + 1);
+    }
+  }, [article]);
+
+  const handleEditSubmit = async (payload: any) => {
+    try {
+      await updateNews({ id: id as string, ...payload });
+      toast.success("Artikel berhasil diperbarui!");
+      setIsEditOpen(false);
+    } catch {
+      toast.error("Gagal memperbarui artikel.");
+    }
+  };
 
   if (isLoading) return <NewsDetailSkeleton />;
   if (!article) {
@@ -66,23 +144,36 @@ export default function NewsDetailPage() {
   }
 
   const readingTime = calculateReadingTime(article.content);
+  const canEdit = user?.role === "ADMIN" && user?.email === ALLOWED_EDIT_EMAIL;
 
   return (
     <div className="container mx-auto max-w-4xl px-6 py-10">
-      
-      {/* Premium Circular Back Button */}
-      <button
-        onClick={() => window.history.back()}
-        className="mb-8 flex items-center justify-center h-10 w-10 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-900 transition-all cursor-pointer shadow-lg"
-      >
-        <ArrowLeft className="h-5 w-5" />
-      </button>
+
+      {/* Top Bar: back + edit button */}
+      <div className="mb-8 flex items-center justify-between">
+        <button
+          onClick={() => window.history.back()}
+          className="flex items-center justify-center h-10 w-10 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-900 transition-all cursor-pointer shadow-lg"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </button>
+
+        {canEdit && (
+          <button
+            onClick={() => setIsEditOpen(true)}
+            className="flex items-center gap-2 rounded-2xl border border-indigo-500/30 bg-indigo-500/10 px-4 py-2 text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/20 transition-all cursor-pointer"
+          >
+            <Edit className="h-4 w-4" />
+            Edit Artikel
+          </button>
+        )}
+      </div>
 
       <article className="space-y-8">
-        
-        {/* Modern High-End Layout Header */}
+
+        {/* Header */}
         <header className="space-y-6">
-          
+
           {/* Category Pill Tag */}
           <span className={cn(
             "inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-xs font-extrabold uppercase tracking-widest backdrop-blur-md shadow-md",
@@ -104,7 +195,7 @@ export default function NewsDetailPage() {
             {article.title}
           </h1>
 
-          {/* Clean Editorial Metadata Section */}
+          {/* Metadata */}
           <div className="flex flex-wrap items-center gap-y-4 gap-x-6 text-sm text-slate-500 dark:text-slate-400 border-b border-slate-150 dark:border-slate-900 pb-6">
             <div className="flex items-center gap-2">
               <div className="h-7 w-7 rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-xs font-bold text-slate-700 dark:text-slate-300">
@@ -112,7 +203,7 @@ export default function NewsDetailPage() {
               </div>
               <span className="font-bold text-slate-700 dark:text-slate-350">{article.authorName || "Anonim"}</span>
             </div>
-            
+
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4 text-slate-400 dark:text-slate-500" />
               <span><span className="font-semibold text-slate-600 dark:text-slate-400">Created: </span>{format(new Date(article.createdAt), "MMMM d, yyyy HH:mm")}</span>
@@ -129,16 +220,43 @@ export default function NewsDetailPage() {
               <Clock className="h-4 w-4 text-slate-400 dark:text-slate-500" />
               <span>Estimasi {readingTime} Menit Baca</span>
             </div>
+
+            {/* View Count */}
+            <div className="flex items-center gap-2">
+              <Eye className="h-4 w-4 text-slate-400 dark:text-slate-500" />
+              <span>{localViewCount !== null ? localViewCount.toLocaleString("id-ID") : (article.viewCount ?? 0).toLocaleString("id-ID")} dilihat</span>
+            </div>
           </div>
         </header>
 
-
-
-        {/* Dynamic Rich-Text Renderer */}
+        {/* Rich-Text Content */}
         <div className="pt-4">
-          <NewsRenderer content={article.content} />
+          <Suspense fallback={<NewsRendererSkeleton />}>
+            <NewsRenderer content={article.content} />
+          </Suspense>
         </div>
       </article>
+
+      {/* Edit Dialog */}
+      {canEdit && (
+        <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+          <DialogContent className="w-[98vw] sm:max-w-[96vw] lg:max-w-6xl rounded-[28px] border border-slate-200 dark:border-slate-800/80 bg-white/95 dark:bg-slate-950/98 backdrop-blur-md max-h-[92vh] overflow-y-auto p-5 md:p-8 shadow-[0_0_80px_rgba(99,102,241,0.08)] dark:shadow-[0_0_80px_rgba(99,102,241,0.16)]">
+            <DialogHeader className="border-b border-slate-100 dark:border-slate-900 pb-4 mb-4">
+              <DialogTitle className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100 flex items-center gap-2.5">
+                <div className="rounded-xl bg-indigo-500/10 p-2 text-indigo-650 dark:text-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.15)]">
+                  <Edit className="h-5 w-5" />
+                </div>
+                <span className="font-bold text-slate-900 dark:text-transparent dark:bg-gradient-to-r dark:from-slate-100 dark:to-indigo-200 dark:bg-clip-text">
+                  Edit Artikel
+                </span>
+              </DialogTitle>
+            </DialogHeader>
+            <Suspense fallback={<NewsFormSkeleton />}>
+              <NewsForm initialData={article} onSubmit={handleEditSubmit} />
+            </Suspense>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }

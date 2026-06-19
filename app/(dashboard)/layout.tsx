@@ -2,6 +2,7 @@
 
 import { useAuth } from "@/hooks/use-auth";
 import { Sidebar } from "@/components/layout/sidebar";
+import { LogoLoader } from "@/components/ui/logo-loader";
 
 export default function DashboardLayout({
   children,
@@ -12,13 +13,9 @@ export default function DashboardLayout({
   const { user, isLoading } = useAuth(true);
 
   if (isLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-      </div>
-    );
+    return <LogoLoader fullscreen />;
   }
-  
+
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />

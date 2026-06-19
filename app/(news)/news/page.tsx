@@ -1,7 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { NewsForm } from "@/components/news/NewsForm";
+import { useEffect, useState, lazy, Suspense } from "react";
+import Image from "next/image";
+// Lazy load NewsForm — komponen berat 79KB dengan TipTap editor
+// Hanya dipakai ADMIN ketika dialog dibuka
+const NewsForm = lazy(() =>
+  import("@/components/news/NewsForm").then((m) => ({ default: m.NewsForm }))
+);
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -20,17 +25,39 @@ import {
   Newspaper, 
   Info, 
   FileQuestion, 
-  AlertCircle 
+  AlertCircle,
+  Eye,
 } from "lucide-react";
 import { useNews } from "@/hooks/use-news";
 import { useAuth } from "@/hooks/use-auth";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { format } from "date-fns";
 import { Input } from "@/components/ui/input";
-import React, { Suspense } from "react";
+import React from "react";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
+
+// Skeleton untuk NewsForm saat lazy loading
+function NewsFormSkeleton() {
+  return (
+    <div className="space-y-5 py-2">
+      <div className="space-y-2">
+        <Skeleton className="h-3 w-20 bg-slate-200 dark:bg-slate-800" />
+        <Skeleton className="h-10 w-full bg-slate-200 dark:bg-slate-800 rounded-xl" />
+      </div>
+      <div className="space-y-2">
+        <Skeleton className="h-3 w-16 bg-slate-200 dark:bg-slate-800" />
+        <Skeleton className="h-10 w-full bg-slate-200 dark:bg-slate-800 rounded-xl" />
+      </div>
+      <div className="space-y-2">
+        <Skeleton className="h-3 w-24 bg-slate-200 dark:bg-slate-800" />
+        <Skeleton className="h-[300px] w-full bg-slate-200 dark:bg-slate-800 rounded-xl" />
+      </div>
+      <Skeleton className="h-10 w-32 bg-slate-200 dark:bg-slate-800 rounded-xl ml-auto" />
+    </div>
+  );
+}
 
 // Recursively find the first image node in TipTap JSON
 const extractFirstImage = (content: any): string | null => {
@@ -66,41 +93,24 @@ function NewsPageContent({ isAdmin }: { isAdmin: boolean }) {
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [isViewingDrafts, setIsViewingDrafts] = useState(false);
 
-  // Sync state to URL search parameters
+  // Sync state to URL search parameters (only when state changes, not when URL changes)
   useEffect(() => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams();
 
-    if (page > 1) {
-      params.set("page", String(page));
-    } else {
-      params.delete("page");
+    if (page > 1) params.set("page", String(page));
+    if (selectedCategory && selectedCategory !== "All") params.set("category", selectedCategory);
+    if (debouncedSearch.trim()) params.set("search", debouncedSearch.trim());
+    if (limit !== 6) params.set("limit", String(limit));
+
+    const newSearch = params.toString();
+    const currentSearch = window.location.search.replace(/^\?/, "");
+    if (currentSearch !== newSearch) {
+      router.replace(`${pathname}${newSearch ? `?${newSearch}` : ""}`, { scroll: false });
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, selectedCategory, debouncedSearch, limit]);
 
-    if (selectedCategory && selectedCategory !== "All") {
-      params.set("category", selectedCategory);
-    } else {
-      params.delete("category");
-    }
-
-    if (debouncedSearch.trim()) {
-      params.set("search", debouncedSearch.trim());
-    } else {
-      params.delete("search");
-    }
-
-    if (limit !== 6) {
-      params.set("limit", String(limit));
-    } else {
-      params.delete("limit");
-    }
-
-    const newUrl = `${pathname}?${params.toString()}`;
-    if (window.location.search !== `?${params.toString()}`) {
-      router.replace(newUrl, { scroll: false });
-    }
-  }, [page, selectedCategory, debouncedSearch, limit, pathname, router, searchParams]);
-
-  // Handle browser back/forward navigation
+  // Handle browser back/forward navigation (read from URL to state)
   useEffect(() => {
     const pageParam = searchParams.get("page");
     const categoryParam = searchParams.get("category");
@@ -114,11 +124,9 @@ function NewsPageContent({ isAdmin }: { isAdmin: boolean }) {
 
     if (p !== page) setPage(p);
     if (cat !== selectedCategory) setSelectedCategory(cat);
-    if (s !== input) {
-      setInput(s);
-      setDebouncedSearch(s);
-    }
+    if (s !== input) { setInput(s); setDebouncedSearch(s); }
     if (lim !== limit) setLimit(lim);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   const [selectedNews, setSelectedNews] = useState<any>(null);
@@ -243,10 +251,19 @@ function NewsPageContent({ isAdmin }: { isAdmin: boolean }) {
       
       {/* Premium Sleek Header */}
       <div className="flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
-        <div>
-          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-transparent dark:bg-gradient-to-r dark:from-slate-100 dark:via-slate-200 dark:to-indigo-300 dark:bg-clip-text tracking-tight">
-            Berita dan Informasi
-          </h1>
+        <div className="flex items-center gap-3">
+          <Image src="/ces247-3.svg" alt="CESIA Logo" width={48} height={48} className="dark:brightness-200" />
+          <div className="flex flex-col">
+            <h1 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight mb-0.5">
+              BISA
+            </h1>
+            <span className="text-xs md:text-sm font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 flex items-center">
+              Berita <span className="text-indigo-400/60 dark:text-indigo-500/60 mx-1.5">•</span> 
+              Informasi <span className="text-indigo-400/60 dark:text-indigo-500/60 mx-1.5">•</span> 
+              Solusi <span className="text-indigo-400/60 dark:text-indigo-500/60 mx-1.5">&amp;</span> 
+              Panduan
+            </span>
+          </div>
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -276,8 +293,9 @@ function NewsPageContent({ isAdmin }: { isAdmin: boolean }) {
               className="bg-transparent text-xs font-bold text-slate-700 dark:text-slate-300 outline-none cursor-pointer pr-1"
             >
               <option value={6} className="bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300">6 Baris</option>
-              <option value={10} className="bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300">10 Baris</option>
-              <option value={16} className="bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300">16 Baris</option>
+              <option value={12} className="bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300">12 Baris</option>
+              <option value={18} className="bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300">18 Baris</option>
+              <option value={24} className="bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300">24 Baris</option>
             </select>
           </div>
 
@@ -320,7 +338,9 @@ function NewsPageContent({ isAdmin }: { isAdmin: boolean }) {
                     </span>
                   </DialogTitle>
                 </DialogHeader>
-                <NewsForm initialData={selectedNews} onSubmit={handleSubmit} />
+                <Suspense fallback={<NewsFormSkeleton />}>
+                  <NewsForm initialData={selectedNews} onSubmit={handleSubmit} />
+                </Suspense>
               </DialogContent>
               </Dialog>
             </>
@@ -382,10 +402,10 @@ function NewsPageContent({ isAdmin }: { isAdmin: boolean }) {
         ) : (
           news.map((item) => {
             return (
-              <div 
+              <a 
                 key={item.id} 
-                onClick={() => router.push(`/news/${item.id}`)}
-                className="group relative overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-950/45 p-0 shadow-xl dark:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 hover:border-slate-300 dark:hover:border-slate-700/80 hover:shadow-indigo-950/5 dark:hover:shadow-indigo-950/15 cursor-pointer"
+                href={`/news/${item.id}`}
+                className="group relative overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-950/45 p-0 shadow-xl dark:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 hover:border-slate-300 dark:hover:border-slate-700/80 hover:shadow-indigo-950/5 dark:hover:shadow-indigo-950/15 cursor-pointer block"
               >
                 {/* Card Main Body */}
                 <div className="p-6 md:p-8 space-y-4">
@@ -433,13 +453,21 @@ function NewsPageContent({ isAdmin }: { isAdmin: boolean }) {
                     </div>
 
                     {/* Highly responsive CTA Actions */}
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
+                      {/* View Count */}
+                      <div className="flex items-center gap-1.5 text-slate-400 dark:text-slate-500">
+                        <Eye className="h-3.5 w-3.5" />
+                        <span className="text-xs font-medium">{(item.viewCount ?? 0).toLocaleString("id-ID")}</span>
+                      </div>
+
+                      <div className="flex items-center gap-2">
                       {user?.role === "ADMIN" && user?.email === "qcnyaces@gmail.com" && (
                         <Button
                           variant="ghost"
                           size="icon"
                           className="h-9 w-9 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors"
                           onClick={(e) => {
+                            e.preventDefault();
                             e.stopPropagation();
                             setSelectedNews(item);
                             setIsDialogOpen(true);
@@ -454,6 +482,7 @@ function NewsPageContent({ isAdmin }: { isAdmin: boolean }) {
                           size="icon"
                           className="h-9 w-9 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-rose-500 hover:text-rose-600 dark:hover:text-rose-450 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-colors"
                           onClick={(e) => {
+                            e.preventDefault();
                             e.stopPropagation();
                             handleDelete(item.id);
                           }}
@@ -462,9 +491,10 @@ function NewsPageContent({ isAdmin }: { isAdmin: boolean }) {
                         </Button>
                       )}
                     </div>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </a>
             );
           })
         )}
