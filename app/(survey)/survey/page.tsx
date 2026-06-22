@@ -176,7 +176,13 @@ export default function PublicSurveyPage() {
 
     if (!field.dependsOnValue) return true;
 
-    const lowerParent = String(parentAnswer).trim().toLowerCase();
+    let parentAnswerClean = String(parentAnswer);
+    const match = parentAnswerClean.match(/^(.*?)\s*\(.*?\)$/);
+    if (match) {
+      parentAnswerClean = match[1];
+    }
+    
+    const lowerParent = parentAnswerClean.trim().toLowerCase();
     const lowerDepends = String(field.dependsOnValue).trim().toLowerCase();
 
     if (lowerDepends === lowerParent) return true;

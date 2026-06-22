@@ -190,7 +190,11 @@ function SurveyFieldsTab() {
                       <Button variant="ghost" size="icon" onClick={() => {
                         setEditingField({
                           ...field,
-                          options: Array.isArray(field.options) ? field.options.join("\n") : field.options
+                          label: field.label.split('\n')[0],
+                          options: Array.isArray(field.options) 
+                            ? field.options.map((opt: string) => opt.replace(/\s*\(.*?\)$/, '')).join("\n") 
+                            : field.options,
+                          dependsOnValue: field.dependsOnValue ? String(field.dependsOnValue).replace(/\s*\(.*?\)$/, '') : field.dependsOnValue
                         });
                         setIsDialogOpen(true);
                       }}>
