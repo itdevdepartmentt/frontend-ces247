@@ -214,7 +214,7 @@ export default function UploadPage() {
           </div>
           <Button
             asChild
-            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-medium shadow-md shadow-blue-500/20 hover:shadow-blue-500/30 transition-all duration-300 hover:-translate-y-0.5 shrink-0 self-start sm:self-center"
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-medium shadow-md transition-all duration-300 hover:-translate-y-0.5 shrink-0 self-start sm:self-center"
           >
             <a
               href="https://drive.google.com/drive/folders/1aLST1pakPfiGUQ_Pww5I7CQiNw1bMCDv"

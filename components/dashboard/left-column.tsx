@@ -123,7 +123,7 @@ function BadgePriority({ label, value, onClick, disabled }: BadgePriorityProps) 
         ${
           disabled
             ? "opacity-50 cursor-not-allowed"
-            : "cursor-pointer hover:scale-105 hover:shadow-lg hover:shadow-red-500/20 active:scale-95"
+            : "cursor-pointer hover:scale-105 hover:shadow-lg active:scale-95"
         }
       `}
     >

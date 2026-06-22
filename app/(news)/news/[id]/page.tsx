@@ -240,10 +240,10 @@ export default function NewsDetailPage() {
       {/* Edit Dialog */}
       {canEdit && (
         <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-          <DialogContent className="w-[98vw] sm:max-w-[96vw] lg:max-w-6xl rounded-[28px] border border-slate-200 dark:border-slate-800/80 bg-white/95 dark:bg-slate-950/98 backdrop-blur-md max-h-[92vh] overflow-y-auto p-5 md:p-8 shadow-[0_0_80px_rgba(99,102,241,0.08)] dark:shadow-[0_0_80px_rgba(99,102,241,0.16)]">
+          <DialogContent className="w-[98vw] sm:max-w-[96vw] lg:max-w-6xl rounded-[28px] border border-slate-200 dark:border-slate-800/80 bg-white/95 dark:bg-slate-950/98 backdrop-blur-md max-h-[92vh] overflow-y-auto p-5 md:p-8  ">
             <DialogHeader className="border-b border-slate-100 dark:border-slate-900 pb-4 mb-4">
               <DialogTitle className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100 flex items-center gap-2.5">
-                <div className="rounded-xl bg-indigo-500/10 p-2 text-indigo-650 dark:text-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.15)]">
+                <div className="rounded-xl bg-indigo-500/10 p-2 text-indigo-650 dark:text-indigo-400 ">
                   <Edit className="h-5 w-5" />
                 </div>
                 <span className="font-bold text-slate-900 dark:text-transparent dark:bg-gradient-to-r dark:from-slate-100 dark:to-indigo-200 dark:bg-clip-text">

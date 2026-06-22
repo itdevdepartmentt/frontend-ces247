@@ -1836,28 +1836,28 @@ export function NewsForm({
                 { 
                   name: "News", 
                   icon: Newspaper, 
-                  activeClass: "bg-sky-500/10 border-sky-500/40 text-sky-650 dark:text-sky-400 shadow-[0_0_20px_rgba(14,165,233,0.12)]", 
+                  activeClass: "bg-sky-500/10 border-sky-500/40 text-sky-650 dark:text-sky-400 ", 
                   hoverClass: "hover:border-sky-300 dark:hover:border-sky-950/60 hover:bg-sky-50/30 dark:hover:bg-sky-950/5",
                   glowBg: "sky"
                 },
                 { 
                   name: "Informasi", 
                   icon: Info, 
-                  activeClass: "bg-emerald-500/10 border-emerald-500/40 text-emerald-650 dark:text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.12)]", 
+                  activeClass: "bg-emerald-500/10 border-emerald-500/40 text-emerald-650 dark:text-emerald-400 ", 
                   hoverClass: "hover:border-emerald-300 dark:hover:border-emerald-950/60 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/5",
                   glowBg: "emerald"
                 },
                 { 
                   name: "Permintaan", 
                   icon: FileQuestion, 
-                  activeClass: "bg-purple-500/10 border-purple-500/40 text-purple-650 dark:text-purple-400 shadow-[0_0_20px_rgba(168,85,247,0.12)]", 
+                  activeClass: "bg-purple-500/10 border-purple-500/40 text-purple-650 dark:text-purple-400 ", 
                   hoverClass: "hover:border-purple-300 dark:hover:border-purple-950/60 hover:bg-purple-50/30 dark:hover:bg-purple-950/5",
                   glowBg: "purple"
                 },
                 { 
                   name: "Komplain", 
                   icon: AlertCircle, 
-                  activeClass: "bg-rose-500/10 border-rose-500/40 text-rose-650 dark:text-rose-400 shadow-[0_0_20px_rgba(244,63,94,0.12)]", 
+                  activeClass: "bg-rose-500/10 border-rose-500/40 text-rose-650 dark:text-rose-400 ", 
                   hoverClass: "hover:border-rose-300 dark:hover:border-rose-950/60 hover:bg-rose-50/30 dark:hover:bg-rose-950/5",
                   glowBg: "rose"
                 },
@@ -1915,7 +1915,7 @@ export function NewsForm({
             <Button 
               disabled={!title.trim() || !editor || editor.getText().trim().length === 0 || isSaving} 
               onClick={() => saveNews("PUBLISHED")}
-              className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-750 hover:to-violet-750 text-white rounded-2xl py-6 font-bold shadow-lg shadow-indigo-950/50 hover:shadow-indigo-950/70 hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:hover:translate-y-0 cursor-pointer flex items-center justify-center gap-2"
+              className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-750 hover:to-violet-750 text-white rounded-2xl py-6 font-bold shadow-lg hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:hover:translate-y-0 cursor-pointer flex items-center justify-center gap-2"
             >
               <Save className="h-4 w-4" />
               <span>{savingType === "PUBLISHED" ? "Menyimpan..." : "Publikasikan Berita (Ctrl/Cmd+Enter)"}</span>

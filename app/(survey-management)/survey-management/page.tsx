@@ -50,7 +50,19 @@ import { useAuth } from "@/hooks/use-auth";
 import api from "@/lib/api";
 
 export default function SurveyManagementPage() {
-  const [activeTab, setActiveTab] = useState("fields");
+  const { user } = useAuth();
+  const isAdmin = user?.role === "ADMIN";
+  
+  // Set default tab safely avoiding hydration issues
+  const [activeTab, setActiveTab] = useState("responses");
+
+  useEffect(() => {
+    if (isAdmin) {
+      setActiveTab("fields");
+    } else {
+      setActiveTab("responses");
+    }
+  }, [isAdmin]);
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
@@ -62,13 +74,17 @@ export default function SurveyManagementPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="fields">Survey Fields (Questions)</TabsTrigger>
-          <TabsTrigger value="responses">Data Responses</TabsTrigger>
-        </TabsList>
-        <TabsContent value="fields" className="space-y-4">
-          <SurveyFieldsTab />
-        </TabsContent>
+        {isAdmin && (
+          <TabsList>
+            <TabsTrigger value="fields">Survey Fields (Questions)</TabsTrigger>
+            <TabsTrigger value="responses">Data Responses</TabsTrigger>
+          </TabsList>
+        )}
+        {isAdmin && (
+          <TabsContent value="fields" className="space-y-4">
+            <SurveyFieldsTab />
+          </TabsContent>
+        )}
         <TabsContent value="responses" className="space-y-4">
           <SurveyResponsesTab />
         </TabsContent>
@@ -197,7 +213,7 @@ function SurveyFieldsTab() {
           <DialogHeader>
             <DialogTitle>{editingField?.id ? "Edit Field" : "Create Field"}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-4">
+          <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto px-1">
             <div className="space-y-2">
               <label className="text-sm font-medium">Label / Question</label>
               <Input value={editingField?.label || ""} onChange={e => setEditingField({ ...editingField, label: e.target.value })} placeholder="E.g. How satisfied are you?" />
@@ -407,15 +423,26 @@ function SurveyResponsesTab() {
           </Table>
         </div>
         
-        {meta && meta.lastPage > 1 && (
-          <div className="flex items-center justify-end space-x-2 pt-4">
-            <Button variant="outline" size="sm" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>
-              <ChevronLeft className="h-4 w-4 mr-1" /> Prev
-            </Button>
-            <div className="text-sm font-medium px-2">Page {page} of {meta.lastPage}</div>
-            <Button variant="outline" size="sm" onClick={() => setPage(p => Math.min(meta.lastPage, p + 1))} disabled={page === meta.lastPage}>
-              Next <ChevronRight className="h-4 w-4 ml-1" />
-            </Button>
+        {meta && (
+          <div className="flex items-center justify-between pt-4">
+            <div className="text-sm text-muted-foreground">
+              Menampilkan {((page - 1) * limit) + 1} - {Math.min(page * limit, meta.total)} dari {meta.total} data
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button variant="outline" size="sm" onClick={() => setPage(1)} disabled={page === 1}>
+                First
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>
+                <ChevronLeft className="h-4 w-4 mr-1" /> Prev
+              </Button>
+              <div className="text-sm font-medium px-2">Page {page} of {Math.max(1, meta.lastPage)}</div>
+              <Button variant="outline" size="sm" onClick={() => setPage(p => Math.min(meta.lastPage, p + 1))} disabled={page === meta.lastPage || meta.lastPage === 0}>
+                Next <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setPage(meta.lastPage)} disabled={page === meta.lastPage || meta.lastPage === 0}>
+                Last
+              </Button>
+            </div>
           </div>
         )}
       </CardContent>

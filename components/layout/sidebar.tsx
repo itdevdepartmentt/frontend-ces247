@@ -124,7 +124,7 @@ export function Sidebar() {
       title: "Survey Management",
       href: "/survey-management",
       icon: ClipboardList,
-      roles: ["ADMIN"],
+      roles: ["ADMIN", "USER"],
     },
   ];
 

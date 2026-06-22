@@ -109,7 +109,7 @@ export default function PublicSurveyPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50  p-4">
         <div className="w-full max-w-md bg-white/80  backdrop-blur-xl border border-white/40  shadow-2xl rounded-3xl p-10 text-center animate-in zoom-in duration-500">
-          <div className="w-20 h-20 mx-auto mb-6 bg-red-100  rounded-full flex items-center justify-center shadow-lg shadow-red-500/10">
+          <div className="w-20 h-20 mx-auto mb-6 bg-red-100  rounded-full flex items-center justify-center shadow-lg ">
             <span className="text-4xl">⚠️</span>
           </div>
           <h2 className="text-2xl font-bold text-slate-800  mb-2">Link Tidak Berlaku</h2>
@@ -125,7 +125,7 @@ export default function PublicSurveyPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50  p-4">
         <div className="w-full max-w-md bg-white/80  backdrop-blur-xl border border-white/40  shadow-2xl rounded-3xl p-10 text-center animate-in zoom-in duration-500">
-          <div className="w-20 h-20 mx-auto mb-6 bg-indigo-100  rounded-full flex items-center justify-center shadow-lg shadow-indigo-500/10">
+          <div className="w-20 h-20 mx-auto mb-6 bg-indigo-100  rounded-full flex items-center justify-center shadow-lg ">
             <CheckCircle2 className="w-10 h-10 text-indigo-600 " />
           </div>
           <h2 className="text-2xl font-bold text-slate-800  mb-2">Anda Sudah Submit</h2>
@@ -286,7 +286,7 @@ export default function PublicSurveyPage() {
             <div className="p-12 text-center relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-b from-indigo-50/50 to-transparent " />
               <div className="relative z-10">
-                <div className="w-24 h-24 mx-auto mb-8 bg-gradient-to-tr from-emerald-400 to-teal-500 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/30 animate-in zoom-in duration-500">
+                <div className="w-24 h-24 mx-auto mb-8 bg-gradient-to-tr from-emerald-400 to-teal-500 rounded-full flex items-center justify-center shadow-lg animate-in zoom-in duration-500">
                   <CheckCircle2 className="w-12 h-12 text-white" />
                 </div>
                 <h2 className="text-3xl font-bold text-slate-900  mb-4">Terima Kasih! 🎉</h2>
@@ -342,7 +342,7 @@ export default function PublicSurveyPage() {
                                   className={cn(
                                     "flex flex-col items-center gap-2 p-3 sm:p-4 rounded-2xl transition-all duration-200 border-2",
                                     isSelected 
-                                      ? "border-indigo-500 bg-indigo-50  scale-110 shadow-lg shadow-indigo-500/20" 
+                                      ? "border-indigo-500 bg-indigo-50  scale-110 shadow-lg " 
                                       : "border-transparent hover:bg-slate-100  hover:scale-105 opacity-70 hover:opacity-100"
                                   )}
                                 >
@@ -366,9 +366,9 @@ export default function PublicSurveyPage() {
                                 // Color logic: 0-6 Detractor (Red), 7-8 Passive (Yellow), 9-10 Promoter (Green)
                                 const getColorClass = (s: number, selected: boolean) => {
                                   if (!selected) return "bg-white  border-slate-200  text-slate-600  hover:border-slate-400";
-                                  if (s <= 6) return "bg-red-500 border-red-500 text-white shadow-lg shadow-red-500/30 scale-110 z-10";
-                                  if (s <= 8) return "bg-amber-500 border-amber-500 text-white shadow-lg shadow-amber-500/30 scale-110 z-10";
-                                  return "bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-500/30 scale-110 z-10";
+                                  if (s <= 6) return "bg-red-500 border-red-500 text-white shadow-lg scale-110 z-10";
+                                  if (s <= 8) return "bg-amber-500 border-amber-500 text-white shadow-lg scale-110 z-10";
+                                  return "bg-emerald-500 border-emerald-500 text-white shadow-lg scale-110 z-10";
                                 };
 
                                 return (
@@ -507,7 +507,7 @@ export default function PublicSurveyPage() {
                   <Button 
                     onClick={handleSubmit}
                     disabled={submitMutation.isPending}
-                    className="bg-gradient-to-r from-indigo-600 to-pink-500 hover:from-indigo-500 hover:to-pink-400 text-white rounded-full px-8 shadow-lg shadow-indigo-500/25 border-0"
+                    className="bg-gradient-to-r from-indigo-600 to-pink-500 hover:from-indigo-500 hover:to-pink-400 text-white rounded-full px-8 shadow-lg border-0"
                   >
                     {submitMutation.isPending ? (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />

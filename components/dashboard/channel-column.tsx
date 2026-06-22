@@ -181,10 +181,10 @@ export function ChannelColumn({
     : "text-emerald-600/80 dark:text-emerald-500";
 
   const slaIndicatorBgClass = isRed
-    ? "bg-rose-500 shadow-[0_0_5px_2px_rgba(244,63,94,0.5)]"
+    ? "bg-rose-500 "
     : isYellow
-    ? "bg-amber-500 shadow-[0_0_5px_2px_rgba(245,158,11,0.5)]"
-    : "bg-emerald-500 shadow-[0_0_5px_2px_rgba(16,185,129,0.5)]";
+    ? "bg-amber-500 "
+    : "bg-emerald-500 ";
 
   // ─── REAL CONTENT ───
   return (
@@ -223,7 +223,7 @@ export function ChannelColumn({
         {/* Open */}
         <div className="group/m flex flex-col items-center justify-center gap-0.5 py-2 rounded-xl bg-rose-50 dark:bg-rose-950/25 border border-rose-100/80 dark:border-rose-800/30 hover:-translate-y-0.5 transition-transform duration-200 cursor-default">
           <div className="flex items-center gap-1">
-            <span className="w-1 h-1 rounded-full bg-rose-500 shadow-[0_0_5px_2px_rgba(244,63,94,0.5)]" />
+            <span className="w-1 h-1 rounded-full bg-rose-500 " />
             <span className="text-[7.5px] font-black tracking-[0.2em] uppercase text-rose-600/80 dark:text-rose-500">Open</span>
           </div>
           <span className="text-[13px] font-black leading-none tabular-nums text-rose-700 dark:text-rose-300">
@@ -234,7 +234,7 @@ export function ChannelColumn({
         {/* Closed */}
         <div className="group/m flex flex-col items-center justify-center gap-0.5 py-2 rounded-xl bg-sky-50 dark:bg-sky-950/25 border border-sky-100/80 dark:border-sky-800/30 hover:-translate-y-0.5 transition-transform duration-200 cursor-default">
           <div className="flex items-center gap-1">
-            <span className="w-1 h-1 rounded-full bg-sky-500 shadow-[0_0_5px_2px_rgba(14,165,233,0.5)]" />
+            <span className="w-1 h-1 rounded-full bg-sky-500 " />
             <span className="text-[7.5px] font-black tracking-[0.2em] uppercase text-sky-600/80 dark:text-sky-500">Closed</span>
           </div>
           <span className="text-[13px] font-black leading-none tabular-nums text-sky-700 dark:text-sky-300">
