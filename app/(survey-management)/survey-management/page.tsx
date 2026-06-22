@@ -331,6 +331,8 @@ function SurveyResponsesTab() {
 
   const { data, isLoading, refetch } = useAdminSurveyResponses({ page, limit, search });
   const { data: fieldsData } = useAdminSurveyFields({ limit: 100 });
+  const { user } = useAuth();
+  const isAdmin = user?.role === "ADMIN";
   
   useEffect(() => {
     const handleRefetch = () => refetch();
@@ -350,13 +352,17 @@ function SurveyResponsesTab() {
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', 'survey-responses.xlsx');
+      link.style.display = 'none';
       document.body.appendChild(link);
       link.click();
       link.remove();
-      window.URL.revokeObjectURL(url);
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+      }, 1000);
       toast.success("Download complete");
-    } catch (err) {
-      toast.error('Gagal download data');
+    } catch (err: any) {
+      console.error("Download Excel Error:", err);
+      toast.error('Gagal download data: ' + (err.response?.data?.message || err.message));
     }
   };
 
@@ -373,9 +379,11 @@ function SurveyResponsesTab() {
               onChange={e => { setSearch(e.target.value); setPage(1); }}
             />
           </div>
-          <Button onClick={handleDownload} className="bg-indigo-600 hover:bg-indigo-700 text-white">
-            <Download className="mr-2 h-4 w-4" /> Download Excel
-          </Button>
+          {isAdmin && (
+            <Button onClick={handleDownload} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+              <Download className="mr-2 h-4 w-4" /> Download Excel
+            </Button>
+          )}
         </div>
 
         <div className="rounded-md border overflow-x-auto">

@@ -11,12 +11,7 @@ export default function SurveyManagementLayout({ children }: { children: React.R
     return <LogoLoader fullscreen />;
   }
 
-  if (user?.role !== "ADMIN")
-    return (
-      <div className="flex h-screen items-center justify-center bg-slate-950 p-4 dark:bg-black">
-        <div className="text-white text-xl font-medium">Access Denied</div>
-      </div>
-    );
+
 
   return (
     <div className="flex h-screen overflow-hidden">
