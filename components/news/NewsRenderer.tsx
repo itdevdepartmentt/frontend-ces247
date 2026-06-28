@@ -352,7 +352,8 @@ export function NewsRenderer({ content }: { content: any }) {
             (m: any) => (m.type === "link" || m.type === "customLink") && m.attrs?.href?.endsWith(".pdf"),
           );
           if (link) {
-            files.push({ url: link.attrs.href, name: node.text || "Document" });
+            const cleanName = (node.text || "Document").replace(/^📄\s*/, "");
+            files.push({ url: link.attrs.href, name: cleanName });
           }
         }
         if (node.content) findPdfs(node.content);

@@ -51,8 +51,20 @@ export function useNews(
     },
     enabled: !!id, // Only run if an ID is provided
     // Detail artikel fresh selama 2 menit
+    // Detail artikel fresh selama 2 menit
     staleTime: 2 * 60_000,
     gcTime: 10 * 60_000,
+  });
+
+  // Bookmark Status
+  const bookmarkQuery = useQuery({
+    queryKey: ["bookmark", id],
+    queryFn: async () => {
+      const { data } = await api.get<{ isBookmarked: boolean }>(`/news/${id}/bookmark/status`);
+      return data;
+    },
+    enabled: !!id,
+    staleTime: 30_000,
   });
 
   const createMutation = useMutation({
@@ -93,6 +105,18 @@ export function useNews(
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["news"] }),
   });
 
+  const toggleBookmarkMutation = useMutation({
+    mutationFn: async () => {
+      if (!id) throw new Error("No news ID");
+      const { data } = await api.post<{ isBookmarked: boolean }>(`/news/${id}/bookmark`);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["bookmark", id] });
+      queryClient.invalidateQueries({ queryKey: ["myActivity"] });
+    },
+  });
+
   return {
     news: listQuery.data?.data ?? [],
     meta: listQuery.data?.meta,
@@ -103,5 +127,8 @@ export function useNews(
     uploadFile: uploadMutation.mutateAsync,
     isUploading: uploadMutation.isPending,
     deleteNews: deleteMutation.mutateAsync,
+    isBookmarked: bookmarkQuery.data?.isBookmarked ?? false,
+    toggleBookmark: toggleBookmarkMutation.mutateAsync,
+    isTogglingBookmark: toggleBookmarkMutation.isPending,
   };
 }

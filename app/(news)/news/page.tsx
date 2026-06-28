@@ -247,10 +247,13 @@ function NewsPageContent({ isAdmin }: { isAdmin: boolean }) {
   const categoryOptions = ["All", "News", "Informasi", "Permintaan", "Komplain"];
 
   return (
-    <div className="p-6 md:p-10 space-y-8 mt-12 md:mt-0 select-none">
+    <div className="p-6 md:p-10 mt-12 md:mt-0 select-none relative">
       
-      {/* Premium Sleek Header */}
-      <div className="flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
+      {/* Sticky Header & Toolbar Wrapper */}
+      <div className="sticky top-0 z-30 -mx-6 -mt-6 px-6 pt-6 pb-6 mb-8 md:-mx-10 md:-mt-10 md:px-10 md:pt-10 bg-slate-50/90 dark:bg-[#020617]/90 backdrop-blur-2xl border-b border-slate-200/80 dark:border-slate-800/80 shadow-sm space-y-8">
+        
+        {/* Premium Sleek Header */}
+        <div className="flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
         <div className="flex items-center gap-3">
           <Image src="/ces247-3.svg" alt="CESIA Logo" width={48} height={48} className="dark:brightness-200" />
           <div className="flex flex-col">
@@ -348,24 +351,25 @@ function NewsPageContent({ isAdmin }: { isAdmin: boolean }) {
         </div>
       </div>
 
-      {/* Segmented Category Filter Toolbar */}
-      <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800/80 pb-4">
-        <div className="flex flex-wrap gap-1.5 rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-white/60 dark:bg-slate-950/40 p-1 backdrop-blur-sm shadow-sm dark:shadow-inner">
-          {categoryOptions.map((option) => (
-            <button
-              key={option}
-              onClick={() => handleCategoryChange(option)}
-              className={cn(
-                "rounded-xl px-4 py-2 text-xs font-semibold transition-all duration-200 cursor-pointer",
-                selectedCategory === option
-                  ? "bg-indigo-600 text-white shadow-lg "
-                  : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-900/60"
-              )}
-            >
-              {option}
-            </button>
-          ))}
-        </div>
+          {/* Segmented Category Filter Toolbar */}
+          <div className="flex items-center justify-between mt-6">
+            <div className="flex flex-wrap gap-1.5 rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-white/60 dark:bg-slate-950/40 p-1 backdrop-blur-sm shadow-sm dark:shadow-inner">
+              {categoryOptions.map((option) => (
+                <button
+                  key={option}
+                  onClick={() => handleCategoryChange(option)}
+                  className={cn(
+                    "rounded-xl px-4 py-2 text-xs font-semibold transition-all duration-200 cursor-pointer",
+                    selectedCategory === option
+                      ? "bg-indigo-600 text-white shadow-lg "
+                      : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-900/60"
+                  )}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+          </div>
       </div>
 
       {/* Main Grid: Larger Cards (md:grid-cols-2 for massive aesthetic space) */}

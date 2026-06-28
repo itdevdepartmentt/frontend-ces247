@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { useTheme } from "next-themes";
 
 interface LogoLoaderProps {
   size?: "sm" | "md" | "lg";
@@ -14,28 +13,6 @@ export function LogoLoader({
   message = "Memuat…",
   fullscreen = false,
 }: LogoLoaderProps) {
-  const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === "dark";
-
-  /* ── Minimalist & Elegant Theme Tokens ── */
-  const tokens = isDark
-    ? {
-        bg: "rgba(3, 5, 8, 0.8)",
-        backdropBlur: "12px",
-        ringColor: "rgba(255, 255, 255, 0.1)",
-        ringHighlight: "rgba(255, 255, 255, 0.8)",
-        textColor: "rgba(255, 255, 255, 0.5)",
-        logoFilter: "brightness(1.1)",
-      }
-    : {
-        bg: "rgba(255, 255, 255, 0.8)",
-        backdropBlur: "12px",
-        ringColor: "rgba(0, 0, 0, 0.05)",
-        ringHighlight: "rgba(0, 0, 0, 0.8)",
-        textColor: "rgba(0, 0, 0, 0.5)",
-        logoFilter: "none",
-      };
-
   /* ═══════════════════════════════════════════════
      FULLSCREEN / LARGE — Minimalist Splash
   ═══════════════════════════════════════════════ */
@@ -43,12 +20,7 @@ export function LogoLoader({
     return (
       <div
         aria-label="Loading"
-        className="fixed inset-0 z-[9999] flex flex-col items-center justify-center transition-all duration-500"
-        style={{
-          backgroundColor: tokens.bg,
-          backdropFilter: `blur(${tokens.backdropBlur})`,
-          WebkitBackdropFilter: `blur(${tokens.backdropBlur})`,
-        }}
+        className="fixed inset-0 z-[9999] flex flex-col items-center justify-center transition-all duration-500 bg-white/80 dark:bg-[#030508]/80 backdrop-blur-[12px]"
       >
         <div className="relative flex flex-col items-center animate-in fade-in duration-1000">
           {/* Logo Container */}
@@ -67,7 +39,7 @@ export function LogoLoader({
                 cy="50"
                 r="48"
                 fill="none"
-                stroke={tokens.ringColor}
+                className="stroke-black/5 dark:stroke-white/10"
                 strokeWidth="1.5"
               />
               <circle
@@ -75,7 +47,7 @@ export function LogoLoader({
                 cy="50"
                 r="48"
                 fill="none"
-                stroke={tokens.ringHighlight}
+                className="stroke-black/80 dark:stroke-white/80"
                 strokeWidth="1.5"
                 strokeDasharray="300"
                 strokeDashoffset="225"
@@ -90,23 +62,21 @@ export function LogoLoader({
               width={36}
               height={36}
               priority
-              className="object-contain animate-pulse"
-              style={{ filter: tokens.logoFilter, animationDuration: '3s' }}
+              className="object-contain animate-pulse dark:brightness-110"
+              style={{ animationDuration: '3s' }}
             />
           </div>
 
           {/* Elegant Text */}
           <div className="mt-6 flex flex-col items-center gap-1.5">
             <div
-              className="text-sm font-medium tracking-[0.2em] uppercase"
-              style={{ color: tokens.textColor }}
+              className="text-sm font-medium tracking-[0.2em] uppercase text-black/50 dark:text-white/50"
             >
               CESIA
             </div>
             {message && (
               <div
-                className="text-[10px] tracking-widest uppercase opacity-60"
-                style={{ color: tokens.textColor }}
+                className="text-[10px] tracking-widest uppercase opacity-60 text-black/50 dark:text-white/50"
               >
                 {message}
               </div>
@@ -132,10 +102,10 @@ export function LogoLoader({
             style={{ animationDuration: '1.5s' }}
             viewBox="0 0 100 100"
           >
-            <circle cx="50" cy="50" r="48" fill="none" stroke={tokens.ringColor} strokeWidth="2" />
+            <circle cx="50" cy="50" r="48" fill="none" className="stroke-black/5 dark:stroke-white/10" strokeWidth="2" />
             <circle
               cx="50" cy="50" r="48" fill="none"
-              stroke={tokens.ringHighlight} strokeWidth="2"
+              className="stroke-black/80 dark:stroke-white/80" strokeWidth="2"
               strokeDasharray="300" strokeDashoffset="225" strokeLinecap="round"
             />
           </svg>
@@ -145,14 +115,13 @@ export function LogoLoader({
             width={24}
             height={24}
             priority
-            className="object-contain"
-            style={{ filter: tokens.logoFilter }}
+            className="object-contain dark:brightness-110"
           />
         </div>
         {message && (
           <span
-            className="text-xs font-medium tracking-[0.15em] uppercase animate-pulse"
-            style={{ color: tokens.textColor, animationDuration: '2.5s' }}
+            className="text-xs font-medium tracking-[0.15em] uppercase animate-pulse text-black/50 dark:text-white/50"
+            style={{ animationDuration: '2.5s' }}
           >
             {message}
           </span>
@@ -172,16 +141,16 @@ export function LogoLoader({
           style={{ animationDuration: '1s' }}
           viewBox="0 0 100 100"
         >
-          <circle cx="50" cy="50" r="48" fill="none" stroke={tokens.ringColor} strokeWidth="3" />
+          <circle cx="50" cy="50" r="48" fill="none" className="stroke-black/5 dark:stroke-white/10" strokeWidth="3" />
           <circle
             cx="50" cy="50" r="48" fill="none"
-            stroke={tokens.ringHighlight} strokeWidth="3"
+            className="stroke-black/80 dark:stroke-white/80" strokeWidth="3"
             strokeDasharray="300" strokeDashoffset="225" strokeLinecap="round"
           />
         </svg>
       </div>
       {message && (
-        <span className="text-[11px] font-medium tracking-wide" style={{ color: tokens.textColor }}>
+        <span className="text-[11px] font-medium tracking-wide text-black/50 dark:text-white/50">
           {message}
         </span>
       )}

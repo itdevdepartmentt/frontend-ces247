@@ -24,6 +24,7 @@ import IncidentWidget from "@/components/dashboard/incident-card";
 import { normalizeDateRange } from "@/lib/utils";
 import { fromZonedTime } from "date-fns-tz";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import api from "@/lib/api";
 import { toast } from "sonner";
 
@@ -60,6 +61,7 @@ export function DashboardPageContent({
     from: new Date(),
     to: new Date(),
   });
+  const [fcrType, setFcrType] = useState<"kip" | "realisasi">("kip");
   const [lastSyncDate, setLastSyncDate] = useState<string | undefined>("");
   const lastSyncRef = useRef<string | null>(null);
 
@@ -82,6 +84,7 @@ export function DashboardPageContent({
   const { summary, channels, lastSync, isLoading, refetch } = useDashboardData({
     dateRange: normalizedDateRange,
     isFcr,
+    fcrType,
   });
 
   // 1. Polling Effect: Runs only when we have a jobId to track
@@ -195,8 +198,18 @@ export function DashboardPageContent({
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 mt-12 md:mt-0">
-      <div className="flex flex-col md:flex-row md:items-center justify-between space-y-2 md:space-y-0 mb-6">
-        <h2 className="text-3xl font-bold tracking-tight">{title}</h2>
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between space-y-4 lg:space-y-0 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          <h2 className="text-3xl font-bold tracking-tight">{title}</h2>
+          {isFcr && (
+            <Tabs value={fcrType} onValueChange={(val: string) => setFcrType(val as "kip" | "realisasi")}>
+              <TabsList>
+                <TabsTrigger value="kip">Berdasarkan KIP</TabsTrigger>
+                <TabsTrigger value="realisasi">Berdasarkan Realisasi</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          )}
+        </div>
         <div className="flex flex-col w-full sm:w-auto space-y-2 sm:space-y-0 sm:flex-row sm:items-center sm:space-x-2">
           <div className="flex items-center space-x-2">
             {/* ACTION 1: DAILY TICKET SYNC (THE NEW BUTTON) */}

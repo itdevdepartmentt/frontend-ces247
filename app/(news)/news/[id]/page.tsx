@@ -1,13 +1,15 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
 import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useNews } from "@/hooks/use-news";
 import { useAuth } from "@/hooks/use-auth";
 import {
   ArrowLeft, Clock, Calendar, User, Newspaper,
-  Info, FileQuestion, AlertCircle, Eye, Edit,
+  Info, FileQuestion, AlertCircle, Eye, Edit, Bookmark,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect, useState, lazy, Suspense } from "react";
@@ -19,6 +21,7 @@ import { toast } from "sonner";
 
 const NewsRenderer = lazy(() => import("@/components/news/NewsRenderer").then(m => ({ default: m.NewsRenderer })));
 const NewsForm = lazy(() => import("@/components/news/NewsForm").then(m => ({ default: m.NewsForm })));
+const CommentSection = lazy(() => import("@/components/news/CommentSection").then(m => ({ default: m.CommentSection })));
 
 // Skeleton untuk NewsForm saat lazy loading
 function NewsFormSkeleton() {
@@ -95,7 +98,7 @@ export default function NewsDetailPage() {
   const { id } = useParams();
   const router = useRouter();
   const { user } = useAuth(false);
-  const { article, isLoading, updateNews } = useNews({}, id as string);
+  const { article, isLoading, updateNews, isBookmarked, toggleBookmark, isTogglingBookmark } = useNews({}, id as string);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [localViewCount, setLocalViewCount] = useState<number | null>(null);
 
@@ -121,6 +124,19 @@ export default function NewsDetailPage() {
       setIsEditOpen(false);
     } catch {
       toast.error("Gagal memperbarui artikel.");
+    }
+  };
+
+  const handleBookmark = async () => {
+    if (!user) {
+      toast.error("Silakan login untuk menyimpan bookmark.");
+      return;
+    }
+    try {
+      await toggleBookmark();
+      toast.success(isBookmarked ? "Bookmark dihapus." : "Artikel disimpan ke Bookmark!");
+    } catch {
+      toast.error("Gagal mengubah status bookmark.");
     }
   };
 
@@ -151,22 +167,62 @@ export default function NewsDetailPage() {
 
       {/* Top Bar: back + edit button */}
       <div className="mb-8 flex items-center justify-between">
-        <button
-          onClick={() => window.history.back()}
-          className="flex items-center justify-center h-10 w-10 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-900 transition-all cursor-pointer shadow-lg"
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </button>
-
-        {canEdit && (
+        <div className="flex items-center gap-4">
           <button
-            onClick={() => setIsEditOpen(true)}
-            className="flex items-center gap-2 rounded-2xl border border-indigo-500/30 bg-indigo-500/10 px-4 py-2 text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/20 transition-all cursor-pointer"
+            onClick={() => window.history.back()}
+            className="flex items-center justify-center h-10 w-10 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-900 transition-all cursor-pointer shadow-lg"
           >
-            <Edit className="h-4 w-4" />
-            Edit Artikel
+            <ArrowLeft className="h-5 w-5" />
           </button>
-        )}
+          
+          {/* BISA Logo Link */}
+          <Link href="/news" className="flex items-center gap-3 group">
+            <Image src="/ces247-3.svg" alt="CESIA Logo" width={36} height={36} className="dark:brightness-200 group-hover:scale-105 transition-transform" />
+            <div className="flex flex-col hidden sm:flex">
+              <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-none mb-0.5">
+                BISA
+              </h1>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 flex items-center leading-none">
+                Berita <span className="text-indigo-400/60 dark:text-indigo-500/60 mx-1">•</span> 
+                Informasi <span className="text-indigo-400/60 dark:text-indigo-500/60 mx-1">•</span> 
+                Solusi &amp; Panduan
+              </span>
+            </div>
+          </Link>
+        </div>
+
+        <div className="flex items-center gap-3">
+          {user && (
+            <button
+              onClick={handleBookmark}
+              disabled={isTogglingBookmark}
+              title={isBookmarked ? "Hapus Bookmark" : "Simpan ke Bookmark"}
+              className={cn(
+                "flex items-center justify-center h-10 w-10 rounded-full border transition-all cursor-pointer shadow-sm group disabled:opacity-50",
+                isBookmarked 
+                  ? "border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-900/30" 
+                  : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 hover:bg-slate-50 dark:hover:bg-slate-900"
+              )}
+            >
+              <Bookmark className={cn(
+                "h-4 w-4 transition-colors", 
+                isBookmarked 
+                  ? "fill-indigo-500 text-indigo-500" 
+                  : "text-slate-500 dark:text-slate-400 group-hover:text-indigo-500"
+              )} />
+            </button>
+          )}
+
+          {canEdit && (
+            <button
+              onClick={() => setIsEditOpen(true)}
+              className="flex items-center gap-2 rounded-2xl border border-indigo-500/30 bg-indigo-500/10 px-4 py-2 text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/20 transition-all cursor-pointer"
+            >
+              <Edit className="h-4 w-4" />
+              <span className="hidden sm:inline">Edit Artikel</span>
+            </button>
+          )}
+        </div>
       </div>
 
       <article className="space-y-8">
@@ -235,6 +291,11 @@ export default function NewsDetailPage() {
             <NewsRenderer content={article.content} />
           </Suspense>
         </div>
+
+        {/* Comments */}
+        <Suspense fallback={<div className="mt-12 pt-10 border-t border-slate-200 dark:border-slate-800/60 animate-pulse"><div className="h-6 w-32 bg-slate-200 dark:bg-slate-800 rounded" /></div>}>
+          <CommentSection newsId={id as string} />
+        </Suspense>
       </article>
 
       {/* Edit Dialog */}

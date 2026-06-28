@@ -12,14 +12,16 @@ interface UseDashboardProps {
     to?: string;
   };
   isFcr?: boolean;
+  fcrType?: 'kip' | 'realisasi';
 }
 
-export function useDashboardData({ dateRange, isFcr }: UseDashboardProps) {
+export function useDashboardData({ dateRange, isFcr, fcrType }: UseDashboardProps) {
   // Helper to format dates for API (assuming API takes YYYY-MM-DD)
   const queryParams = {
     startDate: dateRange?.from ? dateRange.from : undefined,
     endDate: dateRange?.to ? dateRange.to : undefined,
     isFcr,
+    fcrType,
   };
 
   const summaryQuery = useQuery({

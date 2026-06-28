@@ -1433,7 +1433,7 @@ export function NewsForm({
             content: [
               {
                 type: 'text',
-                text: data.name,
+                text: "📄 " + data.name,
                 marks: [
                   {
                     type: 'customLink',
@@ -1441,9 +1441,6 @@ export function NewsForm({
                       href: fullUrl,
                       target: '_blank',
                     },
-                  },
-                  {
-                    type: 'hiddenText',
                   },
                 ],
               },
