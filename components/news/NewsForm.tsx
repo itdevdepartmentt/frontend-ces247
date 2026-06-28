@@ -9,7 +9,7 @@ import TableRow from "@tiptap/extension-table-row";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import Image from "@tiptap/extension-image";
-import { Extension, Mark, mergeAttributes, CommandProps } from "@tiptap/core";
+import { Extension, Mark, Node as TiptapNode, mergeAttributes, CommandProps } from "@tiptap/core";
 import { Node as ProseMirrorNode } from "@tiptap/pm/model";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -1084,6 +1084,38 @@ const HiddenText = Mark.create({
   },
 });
 
+const PdfEmbed = TiptapNode.create({
+  name: "pdfEmbed",
+  group: "block",
+  atom: true,
+
+  addAttributes() {
+    return {
+      src: { default: null },
+      fileName: { default: null },
+    };
+  },
+
+  parseHTML() {
+    return [{ tag: "div[data-pdf-embed]" }];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return [
+      "div",
+      mergeAttributes(HTMLAttributes, {
+        "data-pdf-embed": "",
+        class: "flex items-center gap-2 p-3 my-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-900/50 text-slate-700 dark:text-slate-200 select-all cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors relative",
+        contenteditable: "false",
+        title: "Klik lalu tekan Backspace untuk menghapus",
+      }),
+      ["span", { class: "text-2xl" }, "📄"],
+      ["span", { class: "font-bold text-sm truncate flex-1" }, HTMLAttributes.fileName || "Dokumen PDF"],
+      ["div", { class: "absolute inset-0 ring-2 ring-transparent focus-within:ring-indigo-500 rounded-lg pointer-events-none" }],
+    ];
+  },
+});
+
 const ImageExtension = Image.extend({
   addAttributes() {
     return {
@@ -1272,6 +1304,7 @@ export function NewsForm({
       FontSize,
       TextColor,
       CustomLink,
+      PdfEmbed,
     ],
     content: initialData?.content || "",
     editorProps: {
@@ -1429,22 +1462,11 @@ export function NewsForm({
           ?.chain()
           .focus()
           .insertContent({
-            type: 'paragraph',
-            content: [
-              {
-                type: 'text',
-                text: "📄 " + data.name,
-                marks: [
-                  {
-                    type: 'customLink',
-                    attrs: {
-                      href: fullUrl,
-                      target: '_blank',
-                    },
-                  },
-                ],
-              },
-            ],
+            type: 'pdfEmbed',
+            attrs: {
+              src: fullUrl,
+              fileName: data.name || file.name,
+            },
           })
           .run();
       }
