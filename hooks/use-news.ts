@@ -1,6 +1,7 @@
 // hooks/useNews.ts
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api";
+import { useAuth } from "./use-auth";
 
 export interface NewsArticle {
   id: string;
@@ -57,8 +58,10 @@ export function useNews(
   });
 
   // Bookmark Status
+  const { user } = useAuth(false);
+  
   const bookmarkQuery = useQuery({
-    queryKey: ["bookmark", id],
+    queryKey: ["bookmark", id, user?.id],
     queryFn: async () => {
       const { data } = await api.get<{ isBookmarked: boolean }>(`/news/${id}/bookmark/status`);
       return data;
@@ -111,8 +114,9 @@ export function useNews(
       const { data } = await api.post<{ isBookmarked: boolean }>(`/news/${id}/bookmark`);
       return data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["bookmark", id] });
+    onSuccess: (data) => {
+      queryClient.setQueryData(["bookmark", id, user?.id], data);
+      queryClient.invalidateQueries({ queryKey: ["bookmark", id] }); // invalidate old key just in case
       queryClient.invalidateQueries({ queryKey: ["myActivity"] });
     },
   });
