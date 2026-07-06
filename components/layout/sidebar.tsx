@@ -17,6 +17,9 @@ import {
   TicketPercent,
   UserRoundPlus,
   ClipboardList,
+  ShieldCheck,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -30,6 +33,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { ModeToggle } from "../ui-mode-toggle";
 import Image from "next/image";
 
@@ -64,71 +73,88 @@ export function Sidebar() {
       title: "Overview",
       href: "/dashboard",
       icon: LayoutDashboard,
-      roles: ["USER", "ADMIN"],
+      roles: ["USER", "ADMIN", "QC", "TL"],
     },
     {
       title: "Dashboard FCR",
       href: "/dashboard-fcr",
       icon: LayoutPanelTop,
-      roles: ["USER", "ADMIN"],
+      roles: ["USER", "ADMIN", "QC", "TL"],
     },
     {
       title: "Ticket Breakdown Channel",
       href: "/breakdown-channel",
       icon: TicketPercent,
-      roles: ["USER", "ADMIN"],
+      roles: ["USER", "ADMIN", "QC", "TL"],
     },
     {
       title: "Corporate Detail",
       href: "/corporate-detail",
       icon: Building2,
-      roles: ["USER", "ADMIN"],
+      roles: ["USER", "ADMIN", "QC", "TL"],
     },
     {
       title: "Product Detail",
       href: "/product-detail",
       icon: ShoppingBasket,
-      roles: ["USER", "ADMIN"],
+      roles: ["USER", "ADMIN", "QC", "TL"],
     },
     {
       title: "Upload Report",
       href: "/upload",
       icon: FileUp,
-      roles: ["ADMIN"],
+      roles: ["ADMIN", "QC", "TL"],
     },
     {
       title: "Download Raw Data",
       href: "/download",
       icon: Download,
-      roles: ["ADMIN"],
+      roles: ["ADMIN", "QC", "TL"],
     },
     {
       title: "Account Management",
       href: "/accounts",
       icon: UserRoundPlus,
-      roles: ["ADMIN"],
+      roles: ["ADMIN", "QC", "TL"],
     },
     {
       title: "BISA",
       href: "/news",
       icon: Newspaper,
-      roles: ["USER", "ADMIN"],
+      roles: ["USER", "ADMIN", "QC", "TL"],
     },
     {
       title: "Lookup Management",
       href: "/lookup-management",
       icon: DatabaseZap,
-      roles: ["ADMIN"],
+      roles: ["ADMIN", "QC", "TL"],
     },
     {
       title: "Survey Management",
       href: "/survey-management",
       icon: ClipboardList,
-      roles: ["ADMIN", "USER"],
+      roles: ["ADMIN", "USER", "QC", "TL"],
+    },
+    {
+      title: "Quality Assurance",
+      href: "#",
+      icon: ShieldCheck,
+      roles: ["USER", "ADMIN", "QC", "TL"],
+      subItems: [
+        { title: "QA Score", href: "/quality-assurance/qa-score", roles: ["USER", "ADMIN", "QC", "TL"] },
+        { title: "Detail Tapping", href: "/quality-assurance/detail-tapping", roles: ["ADMIN", "QC", "TL"] },
+        { title: "Form Tapping", href: "/quality-assurance/form-tapping", roles: ["ADMIN", "QC"] },
+        { title: "Rekonsiliasi QA", href: "/quality-assurance/reconciliation", roles: ["ADMIN", "QC", "TL"] },
+      ]
     },
   ];
 
   const toggleSidebar = () => setIsCollapsed(!isCollapsed);
+  const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
+
+  const toggleMenu = (title: string) => {
+    setOpenMenus((prev) => ({ ...prev, [title]: !prev[title] }));
+  };
 
   return (
     <TooltipProvider delayDuration={0}>
@@ -221,13 +247,52 @@ export function Sidebar() {
           >
             {links.map((link) => {
               if (user && !link.roles.includes(user.role)) return null;
+              
+              // Filter subItems based on user roles
+              const subItems = link.subItems?.filter(sub => user && sub.roles.includes(user.role)) || [];
+              const hasSubItems = subItems.length > 0;
+              
               const Icon = link.icon;
-              const isActive = pathname === link.href;
-
+              const isActive = pathname === link.href || subItems.some(sub => pathname.startsWith(sub.href));
+              const isOpen = openMenus[link.title] !== undefined ? openMenus[link.title] : isActive;
+              
               // Render Icon-only Tooltip (Desktop Collapsed)
               if (isCollapsed && !isMobile) {
-                return (
-                  <Tooltip key={link.href}>
+                return hasSubItems ? (
+                  <DropdownMenu key={link.title}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <DropdownMenuTrigger asChild>
+                          <button
+                            className={cn(
+                              "flex h-9 w-9 items-center justify-center rounded-md transition-colors hover:bg-accent hover:text-accent-foreground mx-auto",
+                              isActive
+                                ? "bg-accent text-accent-foreground"
+                                : "text-muted-foreground",
+                            )}
+                          >
+                            <Icon className="h-4 w-4" />
+                            <span className="sr-only">{link.title}</span>
+                          </button>
+                        </DropdownMenuTrigger>
+                      </TooltipTrigger>
+                      <TooltipContent side="right">
+                        <div className="font-semibold">{link.title}</div>
+                      </TooltipContent>
+                    </Tooltip>
+                    
+                    <DropdownMenuContent side="right" align="start" className="w-48 ml-2">
+                      {subItems.map((sub) => (
+                        <DropdownMenuItem key={sub.title} asChild>
+                          <Link href={sub.href} className="w-full cursor-pointer">
+                            {sub.title}
+                          </Link>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <Tooltip key={link.title}>
                     <TooltipTrigger asChild>
                       <Link
                         href={link.href}
@@ -242,27 +307,76 @@ export function Sidebar() {
                         <span className="sr-only">{link.title}</span>
                       </Link>
                     </TooltipTrigger>
-                    <TooltipContent side="right">{link.title}</TooltipContent>
+                    <TooltipContent side="right">
+                      <div className="font-semibold">{link.title}</div>
+                    </TooltipContent>
                   </Tooltip>
                 );
               }
 
               // Render Full Link (Mobile or Desktop Expanded)
               return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={cn(
-                    "flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors",
-                    isActive
-                      ? "bg-accent text-accent-foreground"
-                      : "text-muted-foreground",
+                <div key={link.title} className="space-y-1">
+                  {hasSubItems ? (
+                    <button
+                      onClick={() => setOpenMenus(prev => ({ ...prev, [link.title]: !isOpen }))}
+                      className={cn(
+                        "w-full flex items-center justify-between rounded-md px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors",
+                        isActive && !isOpen
+                          ? "bg-accent text-accent-foreground"
+                          : "text-muted-foreground",
+                      )}
+                    >
+                      <div className="flex items-center">
+                        <Icon className="mr-2 h-4 w-4" />
+                        {link.title}
+                      </div>
+                      <div className="ml-auto flex items-center transition-transform duration-200" style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0)' }}>
+                         <ChevronDown className="h-4 w-4" />
+                      </div>
+                    </button>
+                  ) : (
+                    <Link
+                      href={link.href}
+                      className={cn(
+                        "flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors",
+                        isActive
+                          ? "bg-accent text-accent-foreground"
+                          : "text-muted-foreground",
+                      )}
+                      onClick={() => isMobile && setIsCollapsed(true)} // Close menu on click (Mobile only)
+                    >
+                      <Icon className="mr-2 h-4 w-4" />
+                      {link.title}
+                    </Link>
                   )}
-                  onClick={() => isMobile && setIsCollapsed(true)} // Close menu on click (Mobile only)
-                >
-                  <Icon className="mr-2 h-4 w-4" />
-                  {link.title}
-                </Link>
+                  {hasSubItems && (
+                    <div
+                      className={cn(
+                        "overflow-hidden transition-all duration-300 ease-in-out",
+                        isOpen ? "max-h-96 opacity-100 mt-1" : "max-h-0 opacity-0"
+                      )}
+                    >
+                      <div className="flex flex-col space-y-1 ml-6 border-l pl-2 border-border/50 py-1">
+                        {subItems.map((subItem) => (
+                           <Link
+                             key={subItem.href}
+                             href={subItem.href}
+                             className={cn(
+                               "flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-all duration-200",
+                               pathname === subItem.href
+                                 ? "bg-accent text-accent-foreground shadow-sm"
+                                 : "text-muted-foreground",
+                             )}
+                             onClick={() => isMobile && setIsCollapsed(true)}
+                           >
+                             {subItem.title}
+                           </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               );
             })}
           </nav>

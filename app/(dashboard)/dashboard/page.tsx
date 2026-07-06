@@ -27,6 +27,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import api from "@/lib/api";
 import { toast } from "sonner";
+import { DashboardFilter } from "@/components/dashboard/dashboard-filter";
 
 // Helper to map backend string to Icon
 const getChannelIcon = (channelName: string) => {
@@ -65,6 +66,10 @@ export function DashboardPageContent({
   const [lastSyncDate, setLastSyncDate] = useState<string | undefined>("");
   const lastSyncRef = useRef<string | null>(null);
 
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedSubCategories, setSelectedSubCategories] = useState<string[]>([]);
+  const [selectedDetailCategories, setSelectedDetailCategories] = useState<string[]>([]);
+
   const normalizedDateRange = useMemo(() => {
     if (!dateRange?.from) return undefined;
 
@@ -81,10 +86,13 @@ export function DashboardPageContent({
     };
   }, [dateRange]);
 
-  const { summary, channels, lastSync, isLoading, refetch } = useDashboardData({
+  const { summary, channels, lastSync, filterOptions, isLoading, isFilterLoading, refetch } = useDashboardData({
     dateRange: normalizedDateRange,
     isFcr,
     fcrType,
+    categories: selectedCategories,
+    subCategories: selectedSubCategories,
+    detailCategories: selectedDetailCategories,
   });
 
   // 1. Polling Effect: Runs only when we have a jobId to track
@@ -244,6 +252,18 @@ export function DashboardPageContent({
               </Button>
             </div>
           </div>
+          <DashboardFilter
+            categories={filterOptions?.categories || []}
+            subCategories={filterOptions?.subCategories || []}
+            detailCategories={filterOptions?.detailCategories || []}
+            selectedCategories={selectedCategories}
+            selectedSubCategories={selectedSubCategories}
+            selectedDetailCategories={selectedDetailCategories}
+            onCategoriesChange={setSelectedCategories}
+            onSubCategoriesChange={setSelectedSubCategories}
+            onDetailCategoriesChange={setSelectedDetailCategories}
+            isLoading={isFilterLoading}
+          />
           <CalendarDateRangePicker
             className="w-full sm:w-auto"
             date={dateRange}

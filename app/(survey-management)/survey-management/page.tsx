@@ -51,7 +51,7 @@ import api from "@/lib/api";
 
 export default function SurveyManagementPage() {
   const { user } = useAuth();
-  const isAdmin = user?.role === "ADMIN";
+  const isAdmin = user?.role === "ADMIN" || user?.role === "QC";
   
   // Set default tab safely avoiding hydration issues
   const [activeTab, setActiveTab] = useState("responses");
@@ -332,7 +332,7 @@ function SurveyResponsesTab() {
   const { data, isLoading, refetch } = useAdminSurveyResponses({ page, limit, search });
   const { data: fieldsData } = useAdminSurveyFields({ limit: 100 });
   const { user } = useAuth();
-  const isAdmin = user?.role === "ADMIN";
+  const isAdmin = user?.role === "ADMIN" || user?.role === "QC";
   
   useEffect(() => {
     const handleRefetch = () => refetch();

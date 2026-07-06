@@ -92,7 +92,6 @@ const calculateReadingTime = (content: any): number => {
   return Math.max(1, Math.ceil(words / 200));
 };
 
-const ALLOWED_EDIT_EMAIL = "qcnyaces@gmail.com";
 
 export default function NewsDetailPage() {
   const { id } = useParams();
@@ -160,7 +159,7 @@ export default function NewsDetailPage() {
   }
 
   const readingTime = calculateReadingTime(article.content);
-  const canEdit = user?.role === "ADMIN" && user?.email === ALLOWED_EDIT_EMAIL;
+  const canEdit = user?.role === "ADMIN" || user?.role === "QC";
 
   return (
     <div className="container mx-auto max-w-4xl px-6 py-10">

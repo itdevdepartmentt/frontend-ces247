@@ -13,7 +13,7 @@ export interface Comment {
     id: string;
     name: string;
     email: string;
-    role: "USER" | "ADMIN";
+    role: "USER" | "ADMIN" | "QC" | "TL";
   };
   replies?: Comment[];
   likes?: { userId: string }[];

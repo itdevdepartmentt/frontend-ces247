@@ -93,7 +93,7 @@ export function CommentSection({ newsId }: CommentSectionProps) {
           className={cn(
             "flex-shrink-0 rounded-full flex items-center justify-center text-sm font-bold shadow-sm",
             isReply ? "h-7 w-7 text-xs" : "h-9 w-9",
-            comment.user.role === "ADMIN"
+            comment.user.role === "ADMIN" || comment.user.role === "QC"
               ? "bg-gradient-to-br from-amber-400 to-orange-500 text-white"
               : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700"
           )}
@@ -107,9 +107,9 @@ export function CommentSection({ newsId }: CommentSectionProps) {
             <span className="font-semibold text-sm text-slate-800 dark:text-slate-200">
               {comment.user.name}
             </span>
-            {comment.user.role === "ADMIN" && (
+            {(comment.user.role === "ADMIN" || comment.user.role === "QC") && (
               <span className="inline-flex items-center rounded-full bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
-                Admin
+                {comment.user.role === "QC" ? "QC" : "Admin"}
               </span>
             )}
             <span className="text-xs text-slate-400 dark:text-slate-600">
@@ -142,7 +142,7 @@ export function CommentSection({ newsId }: CommentSectionProps) {
               </button>
             )}
 
-            {user && (user.id === comment.user.id || user.role === "ADMIN") && (
+            {user && (user.id === comment.user.id || user.role === "ADMIN" || user.role === "QC") && (
               <button
                 onClick={() => handleDelete(comment.id)}
                 className="opacity-0 group-hover:opacity-100 hover:text-red-500 transition-all duration-150 cursor-pointer"

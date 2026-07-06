@@ -50,7 +50,7 @@ type User = {
   id: string;
   name: string;
   email: string;
-  role: "USER" | "ADMIN";
+  role: "USER" | "ADMIN" | "QC" | "TL";
   createdAt: string;
 };
 
@@ -58,7 +58,7 @@ const userSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters").optional().or(z.literal("")),
-  role: z.enum(["USER", "ADMIN"]),
+  role: z.enum(["USER", "ADMIN", "QC", "TL"]),
 });
 
 type UserFormValues = z.infer<typeof userSchema>;
@@ -278,6 +278,8 @@ export default function AccountsPage() {
                     <SelectContent>
                       <SelectItem value="USER">User</SelectItem>
                       <SelectItem value="ADMIN">Admin</SelectItem>
+                      <SelectItem value="QC">QC</SelectItem>
+                      <SelectItem value="TL">Team Leader</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -337,6 +339,8 @@ export default function AccountsPage() {
                     <SelectContent>
                       <SelectItem value="USER">User</SelectItem>
                       <SelectItem value="ADMIN">Admin</SelectItem>
+                      <SelectItem value="QC">QC</SelectItem>
+                      <SelectItem value="TL">Team Leader</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />

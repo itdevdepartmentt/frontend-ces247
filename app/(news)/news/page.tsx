@@ -303,7 +303,7 @@ function NewsPageContent({ isAdmin }: { isAdmin: boolean }) {
           </div>
 
           {/* Create News Pop-Up (Admins Only) */}
-          {user?.role === "ADMIN" && (
+          {(user?.role === "ADMIN" || user?.role === "QC") && (
             <>
               <Button
                 variant={isViewingDrafts ? "default" : "outline"}
@@ -465,7 +465,7 @@ function NewsPageContent({ isAdmin }: { isAdmin: boolean }) {
                       </div>
 
                       <div className="flex items-center gap-2">
-                      {user?.role === "ADMIN" && user?.email === "qcnyaces@gmail.com" && (
+                      {(user?.role === "ADMIN" || user?.role === "QC") && (
                         <Button
                           variant="ghost"
                           size="icon"
@@ -480,7 +480,7 @@ function NewsPageContent({ isAdmin }: { isAdmin: boolean }) {
                           <Edit className="h-4.5 w-4.5" />
                         </Button>
                       )}
-                      {user?.role === "ADMIN" && (
+                      {(user?.role === "ADMIN" || user?.role === "QC") && (
                         <Button
                           variant="ghost"
                           size="icon"
