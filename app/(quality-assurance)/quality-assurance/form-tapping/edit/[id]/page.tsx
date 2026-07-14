@@ -86,6 +86,18 @@ export default function EditHistoryPage() {
       if (currentTicket.parameterPenilaian) setParameterPenilaian(currentTicket.parameterPenilaian.split(" | "));
       if (currentTicket.peak !== undefined) setPeak(currentTicket.peak);
       if (currentTicket.tappingDuration !== undefined) setTappingSeconds(currentTicket.tappingDuration);
+      
+      const taggingVal = (currentTicket as any).tagging || "";
+      const isPredefinedTag = ["none", "#ReqSPV", "#ReqPRIME", "#Detractors"].includes(taggingVal);
+      if (taggingVal) {
+        if (isPredefinedTag) {
+          setTagging(taggingVal);
+        } else {
+          setTagging("lainnya");
+          setTaggingCustom(taggingVal);
+        }
+      }
+      
       setIsTapping(true);
     }
   }, [currentTicket]);
@@ -107,6 +119,8 @@ export default function EditHistoryPage() {
   const [status, setStatus] = useState("Sample");
   const [solusi, setSolusi] = useState("");
   const [notes, setNotes] = useState("");
+  const [tagging, setTagging] = useState("");
+  const [taggingCustom, setTaggingCustom] = useState("");
   const [subParameterPenilaian, setSubParameterPenilaian] = useState<string[]>([]);
   const [parameterPenilaian, setParameterPenilaian] = useState<string[]>([]);
   const [peak, setPeak] = useState<number>(3);
@@ -149,6 +163,14 @@ export default function EditHistoryPage() {
   const handleSubmitReview = () => {
     if (!currentTicket) return;
     
+    if (tagging === "lainnya" && (!taggingCustom || taggingCustom.trim() === "")) {
+      toast.error("Tagging Custom wajib diisi jika memilih Lainnya");
+      return;
+    } else if (!tagging || tagging.trim() === "") {
+      toast.error("Tagging wajib diisi");
+      return;
+    }
+
     const reviewData = {
       tapper: user?.name || formData.tapper || "",
       idTiket: formData.idTiket,
@@ -170,6 +192,7 @@ export default function EditHistoryPage() {
       scoreDokumentasi,
       status,
       solusi,
+      tagging: tagging === "lainnya" ? taggingCustom : tagging,
       notes,
       subParameterPenilaian: subParameterPenilaian.join(" | "),
       parameterPenilaian: parameterPenilaian.join(" | "),
@@ -241,6 +264,14 @@ export default function EditHistoryPage() {
                   </Button>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-8">
+                  <div className="flex flex-col gap-2.5">
+                    <Label className="text-[11px] text-zinc-400 font-bold uppercase tracking-widest">Tapper</Label>
+                    {isEditingForm ? (
+                      <Input value={formData.tapper || ""} onChange={(e) => handleInputChange("tapper", e.target.value)} className="h-11 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 font-medium text-zinc-800 dark:text-zinc-200" />
+                    ) : (
+                      <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">{formData.tapper || "-"}</p>
+                    )}
+                  </div>
                   <div className="flex flex-col gap-2.5">
                     <Label className="text-[11px] text-zinc-400 font-bold uppercase tracking-widest">Agent</Label>
                     {isEditingForm ? (
@@ -470,16 +501,41 @@ export default function EditHistoryPage() {
                     <div className="flex flex-col gap-3">
                       <Label className="font-bold text-zinc-700 dark:text-zinc-300">Peak *</Label>
                       <div className="flex items-center gap-2">
-                        <Button variant="outline" size="icon" onClick={() => setPeak(Math.max(0, peak - 1))} className="h-[52px] w-[52px] rounded-xl border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 text-zinc-600 shrink-0 hover:bg-zinc-100">
+                        <Button variant="outline" size="icon" onClick={() => setPeak(Math.max(1, peak - 1))} className="h-[52px] w-[52px] rounded-xl border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 text-zinc-600 shrink-0 hover:bg-zinc-100">
                           <Minus className="w-5 h-5" />
                         </Button>
                         <div className="h-[52px] flex-1 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 flex items-center justify-center font-bold text-xl text-zinc-800 dark:text-zinc-200">
                           {peak}
                         </div>
-                        <Button variant="outline" size="icon" onClick={() => setPeak(peak + 1)} className="h-[52px] w-[52px] rounded-xl border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 text-zinc-600 shrink-0 hover:bg-zinc-100">
+                        <Button variant="outline" size="icon" onClick={() => setPeak(Math.min(3, peak + 1))} className="h-[52px] w-[52px] rounded-xl border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 text-zinc-600 shrink-0 hover:bg-zinc-100">
                           <Plus className="w-5 h-5" />
                         </Button>
                       </div>
+                    </div>
+
+                    <div className="flex flex-col gap-3">
+                      <Label className="font-bold text-zinc-700 dark:text-zinc-300">Tagging *</Label>
+                      <Select value={tagging} onValueChange={setTagging}>
+                        <SelectTrigger className="h-[52px] rounded-xl border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 font-medium">
+                          <SelectValue placeholder="Pilih Tagging" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-xl border-zinc-200 dark:border-zinc-800">
+                          <SelectItem value="none">Tidak Ada</SelectItem>
+                          <SelectItem value="#ReqSPV">#ReqSPV</SelectItem>
+                          <SelectItem value="#ReqPRIME">#ReqPRIME</SelectItem>
+                          <SelectItem value="#Detractors">#Detractors</SelectItem>
+                          <SelectItem value="lainnya">Lainnya (Tulis Sendiri)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      
+                      {tagging === "lainnya" && (
+                        <Input 
+                          value={taggingCustom}
+                          onChange={(e) => setTaggingCustom(e.target.value)}
+                          placeholder="Masukkan tagging custom..."
+                          className="h-[52px] rounded-xl border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 mt-1"
+                        />
+                      )}
                     </div>
                   </div>
 

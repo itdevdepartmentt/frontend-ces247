@@ -18,7 +18,7 @@ export default function DashboardPage() {
 
   // Pagination state
   const [page, setPage] = useState(1);
-  const [limit] = useState(4);
+  const [limit, setLimit] = useState(4);
 
   const normalizedDateRange = useMemo(() => {
     if (!dateRange?.from) return undefined;
@@ -106,6 +106,7 @@ export default function DashboardPage() {
           itemsPerPage={limit}
           totalItems={totalCount || 0} // Use 0 fallback if backend not ready
           onPageChange={setPage}
+          onLimitChange={setLimit}
         />
       </div>
     </div>

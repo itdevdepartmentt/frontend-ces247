@@ -402,7 +402,7 @@ function EditableTable<T extends { id: number }>({
   defaultNewRow,
 }: EditableTableProps<T>) {
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(25);
+  const [limit, setLimit] = useState(10);
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -863,7 +863,7 @@ function EditableTable<T extends { id: number }>({
                 setPage(1);
               }}
             >
-              {[10, 25, 50, 100].map((n) => (
+              {[10, 20, 50, 100].map((n) => (
                 <option key={n} value={n}>{n}</option>
               ))}
             </select>

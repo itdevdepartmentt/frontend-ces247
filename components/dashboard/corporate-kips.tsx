@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { CompanyKips } from "@/types/dashboard";
 
@@ -28,6 +29,7 @@ interface SlaCustomerKipProps {
   itemsPerPage: number;
   totalItems: number; // Required to calculate total pages
   onPageChange: (page: number) => void;
+  onLimitChange?: (limit: number) => void;
 }
 
 // --- Sample Data ---
@@ -68,6 +70,7 @@ export function SlaCustomerKipCard({
   itemsPerPage,
   totalItems,
   onPageChange,
+  onLimitChange,
 }: SlaCustomerKipProps) {
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   7;
@@ -242,7 +245,6 @@ export function SlaCustomerKipCard({
           <div className="mt-6 flex items-center justify-center gap-2 select-none">
             <span className="text-sm font-bold text-foreground mr-2">Page</span>
 
-            {/* Loop through the Smart Pagination Items */}
             {getPaginationItems().map((item, index) => (
               <React.Fragment key={index}>
                 {item === "..." ? (
@@ -265,6 +267,20 @@ export function SlaCustomerKipCard({
                 )}
               </React.Fragment>
             ))}
+
+            {onLimitChange && (
+              <Select value={itemsPerPage.toString()} onValueChange={(v) => { onLimitChange(Number(v)); onPageChange(1); }}>
+                <SelectTrigger className="w-[70px] h-7 ml-2 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="4">4</SelectItem>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="20">20</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
 
             {/* Navigation Arrows */}
             <div className="flex gap-1 ml-2">

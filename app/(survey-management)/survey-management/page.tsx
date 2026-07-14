@@ -51,7 +51,7 @@ import api from "@/lib/api";
 
 export default function SurveyManagementPage() {
   const { user } = useAuth();
-  const isAdmin = user?.role === "ADMIN" || user?.role === "QC";
+  const isAdmin = user?.role === "ADMIN" || user?.role === "QC" || user?.role === "TL_QC";
   
   // Set default tab safely avoiding hydration issues
   const [activeTab, setActiveTab] = useState("responses");
@@ -327,12 +327,12 @@ function SurveyFieldsTab() {
 function SurveyResponsesTab() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
-  const limit = 10;
+  const [limit, setLimit] = useState(10);
 
   const { data, isLoading, refetch } = useAdminSurveyResponses({ page, limit, search });
   const { data: fieldsData } = useAdminSurveyFields({ limit: 100 });
   const { user } = useAuth();
-  const isAdmin = user?.role === "ADMIN" || user?.role === "QC";
+  const isAdmin = user?.role === "ADMIN" || user?.role === "QC" || user?.role === "TL_QC";
   
   useEffect(() => {
     const handleRefetch = () => refetch();
@@ -437,8 +437,19 @@ function SurveyResponsesTab() {
         
         {meta && (
           <div className="flex items-center justify-between pt-4">
-            <div className="text-sm text-muted-foreground">
-              Menampilkan {((page - 1) * limit) + 1} - {Math.min(page * limit, meta.total)} dari {meta.total} data
+            <div className="text-sm text-muted-foreground flex items-center gap-4">
+              <span>Menampilkan {((page - 1) * limit) + 1} - {Math.min(page * limit, meta.total)} dari {meta.total} data</span>
+              <Select value={limit.toString()} onValueChange={(v) => { setLimit(Number(v)); setPage(1); }}>
+                <SelectTrigger className="w-[80px] h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="20">20</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                  <SelectItem value="100">100</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="flex items-center space-x-2">
               <Button variant="outline" size="sm" onClick={() => setPage(1)} disabled={page === 1}>

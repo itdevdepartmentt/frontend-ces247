@@ -19,9 +19,17 @@ import { cn } from "@/lib/utils";
 import api from "@/lib/api";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 interface Ticket {
   id: string;
+  perusahaan?: string;
   createdDate?: string;
   createdAt?: string;
   tapper?: string;
@@ -61,6 +69,15 @@ export default function EvaluateTicketPage() {
   useEffect(() => {
     if (currentTicket) {
       setFormData(currentTicket);
+      
+      const dateString = currentTicket.createdDate || currentTicket.createdAt;
+      if (dateString) {
+        const date = new Date(dateString);
+        const day = date.getDate();
+        if (day >= 1 && day <= 10) setPeak(1);
+        else if (day >= 11 && day <= 20) setPeak(2);
+        else setPeak(3);
+      }
     }
   }, [currentTicket]);
 
@@ -72,14 +89,47 @@ export default function EvaluateTicketPage() {
 
   const [isTapping, setIsTapping] = useState(false);
   const [tappingSeconds, setTappingSeconds] = useState(0);
+  const [startTime, setStartTime] = useState<Date | null>(null);
+
+  // Pause reason states
+  const [pauseDialogOpen, setPauseDialogOpen] = useState(false);
+  const [pauseReasonInput, setPauseReasonInput] = useState("");
+  const [pauseReasons, setPauseReasons] = useState<{ reason: string; pausedAt: string }[]>([]);
+
+  const handleStartTapping = () => {
+    if (!startTime) setStartTime(new Date());
+    setIsTapping(true);
+  };
+
+  const handlePauseTapping = () => {
+    setIsTapping(false);
+    setPauseDialogOpen(true);
+    setPauseReasonInput("");
+  };
+
+  const handleConfirmPause = () => {
+    if (pauseReasonInput.trim()) {
+      setPauseReasons(prev => [...prev, {
+        reason: pauseReasonInput.trim(),
+        pausedAt: new Date().toISOString(),
+      }]);
+    }
+    setPauseDialogOpen(false);
+  };
+
+  const handleSkipPauseReason = () => {
+    setPauseDialogOpen(false);
+  };
   
-  const [scoreValiditas, setScoreValiditas] = useState(0);
-  const [scoreServiceLevel, setScoreServiceLevel] = useState(0);
-  const [scoreKalimat, setScoreKalimat] = useState(0);
-  const [scoreResponTime, setScoreResponTime] = useState(0);
-  const [scoreDokumentasi, setScoreDokumentasi] = useState(0);
+  const [scoreValiditas, setScoreValiditas] = useState(30);
+  const [scoreServiceLevel, setScoreServiceLevel] = useState(30);
+  const [scoreKalimat, setScoreKalimat] = useState(10);
+  const [scoreResponTime, setScoreResponTime] = useState(15);
+  const [scoreDokumentasi, setScoreDokumentasi] = useState(15);
   const [status, setStatus] = useState("Sample");
-  const [solusi, setSolusi] = useState("");
+  const [solusi, setSolusi] = useState<string[]>([]);
+  const [tagging, setTagging] = useState("");
+  const [taggingCustom, setTaggingCustom] = useState("");
   const [notes, setNotes] = useState("");
   const [subParameterPenilaian, setSubParameterPenilaian] = useState<string[]>([]);
   const [parameterPenilaian, setParameterPenilaian] = useState<string[]>([]);
@@ -123,6 +173,40 @@ export default function EvaluateTicketPage() {
   const handleSubmitReview = () => {
     if (!currentTicket) return;
     
+    // Validasi field yang wajib diisi (*)
+    if (subParameterPenilaian.length === 0) {
+      toast.error("Sub Parameter Penilaian wajib diisi (minimal pilih satu)");
+      return;
+    }
+    
+    if (parameterPenilaian.length === 0) {
+      toast.error("Parameter Penilaian wajib diisi (minimal pilih satu)");
+      return;
+    }
+    
+    if (!status) {
+      toast.error("Final Status wajib dipilih");
+      return;
+    }
+    
+    if (solusi.length === 0) {
+      toast.error("Solusi wajib dipilih (minimal pilih satu)");
+      return;
+    }
+    
+    if (peak === null || peak === undefined) {
+      toast.error("Peak wajib diisi");
+      return;
+    }
+
+    if (tagging === "lainnya" && (!taggingCustom || taggingCustom.trim() === "")) {
+      toast.error("Tagging Custom wajib diisi jika memilih Lainnya");
+      return;
+    } else if (!tagging || tagging.trim() === "") {
+      toast.error("Tagging wajib diisi");
+      return;
+    }
+    
     const reviewData = {
       tapper: user?.name || formData.tapper || "",
       idTiket: formData.idTiket,
@@ -143,13 +227,17 @@ export default function EvaluateTicketPage() {
       scoreResponTime,
       scoreDokumentasi,
       status,
-      solusi,
+      solusi: solusi.join(" | "),
+      tagging: tagging === "lainnya" ? taggingCustom : tagging,
       notes,
       subParameterPenilaian: subParameterPenilaian.join(" | "),
       parameterPenilaian: parameterPenilaian.join(" | "),
       peak,
       tappingDuration: tappingSeconds,
       qaTicketId: currentTicket.id,
+      pauseReasons,
+      startTime: startTime?.toISOString() || null,
+      submitTime: new Date().toISOString(),
     };
     
     submitMutation.mutate(reviewData);
@@ -188,23 +276,42 @@ export default function EvaluateTicketPage() {
             </h1>
           </div>
           <div className="flex items-center gap-3 sm:gap-5 self-end sm:self-auto">
+            {/* Score next to timer - no card */}
+            <div className="flex items-baseline gap-1">
+              <span className={cn("text-3xl font-black leading-none", totalScore >= 80 ? "text-emerald-500" : totalScore >= 50 ? "text-amber-500" : "text-rose-500")}>{totalScore}</span>
+              <span className="text-sm font-bold text-zinc-400">/100</span>
+            </div>
             <div className="flex items-center gap-2.5 bg-zinc-50 dark:bg-zinc-900 px-4 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm font-mono text-sm">
               <Clock className="w-4 h-4 text-zinc-400" />
               <span className="font-bold text-zinc-700 dark:text-zinc-300">{formatTime(tappingSeconds)}</span>
             </div>
             {!isTapping ? (
-              <Button onClick={() => setIsTapping(true)} className="h-10 px-6 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white font-semibold shadow-md transition-all">
+              <Button onClick={handleStartTapping} className="h-10 px-6 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white font-semibold shadow-md transition-all">
                 <Play className="w-4 h-4 mr-2" /> Start Review
               </Button>
             ) : (
-              <Button onClick={() => setIsTapping(false)} variant="destructive" className="h-10 px-6 rounded-xl font-semibold shadow-md transition-all">
+              <Button onClick={handlePauseTapping} variant="destructive" className="h-10 px-6 rounded-xl font-semibold shadow-md transition-all">
                 <StopCircle className="w-4 h-4 mr-2" /> Pause
               </Button>
             )}
           </div>
         </div>
 
-        <div className="flex-1 overflow-hidden flex flex-col sm:flex-row bg-transparent">
+        <div className="flex-1 overflow-hidden flex flex-col sm:flex-row bg-transparent relative">
+          {/* Overlay when not tapping - covers ENTIRE content area */}
+          {!isTapping && (
+            <div className="absolute inset-0 bg-white/50 dark:bg-zinc-950/50 backdrop-blur-md z-20 flex flex-col items-center justify-center transition-all p-4">
+              <div className="bg-white/90 dark:bg-zinc-900/90 border border-zinc-200 dark:border-zinc-800 shadow-[0_20px_60px_-15px_rgb(0,0,0,0.3)] rounded-3xl p-8 sm:p-10 max-w-sm text-center backdrop-blur-xl">
+                <div className="w-16 h-16 bg-zinc-900 dark:bg-zinc-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                  <Play className="w-8 h-8 text-white dark:text-zinc-900 ml-1" />
+                </div>
+                <h4 className="text-2xl font-bold mb-3 text-zinc-900 dark:text-white tracking-tight">Ready to evaluate?</h4>
+                <p className="text-zinc-500 mb-8 font-medium leading-relaxed">Start the timer to unlock the scoring sheet. This duration will be meticulously recorded.</p>
+                  <Button onClick={handleStartTapping} className="w-full h-12 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white font-bold text-base shadow-xl shadow-zinc-900/10 transition-all hover:-translate-y-0.5">Start Review Timer</Button>
+              </div>
+            </div>
+          )}
+
           {/* Left Column: Information (Read Only) */}
           <div className="w-full sm:w-1/2 flex flex-col overflow-y-auto border-r border-zinc-100 dark:border-zinc-800/60 bg-zinc-50/50 dark:bg-zinc-900/20">
             <div className="p-6 sm:p-8 space-y-10">
@@ -216,6 +323,14 @@ export default function EvaluateTicketPage() {
                   </Button>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-8">
+                  <div className="flex flex-col gap-2.5">
+                    <Label className="text-[11px] text-zinc-400 font-bold uppercase tracking-widest">Tapper</Label>
+                    {isEditingForm ? (
+                      <Input value={formData.tapper || ""} onChange={(e) => handleInputChange("tapper", e.target.value)} className="h-11 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 font-medium text-zinc-800 dark:text-zinc-200" />
+                    ) : (
+                      <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">{formData.tapper || "-"}</p>
+                    )}
+                  </div>
                   <div className="flex flex-col gap-2.5">
                     <Label className="text-[11px] text-zinc-400 font-bold uppercase tracking-widest">Agent</Label>
                     {isEditingForm ? (
@@ -307,19 +422,6 @@ export default function EvaluateTicketPage() {
 
           {/* Right Column: Scoring */}
           <div className="w-full sm:w-1/2 flex flex-col overflow-y-auto relative bg-transparent">
-            {/* Overlay when not tapping */}
-            {!isTapping && (
-              <div className="absolute inset-0 bg-white/40 dark:bg-zinc-950/40 backdrop-blur-md z-20 flex flex-col items-center justify-center transition-all p-4">
-                <div className="bg-white/90 dark:bg-zinc-900/90 border border-zinc-200 dark:border-zinc-800 shadow-[0_20px_60px_-15px_rgb(0,0,0,0.3)] rounded-3xl p-8 sm:p-10 max-w-sm text-center backdrop-blur-xl">
-                  <div className="w-16 h-16 bg-zinc-900 dark:bg-zinc-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                    <Play className="w-8 h-8 text-white dark:text-zinc-900 ml-1" />
-                  </div>
-                  <h4 className="text-2xl font-bold mb-3 text-zinc-900 dark:text-white tracking-tight">Ready to evaluate?</h4>
-                  <p className="text-zinc-500 mb-8 font-medium leading-relaxed">Start the timer to unlock the scoring sheet. This duration will be meticulously recorded.</p>
-                  <Button onClick={() => setIsTapping(true)} className="w-full h-12 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white font-bold text-base shadow-xl shadow-zinc-900/10 transition-all hover:-translate-y-0.5">Start Review Timer</Button>
-                </div>
-              </div>
-            )}
             
             <div className="p-6 sm:p-8 space-y-10">
               <section>
@@ -403,6 +505,36 @@ export default function EvaluateTicketPage() {
                     </div>
                   </div>
 
+                  {/* Solusi moved below Sub Parameter */}
+                  <div className="flex flex-col gap-3">
+                    <Label className="font-bold text-zinc-700 dark:text-zinc-300">Solusi *</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        "OK",
+                        "Kesalahan Identifikasi",
+                        "Missed Request",
+                        "Kesalahan Solusi",
+                        "Kesalahan Eskalasi & Routing",
+                        "Kesalahan Penanganan Ticket",
+                        "Kesalahan Lampiran",
+                        "Kesalahan Validasi"
+                      ].map((opt) => (
+                        <div key={opt} 
+                          className={cn(
+                            "cursor-pointer px-4 py-2 rounded-xl border text-sm font-semibold transition-all select-none flex items-center justify-center text-center", 
+                            solusi.includes(opt) ? "bg-zinc-900 text-white border-zinc-900 shadow-md dark:bg-white dark:text-zinc-900 dark:border-white" : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-300 dark:bg-zinc-900 dark:text-zinc-400 dark:border-zinc-800 dark:hover:border-zinc-700 shadow-sm"
+                          )}
+                          onClick={() => {
+                            if (solusi.includes(opt)) setSolusi(solusi.filter(x => x !== opt));
+                            else setSolusi([...solusi, opt]);
+                          }}
+                        >
+                          {opt}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
                   <div className="flex flex-col gap-3">
                     <Label className="font-bold text-zinc-700 dark:text-zinc-300">Parameter Penilaian *</Label>
                     <div className="flex flex-wrap gap-2 mt-1">
@@ -430,39 +562,47 @@ export default function EvaluateTicketPage() {
                         <button onClick={() => setStatus("Cancel")} className={cn("flex-1 h-10 rounded-lg text-sm font-bold transition-all duration-200", status === "Cancel" ? "bg-white dark:bg-zinc-700 shadow text-red-600" : "text-zinc-500 hover:text-red-600")}>Cancel</button>
                       </div>
                     </div>
-
-                    <div className="flex flex-col gap-3">
-                      <Label className="font-bold text-zinc-700 dark:text-zinc-300">Solusi *</Label>
-                      <Select value={solusi} onValueChange={setSolusi}>
-                        <SelectTrigger className="h-[52px] rounded-xl border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 font-medium">
-                          <SelectValue placeholder="Pilih Solusi" />
-                        </SelectTrigger>
-                        <SelectContent className="rounded-xl border-zinc-200 dark:border-zinc-800">
-                          <SelectItem value="ok">OK</SelectItem>
-                          <SelectItem value="salah-solusi">Salah Solusi</SelectItem>
-                          <SelectItem value="salah-eksekusi">Salah Eksekusi</SelectItem>
-                          <SelectItem value="missed-di-proses">Missed di Proses</SelectItem>
-                          <SelectItem value="fraud">Fraud</SelectItem>
-                          <SelectItem value="tidak-menjawab">Tidak menjawab keseluruhan permintaan</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div className="flex flex-col gap-3">
                       <Label className="font-bold text-zinc-700 dark:text-zinc-300">Peak *</Label>
                       <div className="flex items-center gap-2">
-                        <Button variant="outline" size="icon" onClick={() => setPeak(Math.max(0, peak - 1))} className="h-[52px] w-[52px] rounded-xl border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 text-zinc-600 shrink-0 hover:bg-zinc-100">
+                        <Button variant="outline" size="icon" onClick={() => setPeak(Math.max(1, peak - 1))} className="h-[52px] w-[52px] rounded-xl border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 text-zinc-600 shrink-0 hover:bg-zinc-100">
                           <Minus className="w-5 h-5" />
                         </Button>
                         <div className="h-[52px] flex-1 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 flex items-center justify-center font-bold text-xl text-zinc-800 dark:text-zinc-200">
                           {peak}
                         </div>
-                        <Button variant="outline" size="icon" onClick={() => setPeak(peak + 1)} className="h-[52px] w-[52px] rounded-xl border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 text-zinc-600 shrink-0 hover:bg-zinc-100">
+                        <Button variant="outline" size="icon" onClick={() => setPeak(Math.min(3, peak + 1))} className="h-[52px] w-[52px] rounded-xl border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 text-zinc-600 shrink-0 hover:bg-zinc-100">
                           <Plus className="w-5 h-5" />
                         </Button>
                       </div>
+                    </div>
+
+                    <div className="flex flex-col gap-3">
+                      <Label className="font-bold text-zinc-700 dark:text-zinc-300">Tagging *</Label>
+                      <Select value={tagging} onValueChange={setTagging}>
+                        <SelectTrigger className="h-[52px] rounded-xl border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 font-medium">
+                          <SelectValue placeholder="Pilih Tagging" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-xl border-zinc-200 dark:border-zinc-800">
+                          <SelectItem value="none">Tidak Ada</SelectItem>
+                          <SelectItem value="#ReqSPV">#ReqSPV</SelectItem>
+                          <SelectItem value="#ReqPRIME">#ReqPRIME</SelectItem>
+                          <SelectItem value="#Detractors">#Detractors</SelectItem>
+                          <SelectItem value="lainnya">Lainnya (Tulis Sendiri)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      
+                      {tagging === "lainnya" && (
+                        <Input 
+                          value={taggingCustom}
+                          onChange={(e) => setTaggingCustom(e.target.value)}
+                          placeholder="Masukkan tagging kustom..."
+                          className="h-10 rounded-xl border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 font-medium"
+                        />
+                      )}
                     </div>
                   </div>
 
@@ -501,6 +641,47 @@ export default function EvaluateTicketPage() {
           </div>
         </div>
       </div>
+
+      {/* Pause Reason Dialog */}
+      <Dialog open={pauseDialogOpen} onOpenChange={setPauseDialogOpen}>
+        <DialogContent className="sm:max-w-[420px] bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold flex items-center gap-2">
+              <StopCircle className="w-5 h-5 text-amber-500" />
+              Alasan Pause
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4 space-y-3">
+            <p className="text-sm text-zinc-500">Tuliskan alasan Anda melakukan pause sesi tapping (opsional):</p>
+            <Textarea
+              value={pauseReasonInput}
+              onChange={(e) => setPauseReasonInput(e.target.value)}
+              placeholder="Contoh: Ada keperluan mendadak, keluar makan siang, dll..."
+              className="min-h-[100px] resize-none rounded-xl border-zinc-200 dark:border-zinc-800"
+              autoFocus
+            />
+            {pauseReasons.length > 0 && (
+              <div className="space-y-1.5">
+                <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Pause sebelumnya:</p>
+                {pauseReasons.map((pr, i) => (
+                  <div key={i} className="text-xs bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-lg px-3 py-2 text-zinc-600 dark:text-zinc-400">
+                    <span className="font-semibold text-zinc-500">{i + 1}.</span> {pr.reason}
+                    <span className="ml-2 text-zinc-400">{new Date(pr.pausedAt).toLocaleTimeString("id-ID")}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          <DialogFooter className="flex gap-2">
+            <Button variant="outline" onClick={handleSkipPauseReason} className="rounded-xl flex-1">
+              Lewati
+            </Button>
+            <Button onClick={handleConfirmPause} className="rounded-xl flex-1 bg-zinc-900 hover:bg-zinc-800 text-white">
+              Simpan Alasan
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

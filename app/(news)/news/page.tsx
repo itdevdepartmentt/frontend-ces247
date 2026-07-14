@@ -299,11 +299,13 @@ function NewsPageContent({ isAdmin }: { isAdmin: boolean }) {
               <option value={12} className="bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300">12 Baris</option>
               <option value={18} className="bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300">18 Baris</option>
               <option value={24} className="bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300">24 Baris</option>
+              <option value={60} className="bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300">60 Baris</option>
+              <option value={120} className="bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300">120 Baris</option>
             </select>
           </div>
 
           {/* Create News Pop-Up (Admins Only) */}
-          {(user?.role === "ADMIN" || user?.role === "QC") && (
+          {(user?.role === "ADMIN" || user?.role === "QC" || user?.role === "TL_QC") && (
             <>
               <Button
                 variant={isViewingDrafts ? "default" : "outline"}
@@ -465,7 +467,7 @@ function NewsPageContent({ isAdmin }: { isAdmin: boolean }) {
                       </div>
 
                       <div className="flex items-center gap-2">
-                      {(user?.role === "ADMIN" || user?.role === "QC") && (
+                      {(user?.role === "ADMIN" || user?.role === "QC" || user?.role === "TL_QC") && (
                         <Button
                           variant="ghost"
                           size="icon"
@@ -480,7 +482,7 @@ function NewsPageContent({ isAdmin }: { isAdmin: boolean }) {
                           <Edit className="h-4.5 w-4.5" />
                         </Button>
                       )}
-                      {(user?.role === "ADMIN" || user?.role === "QC") && (
+                      {(user?.role === "ADMIN" || user?.role === "QC" || user?.role === "TL_QC") && (
                         <Button
                           variant="ghost"
                           size="icon"

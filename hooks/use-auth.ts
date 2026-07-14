@@ -8,7 +8,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: "USER" | "ADMIN" | "QC" | "TL";
+  role: "USER" | "ADMIN" | "QC" | "TL" | "TL_QC";
   bio: string | null;
   imageUrl: string;
   createdAt: string;

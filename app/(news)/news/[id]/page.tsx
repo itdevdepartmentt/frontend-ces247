@@ -159,7 +159,7 @@ export default function NewsDetailPage() {
   }
 
   const readingTime = calculateReadingTime(article.content);
-  const canEdit = user?.role === "ADMIN" || user?.role === "QC";
+  const canEdit = user?.role === "ADMIN" || user?.role === "QC" || user?.role === "TL_QC";
 
   return (
     <div className="container mx-auto max-w-4xl px-6 py-10">

@@ -23,6 +23,7 @@ const DOWNLOAD_TYPES = [
   { id: "omnix", label: "Raw Omnix", endpoint: "/raw-download/omnix" },
   { id: "oca", label: "Raw OCA", endpoint: "/raw-download/oca" },
   { id: "call", label: "Raw Call", endpoint: "/raw-download/call" },
+  { id: "news-log", label: "News Log (CRUD)", endpoint: "/raw-download/news-log" },
 ];
 
 export default function DownloadPage() {
