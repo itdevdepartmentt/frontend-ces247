@@ -208,24 +208,24 @@ export default function DetailTappingPage() {
       <div className="flex items-center justify-center h-full min-h-[500px]">
         <div className="flex flex-col items-center gap-4">
           <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
-          <p className="text-zinc-500 font-medium">Loading Detail Tapping data...</p>
+          <p className="text-slate-500 font-medium">Loading Detail Tapping data...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="h-full bg-zinc-50 dark:bg-zinc-950 flex flex-col overflow-hidden relative">
+    <div className="h-full bg-slate-50 dark:bg-slate-950 flex flex-col overflow-hidden relative">
       {/* Background blobs */}
       <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-indigo-500/10 dark:bg-indigo-500/5 rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
       <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-emerald-500/10 dark:bg-emerald-500/5 rounded-full blur-[120px] translate-x-1/2 translate-y-1/2 pointer-events-none" />
 
       {/* Header */}
-      <div className="px-6 py-5 sm:px-8 border-b border-zinc-100 dark:border-zinc-800/60 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-xl shrink-0 z-10 relative">
-        <h1 className="text-2xl font-black text-zinc-900 dark:text-white uppercase tracking-tight">
+      <div className="px-6 py-5 sm:px-8 border-b border-slate-100 dark:border-slate-800/60 bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl shrink-0 z-10 relative">
+        <h1 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
           DETAIL TAPPING
         </h1>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1 font-medium">
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">
           Daftar lengkap hasil evaluasi tapping beserta breakdown skor NC.
         </p>
       </div>
@@ -235,27 +235,27 @@ export default function DetailTappingPage() {
 
       {/* Summary Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border border-zinc-100 dark:border-zinc-800/60 rounded-2xl p-6 shadow-sm flex items-center justify-between">
+        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm flex items-center justify-between">
           <div>
-            <div className="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-1.5">Total Sampling</div>
-            <div className="text-4xl font-extrabold text-zinc-800 dark:text-zinc-100">{stats.totalSampling.toLocaleString()}</div>
+            <div className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">Total Sampling</div>
+            <div className="text-4xl font-extrabold text-slate-800 dark:text-slate-100">{stats.totalSampling.toLocaleString()}</div>
           </div>
           <div className="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-500 w-14 h-14 rounded-full flex items-center justify-center">
             <BarChart3 className="w-6 h-6" />
           </div>
         </div>
-        <div className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border border-zinc-100 dark:border-zinc-800/60 rounded-2xl p-6 shadow-sm flex items-center justify-between">
+        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm flex items-center justify-between">
           <div>
-            <div className="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-1.5">QA Score</div>
+            <div className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">QA Score</div>
             <div className={cn("text-4xl font-extrabold", stats.qaScore >= 97 ? "text-emerald-600" : "text-rose-600")}>{stats.qaScore}</div>
           </div>
           <div className={cn("w-14 h-14 rounded-full flex items-center justify-center", stats.qaScore >= 97 ? "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-500" : "bg-rose-50 dark:bg-rose-900/30 text-rose-500")}>
             <BarChart3 className="w-6 h-6" />
           </div>
         </div>
-        <div className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border border-zinc-100 dark:border-zinc-800/60 rounded-2xl p-6 shadow-sm flex items-center justify-between">
+        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm flex items-center justify-between">
           <div>
-            <div className="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-1.5">Total NC</div>
+            <div className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">Total NC</div>
             <div className="text-4xl font-extrabold text-rose-600">{stats.totalNC.toLocaleString()}</div>
           </div>
           <div className="bg-rose-50 dark:bg-rose-900/30 text-rose-500 w-14 h-14 rounded-full flex items-center justify-center">
@@ -278,9 +278,9 @@ export default function DetailTappingPage() {
       </div>
 
       {/* Filter Bar */}
-      <div className="flex items-center gap-3 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl p-4 rounded-2xl border border-white/40 dark:border-zinc-800/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex-wrap">
+      <div className="flex items-center gap-3 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl p-4 rounded-2xl border border-white/40 dark:border-slate-800/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex-wrap">
         <Select value={agent || "all"} onValueChange={(v) => { setAgent(v === "all" ? "" : v); setPage(1); }}>
-          <SelectTrigger className="w-[200px] h-10 rounded-xl border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 font-medium">
+          <SelectTrigger className="w-[200px] h-10 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-medium">
             <SelectValue placeholder="All Agents" />
           </SelectTrigger>
           <SelectContent className="rounded-xl max-h-[300px]">
@@ -292,7 +292,7 @@ export default function DetailTappingPage() {
         </Select>
 
         <Select value={year} onValueChange={(v) => { setYear(v); setPage(1); }}>
-          <SelectTrigger className="w-[120px] h-10 rounded-xl border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 font-medium">
+          <SelectTrigger className="w-[120px] h-10 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-medium">
             <SelectValue placeholder="Year" />
           </SelectTrigger>
           <SelectContent className="rounded-xl">
@@ -303,7 +303,7 @@ export default function DetailTappingPage() {
         </Select>
 
         <Select value={month || "all"} onValueChange={(v) => { setMonth(v === "all" ? "" : v); setPage(1); }}>
-          <SelectTrigger className="w-[140px] h-10 rounded-xl border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 font-medium">
+          <SelectTrigger className="w-[140px] h-10 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-medium">
             <SelectValue placeholder="All Months" />
           </SelectTrigger>
           <SelectContent className="rounded-xl">
@@ -315,7 +315,7 @@ export default function DetailTappingPage() {
         </Select>
 
         <Select value={peak || "all"} onValueChange={(v) => { setPeak(v === "all" ? "" : v); setPage(1); }}>
-          <SelectTrigger className="w-[120px] h-10 rounded-xl border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 font-medium">
+          <SelectTrigger className="w-[120px] h-10 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-medium">
             <SelectValue placeholder="All Peak" />
           </SelectTrigger>
           <SelectContent className="rounded-xl">
@@ -327,27 +327,27 @@ export default function DetailTappingPage() {
         </Select>
 
         <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <Input 
             placeholder="Search Ticket, Agent, QC..." 
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            className="pl-9 h-10 rounded-xl border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800"
+            className="pl-9 h-10 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
           />
         </div>
       </div>
 
       {/* Detail Table */}
-      <div className={cn("bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl rounded-2xl border border-white/40 dark:border-zinc-800/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-1", isFetching ? "opacity-60" : "")}>
+      <div className={cn("bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl rounded-2xl border border-white/40 dark:border-slate-800/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-1", isFetching ? "opacity-60" : "")}>
         <Table>
           <TableHeader>
-            <TableRow className="border-b border-zinc-100 dark:border-zinc-800 hover:bg-transparent">
-              <TableHead className="w-[50px] font-semibold text-zinc-500">#</TableHead>
-              <SortableTableHead columnKey="createdAt" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-zinc-500">Tanggal Tapping</SortableTableHead>
-              <SortableTableHead columnKey="createdDate" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-zinc-500">Created Date</SortableTableHead>
-              <SortableTableHead columnKey="agent" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-zinc-500">Nama Agent</SortableTableHead>
-              <SortableTableHead columnKey="teamLeader" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-zinc-500">Nama TL</SortableTableHead>
-              <TableHead className="font-semibold text-zinc-500">
+            <TableRow className="border-b border-slate-100 dark:border-slate-800 hover:bg-transparent">
+              <TableHead className="w-[50px] font-semibold text-slate-500">#</TableHead>
+              <SortableTableHead columnKey="createdAt" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">Tanggal Tapping</SortableTableHead>
+              <SortableTableHead columnKey="createdDate" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">Created Date</SortableTableHead>
+              <SortableTableHead columnKey="agent" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">Nama Agent</SortableTableHead>
+              <SortableTableHead columnKey="teamLeader" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">Nama TL</SortableTableHead>
+              <TableHead className="font-semibold text-slate-500">
                 <div className="flex items-center">
                   <span className="flex items-center gap-1 cursor-pointer select-none" onClick={() => handleSort("tapper", sortOrder === "asc" ? "desc" : "asc")}>
                     Tapper (QC)
@@ -358,19 +358,19 @@ export default function DetailTappingPage() {
                   <ColumnFilterPopover columnKey="tapper" columnLabel="Tapper" columnFilters={columnFilters} setColumnFilters={setColumnFilters} options={historyOptions?.tapper || []} />
                 </div>
               </TableHead>
-              <SortableTableHead columnKey="idTiket" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-zinc-500">ID Tiket</SortableTableHead>
-              <SortableTableHead columnKey="solusi" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-zinc-500">Solusi</SortableTableHead>
-              <SortableTableHead columnKey="tagging" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-zinc-500">Tagging</SortableTableHead>
-              <SortableTableHead columnKey="notes" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-zinc-500 min-w-[300px]">Notes QC</SortableTableHead>
-              <SortableTableHead columnKey="scoreValiditas" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-zinc-500 text-center">Validitas</SortableTableHead>
-              <SortableTableHead columnKey="scoreServiceLevel" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-zinc-500 text-center">Service Level</SortableTableHead>
-              <SortableTableHead columnKey="scoreKalimat" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-zinc-500 text-center">Kalimat</SortableTableHead>
-              <SortableTableHead columnKey="scoreResponTime" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-zinc-500 text-center">Respon Time</SortableTableHead>
-              <SortableTableHead columnKey="scoreDokumentasi" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-zinc-500 text-center">Dokumentasi</SortableTableHead>
-              <TableHead className="font-semibold text-zinc-500 text-center">Total</TableHead>
-              <SortableTableHead columnKey="komitmen" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-zinc-500 min-w-[200px]">Komitmen</SortableTableHead>
+              <SortableTableHead columnKey="idTiket" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">ID Tiket</SortableTableHead>
+              <SortableTableHead columnKey="solusi" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">Solusi</SortableTableHead>
+              <SortableTableHead columnKey="tagging" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">Tagging</SortableTableHead>
+              <SortableTableHead columnKey="notes" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500 min-w-[300px]">Notes QC</SortableTableHead>
+              <SortableTableHead columnKey="scoreValiditas" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500 text-center">Validitas</SortableTableHead>
+              <SortableTableHead columnKey="scoreServiceLevel" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500 text-center">Service Level</SortableTableHead>
+              <SortableTableHead columnKey="scoreKalimat" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500 text-center">Kalimat</SortableTableHead>
+              <SortableTableHead columnKey="scoreResponTime" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500 text-center">Respon Time</SortableTableHead>
+              <SortableTableHead columnKey="scoreDokumentasi" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500 text-center">Dokumentasi</SortableTableHead>
+              <TableHead className="font-semibold text-slate-500 text-center">Total</TableHead>
+              <SortableTableHead columnKey="komitmen" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500 min-w-[200px]">Komitmen</SortableTableHead>
               {user?.role === "TL" && (
-                <TableHead className="font-semibold text-zinc-500 text-center">Aksi</TableHead>
+                <TableHead className="font-semibold text-slate-500 text-center">Aksi</TableHead>
               )}
             </TableRow>
           </TableHeader>
@@ -379,9 +379,9 @@ export default function DetailTappingPage() {
               <TableRow>
                 <TableCell colSpan={16} className="h-[300px]">
                   <div className="flex flex-col items-center justify-center text-center h-full">
-                    <FileText className="w-8 h-8 text-zinc-300 dark:text-zinc-600 mb-4" />
-                    <h3 className="text-lg font-bold text-zinc-700 dark:text-zinc-300 mb-2">No data found</h3>
-                    <p className="text-sm text-zinc-500">Try adjusting the filters to see results.</p>
+                    <FileText className="w-8 h-8 text-slate-300 dark:text-slate-600 mb-4" />
+                    <h3 className="text-lg font-bold text-slate-700 dark:text-slate-300 mb-2">No data found</h3>
+                    <p className="text-sm text-slate-500">Try adjusting the filters to see results.</p>
                   </div>
                 </TableCell>
               </TableRow>
@@ -392,28 +392,28 @@ export default function DetailTappingPage() {
                 const isNC = row.scoreValiditas < 30 || row.scoreServiceLevel < 30 ||
                   row.scoreKalimat < 10 || row.scoreResponTime < 15 || row.scoreDokumentasi < 15;
                 return (
-                  <TableRow key={row.id} className={cn("transition-colors border-b border-zinc-50 dark:border-zinc-800/50", isNC ? "bg-rose-50/30 dark:bg-rose-900/10" : "hover:bg-zinc-50/80 dark:hover:bg-zinc-800/50")}>
-                    <TableCell className="text-zinc-400 font-medium">{(page - 1) * itemsPerPage + i + 1}</TableCell>
-                    <TableCell className="text-zinc-600 dark:text-zinc-400 whitespace-nowrap">
+                  <TableRow key={row.id} className={cn("transition-colors border-b border-slate-50 dark:border-slate-800/50", isNC ? "bg-rose-50/30 dark:bg-rose-900/10" : "hover:bg-slate-50/80 dark:hover:bg-slate-800/50")}>
+                    <TableCell className="text-slate-400 font-medium">{(page - 1) * itemsPerPage + i + 1}</TableCell>
+                    <TableCell className="text-slate-600 dark:text-slate-400 whitespace-nowrap">
                       {new Date(row.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}
                     </TableCell>
-                    <TableCell className="text-zinc-500 whitespace-nowrap">
+                    <TableCell className="text-slate-500 whitespace-nowrap">
                       {row.createdDate ? new Date(row.createdDate).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }) : "-"}
                     </TableCell>
-                    <TableCell className="font-semibold text-zinc-900 dark:text-white whitespace-nowrap">{row.agent}</TableCell>
-                    <TableCell className="text-zinc-500 whitespace-nowrap">{row.teamLeader || "-"}</TableCell>
-                    <TableCell className="font-bold text-zinc-900 dark:text-white whitespace-nowrap">{row.tapper}</TableCell>
-                    <TableCell className="font-bold text-zinc-900 dark:text-white whitespace-nowrap">{row.idTiket}</TableCell>
-                    <TableCell className="text-zinc-600 dark:text-zinc-300 min-w-[150px]">{row.solusi?.replace(/ \| /g, ", ") || "-"}</TableCell>
-                    <TableCell className="text-zinc-600 dark:text-zinc-300 whitespace-nowrap">{row.tagging || "-"}</TableCell>
-                    <TableCell className="text-zinc-500 min-w-[300px] max-w-[400px]">
+                    <TableCell className="font-semibold text-slate-900 dark:text-white whitespace-nowrap">{row.agent}</TableCell>
+                    <TableCell className="text-slate-500 whitespace-nowrap">{row.teamLeader || "-"}</TableCell>
+                    <TableCell className="font-bold text-slate-900 dark:text-white whitespace-nowrap">{row.tapper}</TableCell>
+                    <TableCell className="font-bold text-slate-900 dark:text-white whitespace-nowrap">{row.idTiket}</TableCell>
+                    <TableCell className="text-slate-600 dark:text-slate-300 min-w-[150px]">{row.solusi?.replace(/ \| /g, ", ") || "-"}</TableCell>
+                    <TableCell className="text-slate-600 dark:text-slate-300 whitespace-nowrap">{row.tagging || "-"}</TableCell>
+                    <TableCell className="text-slate-500 min-w-[300px] max-w-[400px]">
                       {row.notes ? (
                         <div className="flex items-start justify-between gap-2">
                           <p className="line-clamp-3 whitespace-pre-wrap break-words text-xs">{row.notes}</p>
                           <Button 
                             variant="ghost" 
                             size="icon" 
-                            className="h-6 w-6 shrink-0 text-zinc-400 hover:text-indigo-600 hover:bg-indigo-50"
+                            className="h-6 w-6 shrink-0 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
                             onClick={() => {
                               navigator.clipboard.writeText(row.notes);
                               toast.success("Notes disalin ke clipboard!");
@@ -425,23 +425,23 @@ export default function DetailTappingPage() {
                         </div>
                       ) : "-"}
                     </TableCell>
-                    <TableCell className={cn("text-center font-bold", row.scoreValiditas < 30 ? "text-rose-600" : "text-zinc-700 dark:text-zinc-300")}>{row.scoreValiditas}</TableCell>
-                    <TableCell className={cn("text-center font-bold", row.scoreServiceLevel < 30 ? "text-rose-600" : "text-zinc-700 dark:text-zinc-300")}>{row.scoreServiceLevel}</TableCell>
-                    <TableCell className={cn("text-center font-bold", row.scoreKalimat < 10 ? "text-rose-600" : "text-zinc-700 dark:text-zinc-300")}>{row.scoreKalimat}</TableCell>
-                    <TableCell className={cn("text-center font-bold", row.scoreResponTime < 15 ? "text-rose-600" : "text-zinc-700 dark:text-zinc-300")}>{row.scoreResponTime}</TableCell>
-                    <TableCell className={cn("text-center font-bold", row.scoreDokumentasi < 15 ? "text-rose-600" : "text-zinc-700 dark:text-zinc-300")}>{row.scoreDokumentasi}</TableCell>
+                    <TableCell className={cn("text-center font-bold", row.scoreValiditas < 30 ? "text-rose-600" : "text-slate-700 dark:text-slate-300")}>{row.scoreValiditas}</TableCell>
+                    <TableCell className={cn("text-center font-bold", row.scoreServiceLevel < 30 ? "text-rose-600" : "text-slate-700 dark:text-slate-300")}>{row.scoreServiceLevel}</TableCell>
+                    <TableCell className={cn("text-center font-bold", row.scoreKalimat < 10 ? "text-rose-600" : "text-slate-700 dark:text-slate-300")}>{row.scoreKalimat}</TableCell>
+                    <TableCell className={cn("text-center font-bold", row.scoreResponTime < 15 ? "text-rose-600" : "text-slate-700 dark:text-slate-300")}>{row.scoreResponTime}</TableCell>
+                    <TableCell className={cn("text-center font-bold", row.scoreDokumentasi < 15 ? "text-rose-600" : "text-slate-700 dark:text-slate-300")}>{row.scoreDokumentasi}</TableCell>
                     <TableCell className="text-center">
                       <span className={cn("px-3 py-1 rounded-full text-xs font-bold", total >= 97 ? "bg-emerald-50 text-emerald-600" : total >= 80 ? "bg-amber-50 text-amber-700" : "bg-rose-50 text-rose-600")}>
                         {total}
                       </span>
                     </TableCell>
-                    <TableCell className="text-zinc-600 dark:text-zinc-300 min-w-[200px] align-top">
+                    <TableCell className="text-slate-600 dark:text-slate-300 min-w-[200px] align-top">
                       <div className="flex flex-col gap-2">
                         {row.komitmen ? (
                           <p className="text-xs whitespace-pre-wrap">{row.komitmen}</p>
                         ) : (
                           !(user?.role === "USER" && user?.name === row.agent) && (
-                            <span className="text-xs text-zinc-400 italic">Belum ada komitmen</span>
+                            <span className="text-xs text-slate-400 italic">Belum ada komitmen</span>
                           )
                         )}
                         {user?.role === "USER" && user?.name === row.agent && (
@@ -483,8 +483,8 @@ export default function DetailTappingPage() {
         {meta.totalPages > 1 && (
           <div className="flex items-center justify-between mt-4 pb-4 px-4">
           <div className="flex items-center gap-4">
-            <div className="text-sm font-medium text-zinc-500">
-              Showing <span className="font-bold text-zinc-900 dark:text-white">{(page - 1) * itemsPerPage + 1}</span> to <span className="font-bold text-zinc-900 dark:text-white">{Math.min(page * itemsPerPage, meta.total)}</span> of <span className="font-bold text-zinc-900 dark:text-white">{meta.total}</span> records
+            <div className="text-sm font-medium text-slate-500">
+              Showing <span className="font-bold text-slate-900 dark:text-white">{(page - 1) * itemsPerPage + 1}</span> to <span className="font-bold text-slate-900 dark:text-white">{Math.min(page * itemsPerPage, meta.total)}</span> of <span className="font-bold text-slate-900 dark:text-white">{meta.total}</span> records
             </div>
             <Select value={itemsPerPage.toString()} onValueChange={(v) => { setItemsPerPage(Number(v)); setPage(1); }}>
               <SelectTrigger className="w-[80px] h-9">
@@ -512,11 +512,11 @@ export default function DetailTappingPage() {
       </div>
 
       <Dialog open={rekonOpen} onOpenChange={setRekonOpen}>
-        <DialogContent className="sm:max-w-[500px] bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800">
+        <DialogContent className="sm:max-w-[500px] bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold">Ajukan Rekonsiliasi QA</DialogTitle>
             <DialogDescription>
-              Ajukan peninjauan ulang terhadap hasil tapping tiket <strong className="text-zinc-900 dark:text-white">{selectedRow?.idTiket}</strong>.
+              Ajukan peninjauan ulang terhadap hasil tapping tiket <strong className="text-slate-900 dark:text-white">{selectedRow?.idTiket}</strong>.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -539,7 +539,7 @@ export default function DetailTappingPage() {
                     className={`flex flex-col items-center justify-center gap-1 p-2 rounded-xl border transition-all focus:outline-none ${
                       isSelected 
                         ? "bg-indigo-50 border-indigo-200 text-indigo-700 dark:bg-indigo-500/20 dark:border-indigo-500/30 dark:text-indigo-300 shadow-sm" 
-                        : "bg-white border-zinc-200 text-zinc-500 hover:bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-800 dark:hover:bg-zinc-800/50"
+                        : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-800 dark:hover:bg-slate-800/50"
                     }`}
                   >
                     <span className="text-[10px] uppercase font-bold">{item.label}</span>
@@ -583,11 +583,11 @@ export default function DetailTappingPage() {
       </Dialog>
 
       <Dialog open={komitmenOpen} onOpenChange={setKomitmenOpen}>
-        <DialogContent className="sm:max-w-[500px] bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800">
+        <DialogContent className="sm:max-w-[500px] bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold">Isi Komitmen</DialogTitle>
             <DialogDescription>
-              Silakan tuliskan komitmen Anda terhadap hasil evaluasi QA untuk tiket <strong className="text-zinc-900 dark:text-white">{selectedRow?.idTiket}</strong>.
+              Silakan tuliskan komitmen Anda terhadap hasil evaluasi QA untuk tiket <strong className="text-slate-900 dark:text-white">{selectedRow?.idTiket}</strong>.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">

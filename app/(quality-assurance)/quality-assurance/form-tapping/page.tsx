@@ -224,34 +224,34 @@ export default function FormTappingPage() {
   };
 
   return (
-    <div className="h-full bg-zinc-50/50 dark:bg-zinc-950 flex flex-col p-8 overflow-hidden relative">
+    <div className="h-full bg-slate-50/50 dark:bg-slate-950 flex flex-col p-8 overflow-hidden relative">
       {/* Subtle background glows for elegance */}
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-400/5 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 right-1/4 w-[30rem] h-[30rem] bg-indigo-400/5 rounded-full blur-3xl pointer-events-none" />
       
       <div className="flex flex-col gap-2 mb-8 shrink-0 relative z-10">
-        <div className="flex items-center gap-2 text-xs font-semibold tracking-widest uppercase text-zinc-500 mb-2">
+        <div className="flex items-center gap-2 text-xs font-semibold tracking-widest uppercase text-slate-500 mb-2">
           <span>Quality Assurance</span>
-          <span className="text-zinc-300 mx-1">•</span>
-          <span className="text-zinc-800 dark:text-zinc-200">Form Tapping</span>
+          <span className="text-slate-300 mx-1">•</span>
+          <span className="text-slate-800 dark:text-slate-200">Form Tapping</span>
         </div>
         <div className="flex justify-between items-end">
           <div>
-            <h1 className="text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white uppercase">Form Tapping</h1>
-            <p className="text-zinc-500 mt-2 text-lg font-light">Kelola tiket QA pending, import data baru, dan evaluasi performa agent.</p>
+            <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white uppercase">Form Tapping</h1>
+            <p className="text-slate-500 mt-2 text-lg font-light">Kelola tiket QA pending, import data baru, dan evaluasi performa agent.</p>
           </div>
         </div>
       </div>
 
       <div className="flex-1 overflow-hidden flex flex-col min-h-0 relative z-10">
-          <div className="flex items-center justify-between mb-4 shrink-0 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl p-4 rounded-2xl border border-white/40 dark:border-zinc-800/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+          <div className="flex items-center justify-between mb-4 shrink-0 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl p-4 rounded-2xl border border-white/40 dark:border-slate-800/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
             <div className="relative w-80">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
               <Input 
                 placeholder="Search ticket ID or agent..." 
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                className="pl-10 h-11 bg-zinc-50/50 dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700 rounded-xl focus-visible:ring-zinc-400" 
+                className="pl-10 h-11 bg-slate-50/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 rounded-xl focus-visible:ring-slate-400" 
               />
             </div>
             <div className="flex items-center gap-3">
@@ -280,56 +280,56 @@ export default function FormTappingPage() {
             </div>
           </div>
           
-          <div className="flex-1 overflow-auto bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl rounded-2xl border border-white/40 dark:border-zinc-800/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-1">
+          <div className="flex-1 overflow-auto bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl rounded-2xl border border-white/40 dark:border-slate-800/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-1">
               <Table>
                 <TableHeader>
-                  <TableRow className="border-b border-zinc-100 dark:border-zinc-800 hover:bg-transparent">
-                    <TableHead className="w-[50px] font-semibold text-zinc-500">#</TableHead>
-                    <SortableTableHead columnKey="createdAt" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-zinc-500">Created Date</SortableTableHead>
-                    <SortableTableHead columnKey="tapper" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-zinc-500">
+                  <TableRow className="border-b border-slate-100 dark:border-slate-800 hover:bg-transparent">
+                    <TableHead className="w-[50px] font-semibold text-slate-500">#</TableHead>
+                    <SortableTableHead columnKey="createdAt" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">Created Date</SortableTableHead>
+                    <SortableTableHead columnKey="tapper" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">
                       <div className="flex items-center">
                         Tapper
                         <ColumnFilterPopover columnKey="tapper" columnLabel="Tapper" columnFilters={ticketColumnFilters} setColumnFilters={setTicketColumnFilters} options={ticketFilterOptions?.tapper || []} />
                       </div>
                     </SortableTableHead>
-                    <SortableTableHead columnKey="idTiket" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-zinc-500">ID Tiket</SortableTableHead>
-                    <SortableTableHead columnKey="agent" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-zinc-500">
+                    <SortableTableHead columnKey="idTiket" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">ID Tiket</SortableTableHead>
+                    <SortableTableHead columnKey="agent" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">
                       <div className="flex items-center">
                         Agent
                         <ColumnFilterPopover columnKey="agent" columnLabel="Agent" columnFilters={ticketColumnFilters} setColumnFilters={setTicketColumnFilters} options={ticketFilterOptions?.agent || []} />
                       </div>
                     </SortableTableHead>
-                    <SortableTableHead columnKey="channel" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-zinc-500">
+                    <SortableTableHead columnKey="channel" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">
                       <div className="flex items-center">
                         Channel
                         <ColumnFilterPopover columnKey="channel" columnLabel="Channel" columnFilters={ticketColumnFilters} setColumnFilters={setTicketColumnFilters} options={ticketFilterOptions?.channel || []} />
                       </div>
                     </SortableTableHead>
-                    <SortableTableHead columnKey="jenisInteraksi" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-zinc-500">
+                    <SortableTableHead columnKey="jenisInteraksi" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">
                       <div className="flex items-center">
                         Jenis Interaksi
                         <ColumnFilterPopover columnKey="jenisInteraksi" columnLabel="Jenis Interaksi" columnFilters={ticketColumnFilters} setColumnFilters={setTicketColumnFilters} options={ticketFilterOptions?.jenisInteraksi || []} />
                       </div>
                     </SortableTableHead>
-                    <SortableTableHead columnKey="kipLevel2" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-zinc-500">
+                    <SortableTableHead columnKey="kipLevel2" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">
                       <div className="flex items-center">
                         KIP Level 2
                         <ColumnFilterPopover columnKey="kipLevel2" columnLabel="KIP Level 2" columnFilters={ticketColumnFilters} setColumnFilters={setTicketColumnFilters} options={ticketFilterOptions?.kipLevel2 || []} />
                       </div>
                     </SortableTableHead>
-                    <SortableTableHead columnKey="kipLevel3" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-zinc-500">
+                    <SortableTableHead columnKey="kipLevel3" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">
                       <div className="flex items-center">
                         KIP Level 3
                         <ColumnFilterPopover columnKey="kipLevel3" columnLabel="KIP Level 3" columnFilters={ticketColumnFilters} setColumnFilters={setTicketColumnFilters} options={ticketFilterOptions?.kipLevel3 || []} />
                       </div>
                     </SortableTableHead>
-                    <SortableTableHead columnKey="inOutSla" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-zinc-500">
+                    <SortableTableHead columnKey="inOutSla" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">
                       <div className="flex items-center">
                         IN/OUT SLA
                         <ColumnFilterPopover columnKey="inOutSla" columnLabel="IN/OUT SLA" columnFilters={ticketColumnFilters} setColumnFilters={setTicketColumnFilters} options={ticketFilterOptions?.inOutSla || []} />
                       </div>
                     </SortableTableHead>
-                    <SortableTableHead columnKey="handlingTime" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-zinc-500">AHT</SortableTableHead>
+                    <SortableTableHead columnKey="handlingTime" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">AHT</SortableTableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody className={cn("transition-opacity duration-200", isFetchingTickets ? "opacity-50 pointer-events-none" : "opacity-100")}>
@@ -337,12 +337,12 @@ export default function FormTappingPage() {
                     <TableRow>
                       <TableCell colSpan={11} className="h-[400px]">
                         <div className="flex flex-col items-center justify-center text-center h-full">
-                          <div className="w-16 h-16 bg-zinc-50 dark:bg-zinc-900/50 rounded-full flex items-center justify-center mb-4 border border-zinc-100 dark:border-zinc-800 shadow-sm">
-                            <FolderOpen className="w-8 h-8 text-zinc-300 dark:text-zinc-600" />
+                          <div className="w-16 h-16 bg-slate-50 dark:bg-slate-900/50 rounded-full flex items-center justify-center mb-4 border border-slate-100 dark:border-slate-800 shadow-sm">
+                            <FolderOpen className="w-8 h-8 text-slate-300 dark:text-slate-600" />
                           </div>
-                          <h3 className="text-lg font-bold text-zinc-700 dark:text-zinc-300 mb-2">No pending tickets available</h3>
-                          <p className="text-sm text-zinc-500 max-w-[250px] mb-6">You're all caught up! Import a new batch of tickets to start your review session.</p>
-                          <Button variant="outline" className="rounded-xl shadow-sm border-zinc-200 text-zinc-600 dark:text-zinc-300 font-semibold" onClick={() => setIsImportModalOpen(true)}>
+                          <h3 className="text-lg font-bold text-slate-700 dark:text-slate-300 mb-2">No pending tickets available</h3>
+                          <p className="text-sm text-slate-500 max-w-[250px] mb-6">You're all caught up! Import a new batch of tickets to start your review session.</p>
+                          <Button variant="outline" className="rounded-xl shadow-sm border-slate-200 text-slate-600 dark:text-slate-300 font-semibold" onClick={() => setIsImportModalOpen(true)}>
                             Import Data Now <ArrowRight className="w-4 h-4 ml-2" />
                           </Button>
                         </div>
@@ -350,38 +350,38 @@ export default function FormTappingPage() {
                     </TableRow>
                   ) : (
                     tickets.map((t, i) => (
-                      <TableRow key={t.id} className="cursor-pointer hover:bg-zinc-50/80 dark:hover:bg-zinc-800/50 transition-colors border-b border-zinc-50 dark:border-zinc-800/50" onClick={() => router.push(`/quality-assurance/form-tapping/${t.id}`)}>
-                        <TableCell className="text-zinc-400 font-medium">{(ticketPage - 1) * itemsPerPage + i + 1}</TableCell>
-                        <TableCell className="text-zinc-500">
+                      <TableRow key={t.id} className="cursor-pointer hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors border-b border-slate-50 dark:border-slate-800/50" onClick={() => router.push(`/quality-assurance/form-tapping/${t.id}`)}>
+                        <TableCell className="text-slate-400 font-medium">{(ticketPage - 1) * itemsPerPage + i + 1}</TableCell>
+                        <TableCell className="text-slate-500">
                           {t.createdDate ? new Date(t.createdDate).toLocaleDateString() : t.createdAt ? new Date(t.createdAt).toLocaleDateString() : '-'}
                         </TableCell>
-                        <TableCell className="text-zinc-700 dark:text-zinc-300 font-medium">{t.tapper || '-'}</TableCell>
-                        <TableCell className="font-bold text-zinc-900 dark:text-white">{t.idTiket || '-'}</TableCell>
-                        <TableCell className="text-zinc-700 dark:text-zinc-300 font-medium">{t.agent || '-'}</TableCell>
+                        <TableCell className="text-slate-700 dark:text-slate-300 font-medium">{t.tapper || '-'}</TableCell>
+                        <TableCell className="font-bold text-slate-900 dark:text-white">{t.idTiket || '-'}</TableCell>
+                        <TableCell className="text-slate-700 dark:text-slate-300 font-medium">{t.agent || '-'}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            <span className="bg-zinc-100 dark:bg-zinc-800 w-6 h-6 flex items-center justify-center rounded-md text-xs font-bold text-zinc-500">{t.channel ? t.channel.charAt(0) : '-'}</span>
-                            <span className="font-medium text-zinc-700 dark:text-zinc-300">{t.channel || '-'}</span>
+                            <span className="bg-slate-100 dark:bg-slate-800 w-6 h-6 flex items-center justify-center rounded-md text-xs font-bold text-slate-500">{t.channel ? t.channel.charAt(0) : '-'}</span>
+                            <span className="font-medium text-slate-700 dark:text-slate-300">{t.channel || '-'}</span>
                           </div>
                         </TableCell>
-                        <TableCell className="text-zinc-700 dark:text-zinc-300 font-medium max-w-[200px] truncate" title={t.jenisInteraksi || '-'}>{t.jenisInteraksi || '-'}</TableCell>
-                        <TableCell className="text-zinc-500">{t.kipLevel2 || '-'}</TableCell>
-                        <TableCell className="text-zinc-500">{t.kipLevel3 || '-'}</TableCell>
+                        <TableCell className="text-slate-700 dark:text-slate-300 font-medium max-w-[200px] truncate" title={t.jenisInteraksi || '-'}>{t.jenisInteraksi || '-'}</TableCell>
+                        <TableCell className="text-slate-500">{t.kipLevel2 || '-'}</TableCell>
+                        <TableCell className="text-slate-500">{t.kipLevel3 || '-'}</TableCell>
                         <TableCell>
                           <span className={cn("px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase", t.inOutSla === "IN" ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600")}>
                             {t.inOutSla || '-'}
                           </span>
                         </TableCell>
-                        <TableCell className="text-zinc-500 font-medium">{t.handlingTime || '-'}</TableCell>
+                        <TableCell className="text-slate-500 font-medium">{t.handlingTime || '-'}</TableCell>
                       </TableRow>
                     ))
                   )}
                 </TableBody>
               </Table>
               
-              <div className="flex items-center justify-between p-4 border-t border-zinc-100 dark:border-zinc-800/50">
+              <div className="flex items-center justify-between p-4 border-t border-slate-100 dark:border-slate-800/50">
                 <div className="flex items-center gap-4">
-                  <span className="text-sm text-zinc-500 font-medium">
+                  <span className="text-sm text-slate-500 font-medium">
                     Showing {(ticketPage - 1) * itemsPerPage + 1} to {Math.min(ticketPage * itemsPerPage, totalTicketsCount)} of {totalTicketsCount} tickets
                   </span>
                   <Select value={itemsPerPage.toString()} onValueChange={(v) => { setItemsPerPage(Number(v)); setTicketPage(1); }}>
@@ -397,7 +397,7 @@ export default function FormTappingPage() {
                   </Select>
                 </div>
                   <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" className="h-9 rounded-lg border-zinc-200 text-zinc-600 shadow-sm" onClick={() => setTicketPage(p => Math.max(1, p - 1))} disabled={ticketPage === 1}>
+                    <Button variant="outline" size="sm" className="h-9 rounded-lg border-slate-200 text-slate-600 shadow-sm" onClick={() => setTicketPage(p => Math.max(1, p - 1))} disabled={ticketPage === 1}>
                       <ChevronLeft className="w-4 h-4 mr-1" /> Prev
                     </Button>
                     <div className="flex items-center gap-1">
@@ -406,7 +406,7 @@ export default function FormTappingPage() {
                           key={idx}
                           variant={ticketPage === pageNumber ? "default" : "ghost"}
                           size="sm"
-                          className={cn("w-9 h-9 rounded-lg", ticketPage === pageNumber ? "bg-zinc-900 text-white shadow-md" : "text-zinc-600", pageNumber === "..." ? "pointer-events-none" : "")}
+                          className={cn("w-9 h-9 rounded-lg", ticketPage === pageNumber ? "bg-slate-900 text-white shadow-md" : "text-slate-600", pageNumber === "..." ? "pointer-events-none" : "")}
                           onClick={() => typeof pageNumber === "number" && setTicketPage(pageNumber)}
                           disabled={pageNumber === "..."}
                         >
@@ -414,7 +414,7 @@ export default function FormTappingPage() {
                         </Button>
                       ))}
                     </div>
-                    <Button variant="outline" size="sm" className="h-9 rounded-lg border-zinc-200 text-zinc-600 shadow-sm" onClick={() => setTicketPage(p => Math.min(totalTicketPages, p + 1))} disabled={ticketPage === totalTicketPages}>
+                    <Button variant="outline" size="sm" className="h-9 rounded-lg border-slate-200 text-slate-600 shadow-sm" onClick={() => setTicketPage(p => Math.min(totalTicketPages, p + 1))} disabled={ticketPage === totalTicketPages}>
                       Next <ChevronRight className="w-4 h-4 ml-1" />
                     </Button>
                   </div>
@@ -425,21 +425,21 @@ export default function FormTappingPage() {
       <Dialog open={isImportModalOpen} onOpenChange={setIsImportModalOpen}>
         <DialogContent className="sm:max-w-[700px] bg-transparent border-0 shadow-none p-0">
           <div className="max-w-4xl mx-auto w-full">
-            <div className={cn("relative flex flex-col items-center justify-center p-12 border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-3xl bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md transition-all shadow-xl", uploadMutation.isPending ? "opacity-70 pointer-events-none" : "hover:border-indigo-400 dark:hover:border-indigo-500 group")}>
+            <div className={cn("relative flex flex-col items-center justify-center p-12 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-3xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-md transition-all shadow-xl", uploadMutation.isPending ? "opacity-70 pointer-events-none" : "hover:border-indigo-400 dark:hover:border-indigo-500 group")}>
               
               {uploadMutation.isPending && (
-                <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/50 dark:bg-zinc-950/50 backdrop-blur-sm rounded-3xl">
+                <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/50 dark:bg-slate-950/50 backdrop-blur-sm rounded-3xl">
                   <Loader2 className="w-12 h-12 text-indigo-600 animate-spin mb-4" />
-                  <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">Importing Data...</h3>
-                  <p className="text-zinc-500 font-medium">Please wait while we process your tickets</p>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Importing Data...</h3>
+                  <p className="text-slate-500 font-medium">Please wait while we process your tickets</p>
                 </div>
               )}
 
               <div className="w-24 h-24 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-500 dark:text-indigo-400 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-sm">
                 <UploadCloud className="w-10 h-10" />
               </div>
-              <h3 className="text-2xl font-bold text-zinc-900 dark:text-white mb-3">Drag & drop your file here</h3>
-              <p className="text-zinc-500 text-center mb-10 max-w-lg text-base">
+              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">Drag & drop your file here</h3>
+              <p className="text-slate-500 text-center mb-10 max-w-lg text-base">
                 Upload a CSV file containing your latest tickets. Make sure the headers match our standard format. Maximum file size is 10MB.
               </p>
               
@@ -453,8 +453,8 @@ export default function FormTappingPage() {
                 />
                 
                 <div className="flex items-center gap-4 w-full">
-                  <div className="flex items-center justify-center flex-1 h-12 border border-zinc-200 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-800 shadow-sm pointer-events-none group-hover:border-indigo-200 dark:group-hover:border-indigo-800 transition-colors px-4">
-                    <span className="text-zinc-500 font-medium truncate text-sm">{file ? file.name : "or click to browse from computer"}</span>
+                  <div className="flex items-center justify-center flex-1 h-12 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 shadow-sm pointer-events-none group-hover:border-indigo-200 dark:group-hover:border-indigo-800 transition-colors px-4">
+                    <span className="text-slate-500 font-medium truncate text-sm">{file ? file.name : "or click to browse from computer"}</span>
                   </div>
                   {file && (
                     <Button 

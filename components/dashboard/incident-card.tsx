@@ -76,7 +76,7 @@ const IncidentCard = ({
         </TooltipProvider>
 
         {/* Resolve Button (Only show if active) */}
-        {data.isActive && (user?.role === "ADMIN" || user?.role === "QC") && (
+        {data.isActive && (user?.role === "ADMIN" || user?.role === "QC" || user?.role === "TL_QC") && (
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -197,7 +197,7 @@ export default function IncidentWidget() {
             </span>
           </div>
 
-          {(user?.role === "ADMIN" || user?.role === "QC") && (
+          {(user?.role === "ADMIN" || user?.role === "QC" || user?.role === "TL_QC") && (
             <div className="flex flex-col sm:flex-row items-center gap-2">
               <div className="flex items-center">
                 {/* Toggle Show Solved */}

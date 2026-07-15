@@ -161,7 +161,7 @@ export default function ProductivityQcPage() {
       <div className="flex items-center justify-center h-full min-h-[500px]">
         <div className="flex flex-col items-center gap-4">
           <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
-          <p className="text-zinc-500 font-medium">Loading Productivity data...</p>
+          <p className="text-slate-500 font-medium">Loading Productivity data...</p>
         </div>
       </div>
     );
@@ -175,6 +175,13 @@ export default function ProductivityQcPage() {
     return [...arr].sort((a, b) => {
       let valA = a[key] ?? "";
       let valB = b[key] ?? "";
+      
+      const numA = Number(valA);
+      const numB = Number(valB);
+      if (!isNaN(numA) && !isNaN(numB) && valA !== "" && valB !== "") {
+        return order === "asc" ? numA - numB : numB - numA;
+      }
+      
       if (typeof valA === "string") valA = valA.toLowerCase();
       if (typeof valB === "string") valB = valB.toLowerCase();
       if (valA < valB) return order === "asc" ? -1 : 1;
@@ -189,24 +196,24 @@ export default function ProductivityQcPage() {
   const { realtimeOverview = {} } = dashboardData || {};
 
   return (
-    <div className="h-full bg-zinc-50 dark:bg-zinc-950 flex flex-col overflow-hidden relative">
+    <div className="h-full bg-slate-50 dark:bg-slate-950 flex flex-col overflow-hidden relative">
       <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-indigo-500/10 dark:bg-indigo-500/5 rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
       <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-emerald-500/10 dark:bg-emerald-500/5 rounded-full blur-[120px] translate-x-1/2 translate-y-1/2 pointer-events-none" />
 
       {/* Header */}
-      <div className="px-6 py-5 sm:px-8 border-b border-zinc-100 dark:border-zinc-800/60 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-xl shrink-0 z-10 relative flex justify-between items-center">
+      <div className="px-6 py-5 sm:px-8 border-b border-slate-100 dark:border-slate-800/60 bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl shrink-0 z-10 relative flex justify-between items-center">
         <div>
-          <h1 className="text-xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+          <h1 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <LayoutDashboard className="w-5 h-5 text-indigo-600" />
             Productivity QC
           </h1>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Monitor target dan realisasi QA per Hari, Peak, dan Bulan.
           </p>
         </div>
         {(user?.role === "ADMIN" || user?.role === "TL_QC") && (
-          <Button onClick={handleOpenSettings} variant="outline" size="sm" className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 shadow-sm rounded-lg text-xs font-semibold">
-            <Settings className="w-3.5 h-3.5 mr-2 text-zinc-500" /> Pengaturan Target
+          <Button onClick={handleOpenSettings} variant="outline" size="sm" className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm rounded-lg text-xs font-semibold">
+            <Settings className="w-3.5 h-3.5 mr-2 text-slate-500" /> Pengaturan Target
           </Button>
         )}
       </div>
@@ -215,37 +222,37 @@ export default function ProductivityQcPage() {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
           <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-4">
             <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-              <TabsList className="bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md p-1 border border-zinc-100 dark:border-zinc-800 shadow-sm rounded-xl h-12 w-fit">
-                <TabsTrigger value="overview" className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:shadow-sm px-6 font-semibold">
+              <TabsList className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md p-1 border border-slate-100 dark:border-slate-800 shadow-sm rounded-xl h-12 w-fit">
+                <TabsTrigger value="overview" className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:shadow-sm px-6 font-semibold">
                   Overview
                 </TabsTrigger>
-                <TabsTrigger value="history" className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:shadow-sm px-6 font-semibold">
+                <TabsTrigger value="history" className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:shadow-sm px-6 font-semibold">
                   Review History
                 </TabsTrigger>
               </TabsList>
               
               {activeTab === "history" && (
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <Input
                     placeholder="Search agent, team leader..."
                     value={searchInput}
                     onChange={(e) => setSearchInput(e.target.value)}
-                    className="pl-9 w-full sm:w-[300px] h-12 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md border-zinc-200 dark:border-zinc-800 rounded-xl focus-visible:ring-indigo-500 shadow-sm"
+                    className="pl-9 w-full sm:w-[300px] h-12 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border-slate-200 dark:border-slate-800 rounded-xl focus-visible:ring-indigo-500 shadow-sm"
                   />
                 </div>
               )}
             </div>
 
             {/* Filters */}
-            <div className="flex flex-wrap items-center gap-2 sm:gap-3 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md p-2 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm w-fit">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md p-2 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm w-fit">
               <div className="flex items-center gap-2 px-2">
-                <Label className="text-xs font-semibold text-zinc-500 whitespace-nowrap">Bulan:</Label>
+                <Label className="text-xs font-semibold text-slate-500 whitespace-nowrap">Bulan:</Label>
                 <Select value={month.toString()} onValueChange={(v) => setMonth(parseInt(v))}>
-                  <SelectTrigger className="w-[120px] bg-white dark:bg-zinc-900 border-none shadow-sm rounded-lg h-9 text-sm font-medium focus:ring-0">
+                  <SelectTrigger className="w-[120px] bg-white dark:bg-slate-900 border-none shadow-sm rounded-lg h-9 text-sm font-medium focus:ring-0">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="rounded-xl border-zinc-200 dark:border-zinc-800">
+                  <SelectContent className="rounded-xl border-slate-200 dark:border-slate-800">
                     {Array.from({ length: 12 }).map((_, i) => (
                       <SelectItem key={i + 1} value={(i + 1).toString()}>
                         {new Date(2000, i, 1).toLocaleString('id-ID', { month: 'long' })}
@@ -254,28 +261,28 @@ export default function ProductivityQcPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="hidden sm:block w-px h-6 bg-zinc-200 dark:bg-zinc-800" />
+              <div className="hidden sm:block w-px h-6 bg-slate-200 dark:bg-slate-800" />
               <div className="flex items-center gap-2 px-2">
-                <Label className="text-xs font-semibold text-zinc-500 whitespace-nowrap">Tahun:</Label>
+                <Label className="text-xs font-semibold text-slate-500 whitespace-nowrap">Tahun:</Label>
                 <Select value={year.toString()} onValueChange={(v) => setYear(parseInt(v))}>
-                  <SelectTrigger className="w-[90px] bg-white dark:bg-zinc-900 border-none shadow-sm rounded-lg h-9 text-sm font-medium focus:ring-0">
+                  <SelectTrigger className="w-[90px] bg-white dark:bg-slate-900 border-none shadow-sm rounded-lg h-9 text-sm font-medium focus:ring-0">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="rounded-xl border-zinc-200 dark:border-zinc-800">
+                  <SelectContent className="rounded-xl border-slate-200 dark:border-slate-800">
                     {[2024, 2025, 2026, 2027].map((y) => (
                       <SelectItem key={y} value={y.toString()}>{y}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-              <div className="hidden sm:block w-px h-6 bg-zinc-200 dark:bg-zinc-800" />
+              <div className="hidden sm:block w-px h-6 bg-slate-200 dark:bg-slate-800" />
               <div className="flex items-center gap-2 px-2">
-                <Label className="text-xs font-semibold text-zinc-500 whitespace-nowrap">Tanggal:</Label>
+                <Label className="text-xs font-semibold text-slate-500 whitespace-nowrap">Tanggal:</Label>
                 <Input 
                   type="date" 
                   value={dateStr}
                   onChange={(e) => setDateStr(e.target.value)}
-                  className="w-[140px] bg-white dark:bg-zinc-900 border-none shadow-sm rounded-lg h-9 text-sm font-medium focus-visible:ring-0"
+                  className="w-[140px] bg-white dark:bg-slate-900 border-none shadow-sm rounded-lg h-9 text-sm font-medium focus-visible:ring-0"
                 />
               </div>
             </div>
@@ -285,15 +292,15 @@ export default function ProductivityQcPage() {
             {/* Realtime Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Eksekutor Card */}
-          <div className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border border-zinc-100 dark:border-zinc-800/60 rounded-2xl p-6 shadow-sm flex items-center justify-between">
+          <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm flex items-center justify-between">
             <div>
               <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold mb-1">
                 REALTIME TAPPING EKSEKUTOR AGENT
               </div>
-              <div className="text-zinc-500 dark:text-zinc-400 text-sm font-medium">80% dari jumlah target agent EKSEKUTOR</div>
+              <div className="text-slate-500 dark:text-slate-400 text-sm font-medium">80% dari jumlah target agent EKSEKUTOR</div>
             </div>
             <div className="text-right">
-              <div className="text-4xl font-black text-zinc-900 dark:text-white">
+              <div className="text-4xl font-black text-slate-900 dark:text-white">
                 {realtimeOverview.totalEksekutor || 0}
               </div>
               <div className="text-xs font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-lg mt-1 inline-block">
@@ -303,15 +310,15 @@ export default function ProductivityQcPage() {
           </div>
           
           {/* All Card */}
-          <div className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border border-zinc-100 dark:border-zinc-800/60 rounded-2xl p-6 shadow-sm flex items-center justify-between">
+          <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm flex items-center justify-between">
             <div>
               <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold mb-1">
                 REALTIME TAPPING ALL
               </div>
-              <div className="text-zinc-500 dark:text-zinc-400 text-sm font-medium">80% dari jumlah target ALL</div>
+              <div className="text-slate-500 dark:text-slate-400 text-sm font-medium">80% dari jumlah target ALL</div>
             </div>
             <div className="text-right">
-              <div className="text-4xl font-black text-zinc-900 dark:text-white">
+              <div className="text-4xl font-black text-slate-900 dark:text-white">
                 {realtimeOverview.totalAll || 0}
               </div>
               <div className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-500/10 px-2 py-1 rounded-lg mt-1 inline-block">
@@ -322,18 +329,18 @@ export default function ProductivityQcPage() {
         </div>
         
         {/* Productivity QC Table */}
-        <div className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border border-zinc-100 dark:border-zinc-800/60 rounded-2xl p-6 shadow-sm overflow-hidden flex flex-col mb-6">
-          <h3 className="text-sm font-bold text-zinc-800 dark:text-zinc-200 uppercase tracking-widest mb-4 flex items-center gap-2">
+        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm overflow-hidden flex flex-col mb-6">
+          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-widest mb-4 flex items-center gap-2">
             <Users className="w-4 h-4 text-indigo-500" />
             Produktivitas QC
           </h3>
-          <div className="overflow-x-auto rounded-xl border border-zinc-200 dark:border-zinc-800">
+          <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
             <Table className="whitespace-nowrap">
-              <TableHeader className="bg-zinc-50 dark:bg-zinc-900/50">
+              <TableHeader className="bg-slate-50 dark:bg-slate-900/50">
                 <TableRow>
-                  <SortableTableHead columnKey="tapper" currentSortBy={qcSortBy} currentSortOrder={qcSortOrder} onSort={(k, o) => { setQcSortBy(k); setQcSortOrder(o); }} className="text-xs font-semibold text-zinc-500 w-[180px]" rowSpan={2}>Nama Tapper</SortableTableHead>
-                  <SortableTableHead columnKey="totalAgent" currentSortBy={qcSortBy} currentSortOrder={qcSortOrder} onSort={(k, o) => { setQcSortBy(k); setQcSortOrder(o); }} className="text-xs font-semibold text-zinc-500 text-center w-[100px]" rowSpan={2}>Jml Agent</SortableTableHead>
-                  <SortableTableHead columnKey="agentNames" currentSortBy={qcSortBy} currentSortOrder={qcSortOrder} onSort={(k, o) => { setQcSortBy(k); setQcSortOrder(o); }} className="text-xs font-semibold text-zinc-500 w-[200px]" rowSpan={2}>Nama Agent</SortableTableHead>
+                  <SortableTableHead columnKey="tapper" currentSortBy={qcSortBy} currentSortOrder={qcSortOrder} onSort={(k, o) => { setQcSortBy(k); setQcSortOrder(o); }} className="text-xs font-semibold text-slate-500 w-[180px]" rowSpan={2}>Nama Tapper</SortableTableHead>
+                  <SortableTableHead columnKey="totalAgent" currentSortBy={qcSortBy} currentSortOrder={qcSortOrder} onSort={(k, o) => { setQcSortBy(k); setQcSortOrder(o); }} className="text-xs font-semibold text-slate-500 text-center w-[100px]" rowSpan={2}>Jml Agent</SortableTableHead>
+                  <SortableTableHead columnKey="agentNames" currentSortBy={qcSortBy} currentSortOrder={qcSortOrder} onSort={(k, o) => { setQcSortBy(k); setQcSortOrder(o); }} className="text-xs font-semibold text-slate-500 w-[200px]" rowSpan={2}>Nama Agent</SortableTableHead>
                   <TableHead className="text-xs font-bold text-indigo-600 bg-indigo-50/50 dark:bg-indigo-900/10 text-center border-l border-b-0" colSpan={3}>Peak 1</TableHead>
                   <TableHead className="text-xs font-bold text-indigo-600 bg-indigo-50/50 dark:bg-indigo-900/10 text-center border-l border-b-0" colSpan={3}>Peak 2</TableHead>
                   <TableHead className="text-xs font-bold text-indigo-600 bg-indigo-50/50 dark:bg-indigo-900/10 text-center border-l border-b-0" colSpan={3}>Peak 3</TableHead>
@@ -341,27 +348,27 @@ export default function ProductivityQcPage() {
                 </TableRow>
                 <TableRow>
                   {/* Peak 1 */}
-                  <TableHead className="text-xs font-semibold text-zinc-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-l border-t-0">Target</TableHead>
-                  <TableHead className="text-xs font-semibold text-zinc-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0">Realisasi</TableHead>
-                  <TableHead className="text-xs font-semibold text-zinc-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0">Sisa</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-l border-t-0">Target</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0">Realisasi</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0">Sisa</TableHead>
                   {/* Peak 2 */}
-                  <TableHead className="text-xs font-semibold text-zinc-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-l border-t-0">Target</TableHead>
-                  <TableHead className="text-xs font-semibold text-zinc-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0">Realisasi</TableHead>
-                  <TableHead className="text-xs font-semibold text-zinc-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0">Sisa</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-l border-t-0">Target</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0">Realisasi</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0">Sisa</TableHead>
                   {/* Peak 3 */}
-                  <TableHead className="text-xs font-semibold text-zinc-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-l border-t-0">Target</TableHead>
-                  <TableHead className="text-xs font-semibold text-zinc-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0">Realisasi</TableHead>
-                  <TableHead className="text-xs font-semibold text-zinc-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0">Sisa</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-l border-t-0">Target</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0">Realisasi</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0">Sisa</TableHead>
                   {/* Bulan Ini */}
-                  <TableHead className="text-xs font-semibold text-zinc-500 text-center bg-emerald-50/50 dark:bg-emerald-900/10 border-l border-t-0">Target</TableHead>
-                  <TableHead className="text-xs font-semibold text-zinc-500 text-center bg-emerald-50/50 dark:bg-emerald-900/10 border-t-0">Realisasi</TableHead>
-                  <TableHead className="text-xs font-semibold text-zinc-500 text-center bg-emerald-50/50 dark:bg-emerald-900/10 border-t-0">Sisa</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 text-center bg-emerald-50/50 dark:bg-emerald-900/10 border-l border-t-0">Target</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 text-center bg-emerald-50/50 dark:bg-emerald-900/10 border-t-0">Realisasi</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 text-center bg-emerald-50/50 dark:bg-emerald-900/10 border-t-0">Sisa</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {qcProductivity.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={15} className="h-[100px] text-center text-zinc-400">Belum ada data produktivitas</TableCell>
+                    <TableCell colSpan={15} className="h-[100px] text-center text-slate-400">Belum ada data produktivitas</TableCell>
                   </TableRow>
                 ) : (
                   <>
@@ -372,27 +379,27 @@ export default function ProductivityQcPage() {
                       const mSisa = qc.monthlyTarget - qc.monthlyRealization;
                       return (
                         <TableRow key={i}>
-                          <TableCell className="font-semibold text-zinc-800 dark:text-zinc-200">{qc.tapper}</TableCell>
+                          <TableCell className="font-semibold text-slate-800 dark:text-slate-200">{qc.tapper}</TableCell>
                           <TableCell className="text-center font-medium">{qc.totalAgent}</TableCell>
-                          <TableCell className="text-sm text-zinc-500"><span className="block truncate max-w-[200px]" title={qc.agentNames}>{qc.agentNames}</span></TableCell>
+                          <TableCell className="text-sm text-slate-500"><span className="block truncate max-w-[200px]" title={qc.agentNames}>{qc.agentNames}</span></TableCell>
                           
                           {/* Peak 1 */}
-                          <TableCell className="text-center font-medium text-zinc-500 border-l bg-indigo-50/20 dark:bg-indigo-900/5">{qc.peak1Target}</TableCell>
+                          <TableCell className="text-center font-medium text-slate-500 border-l bg-indigo-50/20 dark:bg-indigo-900/5">{qc.peak1Target}</TableCell>
                           <TableCell className="text-center font-bold text-indigo-600 bg-indigo-50/20 dark:bg-indigo-900/5">{qc.peak1Realization}</TableCell>
                           <TableCell className={`text-center font-semibold bg-indigo-50/20 dark:bg-indigo-900/5 ${p1sisa < 0 ? 'text-red-500' : 'text-emerald-500'}`}>{p1sisa}</TableCell>
                           
                           {/* Peak 2 */}
-                          <TableCell className="text-center font-medium text-zinc-500 border-l bg-indigo-50/20 dark:bg-indigo-900/5">{qc.peak2Target}</TableCell>
+                          <TableCell className="text-center font-medium text-slate-500 border-l bg-indigo-50/20 dark:bg-indigo-900/5">{qc.peak2Target}</TableCell>
                           <TableCell className="text-center font-bold text-indigo-600 bg-indigo-50/20 dark:bg-indigo-900/5">{qc.peak2Realization}</TableCell>
                           <TableCell className={`text-center font-semibold bg-indigo-50/20 dark:bg-indigo-900/5 ${p2sisa < 0 ? 'text-red-500' : 'text-emerald-500'}`}>{p2sisa}</TableCell>
                           
                           {/* Peak 3 */}
-                          <TableCell className="text-center font-medium text-zinc-500 border-l bg-indigo-50/20 dark:bg-indigo-900/5">{qc.peak3Target}</TableCell>
+                          <TableCell className="text-center font-medium text-slate-500 border-l bg-indigo-50/20 dark:bg-indigo-900/5">{qc.peak3Target}</TableCell>
                           <TableCell className="text-center font-bold text-indigo-600 bg-indigo-50/20 dark:bg-indigo-900/5">{qc.peak3Realization}</TableCell>
                           <TableCell className={`text-center font-semibold bg-indigo-50/20 dark:bg-indigo-900/5 ${p3sisa < 0 ? 'text-red-500' : 'text-emerald-500'}`}>{p3sisa}</TableCell>
                           
                           {/* Bulan Ini */}
-                          <TableCell className="text-center font-medium text-zinc-500 border-l bg-emerald-50/20 dark:bg-emerald-900/5">{qc.monthlyTarget}</TableCell>
+                          <TableCell className="text-center font-medium text-slate-500 border-l bg-emerald-50/20 dark:bg-emerald-900/5">{qc.monthlyTarget}</TableCell>
                           <TableCell className="text-center font-bold text-emerald-600 bg-emerald-50/20 dark:bg-emerald-900/5">{qc.monthlyRealization}</TableCell>
                           <TableCell className={`text-center font-semibold bg-emerald-50/20 dark:bg-emerald-900/5 ${mSisa < 0 ? 'text-red-500' : 'text-emerald-500'}`}>{mSisa}</TableCell>
                         </TableRow>
@@ -426,39 +433,39 @@ export default function ProductivityQcPage() {
         </div>
 
         {/* REALTIME TAPPING TABLE */}
-        <div className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border border-zinc-100 dark:border-zinc-800/60 rounded-2xl p-6 shadow-sm overflow-hidden flex flex-col mb-6">
-          <h3 className="text-sm font-bold text-zinc-800 dark:text-zinc-200 uppercase tracking-widest mb-4 flex items-center gap-2">
+        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm overflow-hidden flex flex-col mb-6">
+          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-widest mb-4 flex items-center gap-2">
             <Activity className="w-4 h-4 text-emerald-500" />
             REALTIME TAPPING ALL CHANNEL/KIP & EKSEKUTOR AGENT
           </h3>
-          <div className="overflow-x-auto rounded-xl border border-zinc-200 dark:border-zinc-800">
+          <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
             <Table className="whitespace-nowrap">
-              <TableHeader className="bg-zinc-50 dark:bg-zinc-900/50">
+              <TableHeader className="bg-slate-50 dark:bg-slate-900/50">
                 <TableRow>
-                  <TableHead className="text-xs font-semibold text-zinc-500 bg-indigo-50/50 dark:bg-indigo-900/10 text-center border-r border-b-0" rowSpan={2}></TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 bg-indigo-50/50 dark:bg-indigo-900/10 text-center border-r border-b-0" rowSpan={2}></TableHead>
                   <TableHead className="text-xs font-bold text-indigo-700 bg-indigo-50/50 dark:bg-indigo-900/10 text-center border-r border-b-0" colSpan={5}>REALTIME TAPPING ALL CHANNEL/KIP</TableHead>
                   <TableHead className="text-xs font-bold text-emerald-700 bg-emerald-50/50 dark:bg-emerald-900/10 text-center border-b-0" colSpan={5}>REALTIME TAPPING EKSEKUTOR AGENT</TableHead>
                 </TableRow>
                 <TableRow>
                   {/* All Channel */}
-                  <TableHead className="text-xs font-semibold text-zinc-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0 border-r">Nama Tapper</TableHead>
-                  <TableHead className="text-xs font-semibold text-zinc-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0">Historical</TableHead>
-                  <TableHead className="text-xs font-semibold text-zinc-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0">Realtime</TableHead>
-                  <TableHead className="text-xs font-semibold text-zinc-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0">Target (70%)</TableHead>
-                  <TableHead className="text-xs font-semibold text-zinc-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0">Sisa</TableHead>
-                  <TableHead className="text-xs font-semibold text-zinc-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0 border-r">%</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0 border-r">Nama Tapper</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0">Historical</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0">Realtime</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0">Target (70%)</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0">Sisa</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0 border-r">%</TableHead>
                   {/* Eksekutor */}
-                  <TableHead className="text-xs font-semibold text-zinc-500 text-center bg-emerald-50/50 dark:bg-emerald-900/10 border-t-0">Historical</TableHead>
-                  <TableHead className="text-xs font-semibold text-zinc-500 text-center bg-emerald-50/50 dark:bg-emerald-900/10 border-t-0">Realtime</TableHead>
-                  <TableHead className="text-xs font-semibold text-zinc-500 text-center bg-emerald-50/50 dark:bg-emerald-900/10 border-t-0">Target (80%)</TableHead>
-                  <TableHead className="text-xs font-semibold text-zinc-500 text-center bg-emerald-50/50 dark:bg-emerald-900/10 border-t-0">Sisa</TableHead>
-                  <TableHead className="text-xs font-semibold text-zinc-500 text-center bg-emerald-50/50 dark:bg-emerald-900/10 border-t-0">%</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 text-center bg-emerald-50/50 dark:bg-emerald-900/10 border-t-0">Historical</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 text-center bg-emerald-50/50 dark:bg-emerald-900/10 border-t-0">Realtime</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 text-center bg-emerald-50/50 dark:bg-emerald-900/10 border-t-0">Target (80%)</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 text-center bg-emerald-50/50 dark:bg-emerald-900/10 border-t-0">Sisa</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 text-center bg-emerald-50/50 dark:bg-emerald-900/10 border-t-0">%</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {qcProductivity.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={11} className="h-[100px] text-center text-zinc-400">Belum ada data realtime</TableCell>
+                    <TableCell colSpan={11} className="h-[100px] text-center text-slate-400">Belum ada data realtime</TableCell>
                   </TableRow>
                 ) : (
                   <>
@@ -477,8 +484,8 @@ export default function ProductivityQcPage() {
 
                       return (
                         <TableRow key={i}>
-                          <TableCell className="bg-zinc-50 dark:bg-zinc-900/50 border-r"></TableCell>
-                          <TableCell className="font-semibold text-zinc-800 dark:text-zinc-200 border-r">{qc.tapper}</TableCell>
+                          <TableCell className="bg-slate-50 dark:bg-slate-900/50 border-r"></TableCell>
+                          <TableCell className="font-semibold text-slate-800 dark:text-slate-200 border-r">{qc.tapper}</TableCell>
                           
                           <TableCell className="text-center font-medium">{allHistorical}</TableCell>
                           <TableCell className="text-center font-medium">{allRealtime}</TableCell>
@@ -521,42 +528,42 @@ export default function ProductivityQcPage() {
         </div>
 
         {/* PERFORMANCE / TAPPER Table */}
-        <div className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border border-zinc-100 dark:border-zinc-800/60 rounded-2xl p-6 shadow-sm overflow-hidden flex flex-col">
-          <h3 className="text-sm font-bold text-zinc-800 dark:text-zinc-200 uppercase tracking-widest mb-4 flex items-center gap-2">
+        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm overflow-hidden flex flex-col">
+          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-widest mb-4 flex items-center gap-2">
             <Users className="w-4 h-4 text-emerald-500" />
             Performance / Tapper
           </h3>
-          <div className="overflow-x-auto rounded-xl border border-zinc-200 dark:border-zinc-800">
+          <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
             <Table className="whitespace-nowrap">
-              <TableHeader className="bg-zinc-50 dark:bg-zinc-900/50">
+              <TableHeader className="bg-slate-50 dark:bg-slate-900/50">
                 <TableRow>
-                  <SortableTableHead columnKey="agent" currentSortBy={apSortBy} currentSortOrder={apSortOrder} onSort={(k, o) => { setApSortBy(k); setApSortOrder(o); }} className="text-xs font-semibold text-zinc-500 w-[200px]" rowSpan={2}>Nama Agent</SortableTableHead>
+                  <SortableTableHead columnKey="agent" currentSortBy={apSortBy} currentSortOrder={apSortOrder} onSort={(k, o) => { setApSortBy(k); setApSortOrder(o); }} className="text-xs font-semibold text-slate-500 w-[200px]" rowSpan={2}>Nama Agent</SortableTableHead>
                   <TableHead className="text-xs font-bold text-indigo-600 bg-indigo-50/50 dark:bg-indigo-900/10 text-center border-l border-b-0" colSpan={4}>Peak 1</TableHead>
                   <TableHead className="text-xs font-bold text-indigo-600 bg-indigo-50/50 dark:bg-indigo-900/10 text-center border-l border-b-0" colSpan={4}>Peak 2</TableHead>
                   <TableHead className="text-xs font-bold text-indigo-600 bg-indigo-50/50 dark:bg-indigo-900/10 text-center border-l border-b-0" colSpan={4}>Peak 3</TableHead>
                 </TableRow>
                 <TableRow>
                   {/* Peak 1 */}
-                  <TableHead className="text-xs font-semibold text-zinc-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-l border-t-0">Realisasi</TableHead>
-                  <TableHead className="text-xs font-semibold text-zinc-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0">Target</TableHead>
-                  <TableHead className="text-xs font-semibold text-zinc-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0">Sisa</TableHead>
-                  <TableHead className="text-xs font-semibold text-zinc-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0">QA Score/Peak</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-l border-t-0">Realisasi</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0">Target</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0">Sisa</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0">QA Score/Peak</TableHead>
                   {/* Peak 2 */}
-                  <TableHead className="text-xs font-semibold text-zinc-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-l border-t-0">Realisasi</TableHead>
-                  <TableHead className="text-xs font-semibold text-zinc-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0">Target</TableHead>
-                  <TableHead className="text-xs font-semibold text-zinc-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0">Sisa</TableHead>
-                  <TableHead className="text-xs font-semibold text-zinc-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0">QA Score/Peak</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-l border-t-0">Realisasi</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0">Target</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0">Sisa</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0">QA Score/Peak</TableHead>
                   {/* Peak 3 */}
-                  <TableHead className="text-xs font-semibold text-zinc-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-l border-t-0">Realisasi</TableHead>
-                  <TableHead className="text-xs font-semibold text-zinc-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0">Target</TableHead>
-                  <TableHead className="text-xs font-semibold text-zinc-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0">Sisa</TableHead>
-                  <TableHead className="text-xs font-semibold text-zinc-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0">QA Score/Peak</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-l border-t-0">Realisasi</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0">Target</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0">Sisa</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 text-center bg-indigo-50/50 dark:bg-indigo-900/10 border-t-0">QA Score/Peak</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {agentPerformance.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={13} className="h-[100px] text-center text-zinc-400">Belum ada data performance agent</TableCell>
+                    <TableCell colSpan={13} className="h-[100px] text-center text-slate-400">Belum ada data performance agent</TableCell>
                   </TableRow>
                 ) : (
                   (() => {
@@ -590,44 +597,44 @@ export default function ProductivityQcPage() {
                             const p3sisa = ag.peak3Target - ag.peak3Realization;
                             return (
                               <TableRow key={aIdx}>
-                                <TableCell className="font-semibold text-zinc-800 dark:text-zinc-200">{ag.agent}</TableCell>
+                                <TableCell className="font-semibold text-slate-800 dark:text-slate-200">{ag.agent}</TableCell>
                                 {/* Peak 1 */}
                                 <TableCell className="text-center font-bold text-indigo-600 border-l bg-indigo-50/20 dark:bg-indigo-900/5">{ag.peak1Realization}</TableCell>
-                                <TableCell className="text-center font-medium text-zinc-500 bg-indigo-50/20 dark:bg-indigo-900/5">{ag.peak1Target}</TableCell>
+                                <TableCell className="text-center font-medium text-slate-500 bg-indigo-50/20 dark:bg-indigo-900/5">{ag.peak1Target}</TableCell>
                                 <TableCell className={`text-center font-semibold bg-indigo-50/20 dark:bg-indigo-900/5 ${p1sisa < 0 ? 'text-red-500' : 'text-emerald-500'}`}>{p1sisa}</TableCell>
-                                <TableCell className="text-center font-medium text-zinc-600 bg-indigo-50/20 dark:bg-indigo-900/5">100.00</TableCell>
+                                <TableCell className="text-center font-medium text-slate-600 bg-indigo-50/20 dark:bg-indigo-900/5">100.00</TableCell>
                                 
                                 {/* Peak 2 */}
                                 <TableCell className="text-center font-bold text-indigo-600 border-l bg-indigo-50/20 dark:bg-indigo-900/5">{ag.peak2Realization}</TableCell>
-                                <TableCell className="text-center font-medium text-zinc-500 bg-indigo-50/20 dark:bg-indigo-900/5">{ag.peak2Target}</TableCell>
+                                <TableCell className="text-center font-medium text-slate-500 bg-indigo-50/20 dark:bg-indigo-900/5">{ag.peak2Target}</TableCell>
                                 <TableCell className={`text-center font-semibold bg-indigo-50/20 dark:bg-indigo-900/5 ${p2sisa < 0 ? 'text-red-500' : 'text-emerald-500'}`}>{p2sisa}</TableCell>
-                                <TableCell className="text-center font-medium text-zinc-600 bg-indigo-50/20 dark:bg-indigo-900/5">100.00</TableCell>
+                                <TableCell className="text-center font-medium text-slate-600 bg-indigo-50/20 dark:bg-indigo-900/5">100.00</TableCell>
                                 
                                 {/* Peak 3 */}
                                 <TableCell className="text-center font-bold text-indigo-600 border-l bg-indigo-50/20 dark:bg-indigo-900/5">{ag.peak3Realization}</TableCell>
-                                <TableCell className="text-center font-medium text-zinc-500 bg-indigo-50/20 dark:bg-indigo-900/5">{ag.peak3Target}</TableCell>
+                                <TableCell className="text-center font-medium text-slate-500 bg-indigo-50/20 dark:bg-indigo-900/5">{ag.peak3Target}</TableCell>
                                 <TableCell className={`text-center font-semibold bg-indigo-50/20 dark:bg-indigo-900/5 ${p3sisa < 0 ? 'text-red-500' : 'text-emerald-500'}`}>{p3sisa}</TableCell>
-                                <TableCell className="text-center font-medium text-zinc-600 bg-indigo-50/20 dark:bg-indigo-900/5">100.00</TableCell>
+                                <TableCell className="text-center font-medium text-slate-600 bg-indigo-50/20 dark:bg-indigo-900/5">100.00</TableCell>
                               </TableRow>
                             );
                           })}
                           {/* Jumlah Row */}
-                          <TableRow className="font-bold bg-zinc-100 dark:bg-zinc-800/50">
-                            <TableCell className="text-center text-zinc-600 dark:text-zinc-400">Jumlah</TableCell>
-                            <TableCell className="text-center text-zinc-800 dark:text-zinc-200 border-l">{tP1Real}</TableCell>
-                            <TableCell className="text-center text-zinc-800 dark:text-zinc-200">{tP1Tgt}</TableCell>
-                            <TableCell className="text-center text-zinc-800 dark:text-zinc-200">{tP1Tgt - tP1Real}</TableCell>
-                            <TableCell className="text-center text-zinc-800 dark:text-zinc-200">98.10</TableCell>
+                          <TableRow className="font-bold bg-slate-100 dark:bg-slate-800/50">
+                            <TableCell className="text-center text-slate-600 dark:text-slate-400">Jumlah</TableCell>
+                            <TableCell className="text-center text-slate-800 dark:text-slate-200 border-l">{tP1Real}</TableCell>
+                            <TableCell className="text-center text-slate-800 dark:text-slate-200">{tP1Tgt}</TableCell>
+                            <TableCell className="text-center text-slate-800 dark:text-slate-200">{tP1Tgt - tP1Real}</TableCell>
+                            <TableCell className="text-center text-slate-800 dark:text-slate-200">98.10</TableCell>
                             
-                            <TableCell className="text-center text-zinc-800 dark:text-zinc-200 border-l">{tP2Real}</TableCell>
-                            <TableCell className="text-center text-zinc-800 dark:text-zinc-200">{tP2Tgt}</TableCell>
-                            <TableCell className="text-center text-zinc-800 dark:text-zinc-200">{tP2Tgt - tP2Real}</TableCell>
-                            <TableCell className="text-center text-zinc-800 dark:text-zinc-200">98.10</TableCell>
+                            <TableCell className="text-center text-slate-800 dark:text-slate-200 border-l">{tP2Real}</TableCell>
+                            <TableCell className="text-center text-slate-800 dark:text-slate-200">{tP2Tgt}</TableCell>
+                            <TableCell className="text-center text-slate-800 dark:text-slate-200">{tP2Tgt - tP2Real}</TableCell>
+                            <TableCell className="text-center text-slate-800 dark:text-slate-200">98.10</TableCell>
                             
-                            <TableCell className="text-center text-zinc-800 dark:text-zinc-200 border-l">{tP3Real}</TableCell>
-                            <TableCell className="text-center text-zinc-800 dark:text-zinc-200">{tP3Tgt}</TableCell>
-                            <TableCell className="text-center text-zinc-800 dark:text-zinc-200">{tP3Tgt - tP3Real}</TableCell>
-                            <TableCell className="text-center text-zinc-800 dark:text-zinc-200">98.10</TableCell>
+                            <TableCell className="text-center text-slate-800 dark:text-slate-200 border-l">{tP3Real}</TableCell>
+                            <TableCell className="text-center text-slate-800 dark:text-slate-200">{tP3Tgt}</TableCell>
+                            <TableCell className="text-center text-slate-800 dark:text-slate-200">{tP3Tgt - tP3Real}</TableCell>
+                            <TableCell className="text-center text-slate-800 dark:text-slate-200">98.10</TableCell>
                           </TableRow>
                         </React.Fragment>
                       );
@@ -650,7 +657,7 @@ export default function ProductivityQcPage() {
 
       {/* Target Settings Dialog */}
       <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
-        <DialogContent className="sm:max-w-[1000px] max-h-[85vh] flex flex-col bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800">
+        <DialogContent className="sm:max-w-[1000px] max-h-[85vh] flex flex-col bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold flex items-center gap-2">
               <Settings className="w-5 h-5 text-indigo-500" /> Pengaturan Target
@@ -661,15 +668,15 @@ export default function ProductivityQcPage() {
           </DialogHeader>
           
           <Tabs value={settingsActiveTab} onValueChange={setSettingsActiveTab} className="flex-1 flex flex-col min-h-0 py-4">
-            <TabsList className="grid w-full grid-cols-2 mb-4 bg-zinc-100 dark:bg-zinc-900 rounded-lg p-1 border border-zinc-200 dark:border-zinc-800">
-              <TabsTrigger value="qc" className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:shadow-sm">Target QC</TabsTrigger>
-              <TabsTrigger value="agent" className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:shadow-sm">Target Agent</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 mb-4 bg-slate-100 dark:bg-slate-900 rounded-lg p-1 border border-slate-200 dark:border-slate-800">
+              <TabsTrigger value="qc" className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:shadow-sm">Target QC</TabsTrigger>
+              <TabsTrigger value="agent" className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:shadow-sm">Target Agent</TabsTrigger>
             </TabsList>
             
-            <TabsContent value="qc" className="flex-1 overflow-auto border border-zinc-200 dark:border-zinc-800 rounded-xl relative bg-zinc-50/50 dark:bg-zinc-900/20">
+            <TabsContent value="qc" className="flex-1 overflow-auto border border-slate-200 dark:border-slate-800 rounded-xl relative bg-slate-50/50 dark:bg-slate-900/20">
               <Table>
-                <TableHeader className="bg-zinc-100 dark:bg-zinc-900 sticky top-0 z-10">
-                  <TableRow className="border-b border-zinc-200 dark:border-zinc-800">
+                <TableHeader className="bg-slate-100 dark:bg-slate-900 sticky top-0 z-10">
+                  <TableRow className="border-b border-slate-200 dark:border-slate-800">
                     <TableHead className="font-semibold">Nama QC</TableHead>
                     <TableHead className="w-[100px] font-semibold">Harian</TableHead>
                     <TableHead className="w-[100px] font-semibold">Peak 1</TableHead>
@@ -679,40 +686,40 @@ export default function ProductivityQcPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {qcSettings.length === 0 && <TableRow><TableCell colSpan={6} className="text-center py-8 text-zinc-500">Belum ada data QC</TableCell></TableRow>}
+                  {qcSettings.length === 0 && <TableRow><TableCell colSpan={6} className="text-center py-8 text-slate-500">Belum ada data QC</TableCell></TableRow>}
                   {qcSettings.map((qc, i) => (
-                    <TableRow key={i} className="border-b border-zinc-100 dark:border-zinc-800/60">
-                      <TableCell className="font-medium text-zinc-900 dark:text-zinc-100">{qc.name}</TableCell>
+                    <TableRow key={i} className="border-b border-slate-100 dark:border-slate-800/60">
+                      <TableCell className="font-medium text-slate-900 dark:text-slate-100">{qc.name}</TableCell>
                       <TableCell>
-                        <Input type="number" min="0" className="h-8 bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800" value={qc.daily} onChange={(e) => {
+                        <Input type="number" min="0" className="h-8 bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800" value={qc.daily} onChange={(e) => {
                           const newQcs = [...qcSettings];
                           newQcs[i].daily = e.target.value;
                           setQcSettings(newQcs);
                         }} />
                       </TableCell>
                       <TableCell>
-                        <Input type="number" min="0" className="h-8 bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800" value={qc.peak1} onChange={(e) => {
+                        <Input type="number" min="0" className="h-8 bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800" value={qc.peak1} onChange={(e) => {
                           const newQcs = [...qcSettings];
                           newQcs[i].peak1 = e.target.value;
                           setQcSettings(newQcs);
                         }} />
                       </TableCell>
                       <TableCell>
-                        <Input type="number" min="0" className="h-8 bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800" value={qc.peak2} onChange={(e) => {
+                        <Input type="number" min="0" className="h-8 bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800" value={qc.peak2} onChange={(e) => {
                           const newQcs = [...qcSettings];
                           newQcs[i].peak2 = e.target.value;
                           setQcSettings(newQcs);
                         }} />
                       </TableCell>
                       <TableCell>
-                        <Input type="number" min="0" className="h-8 bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800" value={qc.peak3} onChange={(e) => {
+                        <Input type="number" min="0" className="h-8 bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800" value={qc.peak3} onChange={(e) => {
                           const newQcs = [...qcSettings];
                           newQcs[i].peak3 = e.target.value;
                           setQcSettings(newQcs);
                         }} />
                       </TableCell>
                       <TableCell>
-                        <Input type="number" min="0" className="h-8 bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800" value={qc.monthly} onChange={(e) => {
+                        <Input type="number" min="0" className="h-8 bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800" value={qc.monthly} onChange={(e) => {
                           const newQcs = [...qcSettings];
                           newQcs[i].monthly = e.target.value;
                           setQcSettings(newQcs);
@@ -724,10 +731,10 @@ export default function ProductivityQcPage() {
               </Table>
             </TabsContent>
             
-            <TabsContent value="agent" className="flex-1 overflow-auto border border-zinc-200 dark:border-zinc-800 rounded-xl relative bg-zinc-50/50 dark:bg-zinc-900/20">
+            <TabsContent value="agent" className="flex-1 overflow-auto border border-slate-200 dark:border-slate-800 rounded-xl relative bg-slate-50/50 dark:bg-slate-900/20">
               <Table>
-                <TableHeader className="bg-zinc-100 dark:bg-zinc-900 sticky top-0 z-10">
-                  <TableRow className="border-b border-zinc-200 dark:border-zinc-800">
+                <TableHeader className="bg-slate-100 dark:bg-slate-900 sticky top-0 z-10">
+                  <TableRow className="border-b border-slate-200 dark:border-slate-800">
                     <TableHead className="font-semibold">Nama Agent</TableHead>
                     <TableHead className="w-[100px] font-semibold">Peak 1</TableHead>
                     <TableHead className="w-[100px] font-semibold">Peak 2</TableHead>
@@ -736,33 +743,33 @@ export default function ProductivityQcPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {agentSettings.length === 0 && <TableRow><TableCell colSpan={5} className="text-center py-8 text-zinc-500">Belum ada data Agent</TableCell></TableRow>}
+                  {agentSettings.length === 0 && <TableRow><TableCell colSpan={5} className="text-center py-8 text-slate-500">Belum ada data Agent</TableCell></TableRow>}
                   {agentSettings.map((ag, i) => (
-                    <TableRow key={i} className="border-b border-zinc-100 dark:border-zinc-800/60">
-                      <TableCell className="font-medium text-zinc-900 dark:text-zinc-100">{ag.name}</TableCell>
+                    <TableRow key={i} className="border-b border-slate-100 dark:border-slate-800/60">
+                      <TableCell className="font-medium text-slate-900 dark:text-slate-100">{ag.name}</TableCell>
                       <TableCell>
-                        <Input type="number" min="0" className="h-8 bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800" value={ag.peak1} onChange={(e) => {
+                        <Input type="number" min="0" className="h-8 bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800" value={ag.peak1} onChange={(e) => {
                           const newAgs = [...agentSettings];
                           newAgs[i].peak1 = e.target.value;
                           setAgentSettings(newAgs);
                         }} />
                       </TableCell>
                       <TableCell>
-                        <Input type="number" min="0" className="h-8 bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800" value={ag.peak2} onChange={(e) => {
+                        <Input type="number" min="0" className="h-8 bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800" value={ag.peak2} onChange={(e) => {
                           const newAgs = [...agentSettings];
                           newAgs[i].peak2 = e.target.value;
                           setAgentSettings(newAgs);
                         }} />
                       </TableCell>
                       <TableCell>
-                        <Input type="number" min="0" className="h-8 bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800" value={ag.peak3} onChange={(e) => {
+                        <Input type="number" min="0" className="h-8 bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800" value={ag.peak3} onChange={(e) => {
                           const newAgs = [...agentSettings];
                           newAgs[i].peak3 = e.target.value;
                           setAgentSettings(newAgs);
                         }} />
                       </TableCell>
                       <TableCell>
-                        <Input type="number" min="0" className="h-8 bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800" value={ag.monthly} onChange={(e) => {
+                        <Input type="number" min="0" className="h-8 bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800" value={ag.monthly} onChange={(e) => {
                           const newAgs = [...agentSettings];
                           newAgs[i].monthly = e.target.value;
                           setAgentSettings(newAgs);

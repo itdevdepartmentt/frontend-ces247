@@ -181,6 +181,13 @@ export default function QaScorePage() {
     return arr.sort((a, b) => {
       let valA = a[key] ?? "";
       let valB = b[key] ?? "";
+      
+      const numA = Number(valA);
+      const numB = Number(valB);
+      if (!isNaN(numA) && !isNaN(numB) && valA !== "" && valB !== "") {
+        return order === "asc" ? numA - numB : numB - numA;
+      }
+      
       if (typeof valA === "string") valA = valA.toLowerCase();
       if (typeof valB === "string") valB = valB.toLowerCase();
       if (valA < valB) return order === "asc" ? -1 : 1;
@@ -205,33 +212,33 @@ export default function QaScorePage() {
       <div className="flex items-center justify-center h-full min-h-[500px]">
         <div className="flex flex-col items-center gap-4">
           <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
-          <p className="text-zinc-500 font-medium">Loading QA Score data...</p>
+          <p className="text-slate-500 font-medium">Loading QA Score data...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="h-full bg-zinc-50 dark:bg-zinc-950 flex flex-col overflow-hidden relative">
+    <div className="h-full bg-slate-50 dark:bg-slate-950 flex flex-col overflow-hidden relative">
       {/* Background blobs */}
       <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-indigo-500/10 dark:bg-indigo-500/5 rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
       <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-emerald-500/10 dark:bg-emerald-500/5 rounded-full blur-[120px] translate-x-1/2 translate-y-1/2 pointer-events-none" />
 
       {/* Header */}
-      <div className="px-6 py-5 sm:px-8 border-b border-zinc-100 dark:border-zinc-800/60 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-xl shrink-0 z-10 relative">
-        <h1 className="text-2xl font-black text-zinc-900 dark:text-white uppercase tracking-tight">
+      <div className="px-6 py-5 sm:px-8 border-b border-slate-100 dark:border-slate-800/60 bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl shrink-0 z-10 relative">
+        <h1 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
           QA SCORE
         </h1>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1 font-medium">
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">
           Dashboard evaluasi performa dan parameter pencapaian QA.
         </p>
       </div>
 
       <div className="flex-1 overflow-auto space-y-6 p-6 sm:p-8 z-10 relative">
       {/* Filter Bar */}
-      <div className="flex items-center gap-3 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl p-4 rounded-2xl border border-white/40 dark:border-zinc-800/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex-wrap">
+      <div className="flex items-center gap-3 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl p-4 rounded-2xl border border-white/40 dark:border-slate-800/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex-wrap">
         <Select value={year} onValueChange={(v) => { setYear(v); setNcPage(1); }}>
-          <SelectTrigger className="w-[120px] h-10 rounded-xl border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 font-medium">
+          <SelectTrigger className="w-[120px] h-10 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-medium">
             <SelectValue placeholder="Year" />
           </SelectTrigger>
           <SelectContent className="rounded-xl">
@@ -242,7 +249,7 @@ export default function QaScorePage() {
         </Select>
 
         <Select value={month} onValueChange={(v) => { setMonth(v === "all" ? "" : v); setNcPage(1); }}>
-          <SelectTrigger className="w-[140px] h-10 rounded-xl border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 font-medium">
+          <SelectTrigger className="w-[140px] h-10 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-medium">
             <SelectValue placeholder="All Months" />
           </SelectTrigger>
           <SelectContent className="rounded-xl">
@@ -254,7 +261,7 @@ export default function QaScorePage() {
         </Select>
 
         <Select value={peak || "all"} onValueChange={(v) => { setPeak(v === "all" ? "" : v); setNcPage(1); }}>
-          <SelectTrigger className="w-[120px] h-10 rounded-xl border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 font-medium">
+          <SelectTrigger className="w-[120px] h-10 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-medium">
             <SelectValue placeholder="All Peak" />
           </SelectTrigger>
           <SelectContent className="rounded-xl">
@@ -266,7 +273,7 @@ export default function QaScorePage() {
         </Select>
 
         <Select value={agent || "all"} onValueChange={(v) => { setAgent(v === "all" ? "" : v); setNcPage(1); }}>
-          <SelectTrigger className="w-[200px] h-10 rounded-xl border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 font-medium">
+          <SelectTrigger className="w-[200px] h-10 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-medium">
             <SelectValue placeholder="All Agents" />
           </SelectTrigger>
           <SelectContent className="rounded-xl max-h-[300px]">
@@ -321,12 +328,12 @@ export default function QaScorePage() {
 
       {/* Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border border-zinc-100 dark:border-zinc-800/60 rounded-3xl p-6 shadow-sm relative overflow-hidden group">
+        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-3xl p-6 shadow-sm relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl -mr-10 -mt-10 transition-transform group-hover:scale-150 duration-700" />
           <div className="flex justify-between items-start relative z-10">
             <div>
-              <p className="text-sm font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-2">Total Sampling</p>
-              <h4 className="text-4xl font-black text-zinc-800 dark:text-white tracking-tight">{totalSampling.toLocaleString()}</h4>
+              <p className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Total Sampling</p>
+              <h4 className="text-4xl font-black text-slate-800 dark:text-white tracking-tight">{totalSampling.toLocaleString()}</h4>
             </div>
             <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center text-indigo-500">
               <Users className="w-6 h-6" />
@@ -334,13 +341,13 @@ export default function QaScorePage() {
           </div>
         </div>
 
-        <div className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border border-zinc-100 dark:border-zinc-800/60 rounded-3xl p-6 shadow-sm relative overflow-hidden group">
+        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-3xl p-6 shadow-sm relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl -mr-10 -mt-10 transition-transform group-hover:scale-150 duration-700" />
           <div className="flex justify-between items-start relative z-10">
             <div>
-              <p className="text-sm font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-2">Overall Score</p>
+              <p className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Overall Score</p>
               <div className="flex items-baseline gap-2">
-                <h4 className="text-4xl font-black text-zinc-800 dark:text-white tracking-tight">{overallAvg}</h4>
+                <h4 className="text-4xl font-black text-slate-800 dark:text-white tracking-tight">{overallAvg}</h4>
                 <span className="text-sm font-bold text-emerald-500">/ 100</span>
               </div>
             </div>
@@ -350,11 +357,11 @@ export default function QaScorePage() {
           </div>
         </div>
 
-        <div className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border border-zinc-100 dark:border-zinc-800/60 rounded-3xl p-6 shadow-sm relative overflow-hidden group">
+        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-3xl p-6 shadow-sm relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/10 rounded-full blur-3xl -mr-10 -mt-10 transition-transform group-hover:scale-150 duration-700" />
           <div className="flex justify-between items-start relative z-10">
             <div>
-              <p className="text-sm font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-2">Total NC</p>
+              <p className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Total NC</p>
               <h4 className="text-4xl font-black text-rose-600 dark:text-rose-500 tracking-tight">{ncDetails.length}</h4>
             </div>
             <div className="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-500/10 flex items-center justify-center text-rose-500">
@@ -365,8 +372,8 @@ export default function QaScorePage() {
       </div>
 
       {/* QA Score Monthly Chart */}
-      <div className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border border-zinc-100 dark:border-zinc-800/60 rounded-2xl p-6 shadow-sm">
-        <h3 className="text-sm font-bold text-zinc-800 dark:text-zinc-200 uppercase tracking-widest mb-6 flex items-center gap-2">
+      <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm">
+        <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-widest mb-6 flex items-center gap-2">
           <TrendingUp className="w-4 h-4 text-indigo-500" />
           QA Score Monthly
         </h3>
@@ -398,9 +405,9 @@ export default function QaScorePage() {
             </BarChart>
           </ResponsiveContainer>
         ) : (
-          <div className="flex flex-col items-center justify-center h-[280px] bg-zinc-50/50 dark:bg-zinc-800/20 rounded-xl border border-dashed border-zinc-200 dark:border-zinc-700">
-            <TrendingUp className="w-8 h-8 text-zinc-300 dark:text-zinc-600 mb-3" />
-            <p className="text-zinc-400 font-medium text-sm">No monthly data available</p>
+          <div className="flex flex-col items-center justify-center h-[280px] bg-slate-50/50 dark:bg-slate-800/20 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">
+            <TrendingUp className="w-8 h-8 text-slate-300 dark:text-slate-600 mb-3" />
+            <p className="text-slate-400 font-medium text-sm">No monthly data available</p>
           </div>
         )}
       </div>
@@ -408,40 +415,40 @@ export default function QaScorePage() {
       {/* Rankings */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Agent Ranking Table */}
-        <div className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border border-zinc-100 dark:border-zinc-800/60 rounded-2xl p-6 shadow-sm">
-          <h3 className="text-sm font-bold text-zinc-800 dark:text-zinc-200 uppercase tracking-widest mb-6 flex items-center gap-2">
+        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm">
+          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-widest mb-6 flex items-center gap-2">
             <Award className="w-4 h-4 text-amber-500" />
             Agent Ranking
           </h3>
           <div className="overflow-auto max-h-[400px]">
             <Table>
               <TableHeader>
-                <TableRow className="border-b border-zinc-100 dark:border-zinc-800 hover:bg-transparent">
-                  <TableHead className="w-[40px] font-semibold text-zinc-500">#</TableHead>
-                  <SortableTableHead columnKey="agent" currentSortBy={agentSortBy} currentSortOrder={agentSortOrder} onSort={(k, o) => { setAgentSortBy(k); setAgentSortOrder(o); }} className="font-semibold text-zinc-500">Nama Agent</SortableTableHead>
-                  <SortableTableHead columnKey="teamLeader" currentSortBy={agentSortBy} currentSortOrder={agentSortOrder} onSort={(k, o) => { setAgentSortBy(k); setAgentSortOrder(o); }} className="font-semibold text-zinc-500">Nama TL</SortableTableHead>
-                  <SortableTableHead columnKey="sampling" currentSortBy={agentSortBy} currentSortOrder={agentSortOrder} onSort={(k, o) => { setAgentSortBy(k); setAgentSortOrder(o); }} className="font-semibold text-zinc-500 text-right">Sampling</SortableTableHead>
-                  <SortableTableHead columnKey="qaScore" currentSortBy={agentSortBy} currentSortOrder={agentSortOrder} onSort={(k, o) => { setAgentSortBy(k); setAgentSortOrder(o); }} className="font-semibold text-zinc-500 text-right">QA Score</SortableTableHead>
-                  <SortableTableHead columnKey="achievement" currentSortBy={agentSortBy} currentSortOrder={agentSortOrder} onSort={(k, o) => { setAgentSortBy(k); setAgentSortOrder(o); }} className="font-semibold text-zinc-500 text-center">Achievement</SortableTableHead>
+                <TableRow className="border-b border-slate-100 dark:border-slate-800 hover:bg-transparent">
+                  <TableHead className="w-[40px] font-semibold text-slate-500">#</TableHead>
+                  <SortableTableHead columnKey="agent" currentSortBy={agentSortBy} currentSortOrder={agentSortOrder} onSort={(k, o) => { setAgentSortBy(k); setAgentSortOrder(o); }} className="font-semibold text-slate-500">Nama Agent</SortableTableHead>
+                  <SortableTableHead columnKey="teamLeader" currentSortBy={agentSortBy} currentSortOrder={agentSortOrder} onSort={(k, o) => { setAgentSortBy(k); setAgentSortOrder(o); }} className="font-semibold text-slate-500">Nama TL</SortableTableHead>
+                  <SortableTableHead columnKey="sampling" currentSortBy={agentSortBy} currentSortOrder={agentSortOrder} onSort={(k, o) => { setAgentSortBy(k); setAgentSortOrder(o); }} className="font-semibold text-slate-500 text-right">Sampling</SortableTableHead>
+                  <SortableTableHead columnKey="qaScore" currentSortBy={agentSortBy} currentSortOrder={agentSortOrder} onSort={(k, o) => { setAgentSortBy(k); setAgentSortOrder(o); }} className="font-semibold text-slate-500 text-right">QA Score</SortableTableHead>
+                  <SortableTableHead columnKey="achievement" currentSortBy={agentSortBy} currentSortOrder={agentSortOrder} onSort={(k, o) => { setAgentSortBy(k); setAgentSortOrder(o); }} className="font-semibold text-slate-500 text-center">Achievement</SortableTableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {agentRanking.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="h-[100px] text-center text-zinc-400">No agent data available</TableCell>
+                    <TableCell colSpan={6} className="h-[100px] text-center text-slate-400">No agent data available</TableCell>
                   </TableRow>
                 ) : (
                   agentRanking.map((a: any, i: number) => (
-                    <TableRow key={a.agent} className="hover:bg-zinc-50/80 dark:hover:bg-zinc-800/50 transition-colors border-b border-zinc-50 dark:border-zinc-800/50 group">
+                    <TableRow key={a.agent} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors border-b border-slate-50 dark:border-slate-800/50 group">
                       <TableCell className="font-medium">
                         {i === 0 ? <span className="text-2xl drop-shadow-sm filter">🥇</span> : 
                          i === 1 ? <span className="text-2xl drop-shadow-sm filter">🥈</span> : 
                          i === 2 ? <span className="text-2xl drop-shadow-sm filter">🥉</span> : 
-                         <span className="text-zinc-400 w-8 inline-block text-center">{i + 1}</span>}
+                         <span className="text-slate-400 w-8 inline-block text-center">{i + 1}</span>}
                       </TableCell>
-                      <TableCell className="font-semibold text-zinc-800 dark:text-zinc-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{a.agent}</TableCell>
-                      <TableCell className="text-zinc-500 dark:text-zinc-400 font-medium">{a.teamLeader || "-"}</TableCell>
-                      <TableCell className="text-right text-zinc-600 dark:text-zinc-400 font-medium">{a.sampling.toLocaleString()}</TableCell>
+                      <TableCell className="font-semibold text-slate-800 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{a.agent}</TableCell>
+                      <TableCell className="text-slate-500 dark:text-slate-400 font-medium">{a.teamLeader || "-"}</TableCell>
+                      <TableCell className="text-right text-slate-600 dark:text-slate-400 font-medium">{a.sampling.toLocaleString()}</TableCell>
                       <TableCell className="text-right font-black text-lg">
                         <span className={cn(a.qaScore >= TARGET_SCORE ? "text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-blue-500" : "text-rose-500")}>
                           {a.qaScore.toFixed(2)}
@@ -461,38 +468,38 @@ export default function QaScorePage() {
         </div>
 
         {/* Team Leader Ranking Table */}
-        <div className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border border-zinc-100 dark:border-zinc-800/60 rounded-2xl p-6 shadow-sm">
-          <h3 className="text-sm font-bold text-zinc-800 dark:text-zinc-200 uppercase tracking-widest mb-6 flex items-center gap-2">
+        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm">
+          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-widest mb-6 flex items-center gap-2">
             <Users className="w-4 h-4 text-emerald-500" />
             Team Leader Ranking
           </h3>
           <div className="overflow-auto max-h-[400px]">
             <Table>
               <TableHeader>
-                <TableRow className="border-b border-zinc-100 dark:border-zinc-800 hover:bg-transparent">
-                  <TableHead className="w-[40px] font-semibold text-zinc-500">#</TableHead>
-                  <SortableTableHead columnKey="teamLeader" currentSortBy={tlSortBy} currentSortOrder={tlSortOrder} onSort={(k, o) => { setTlSortBy(k); setTlSortOrder(o); }} className="font-semibold text-zinc-500">Team Leader</SortableTableHead>
-                  <SortableTableHead columnKey="sampling" currentSortBy={tlSortBy} currentSortOrder={tlSortOrder} onSort={(k, o) => { setTlSortBy(k); setTlSortOrder(o); }} className="font-semibold text-zinc-500 text-right">Sampling</SortableTableHead>
-                  <SortableTableHead columnKey="qaScore" currentSortBy={tlSortBy} currentSortOrder={tlSortOrder} onSort={(k, o) => { setTlSortBy(k); setTlSortOrder(o); }} className="font-semibold text-zinc-500 text-right">QA Score</SortableTableHead>
-                  <SortableTableHead columnKey="achievement" currentSortBy={tlSortBy} currentSortOrder={tlSortOrder} onSort={(k, o) => { setTlSortBy(k); setTlSortOrder(o); }} className="font-semibold text-zinc-500 text-center">Achievement</SortableTableHead>
+                <TableRow className="border-b border-slate-100 dark:border-slate-800 hover:bg-transparent">
+                  <TableHead className="w-[40px] font-semibold text-slate-500">#</TableHead>
+                  <SortableTableHead columnKey="teamLeader" currentSortBy={tlSortBy} currentSortOrder={tlSortOrder} onSort={(k, o) => { setTlSortBy(k); setTlSortOrder(o); }} className="font-semibold text-slate-500">Team Leader</SortableTableHead>
+                  <SortableTableHead columnKey="sampling" currentSortBy={tlSortBy} currentSortOrder={tlSortOrder} onSort={(k, o) => { setTlSortBy(k); setTlSortOrder(o); }} className="font-semibold text-slate-500 text-right">Sampling</SortableTableHead>
+                  <SortableTableHead columnKey="qaScore" currentSortBy={tlSortBy} currentSortOrder={tlSortOrder} onSort={(k, o) => { setTlSortBy(k); setTlSortOrder(o); }} className="font-semibold text-slate-500 text-right">QA Score</SortableTableHead>
+                  <SortableTableHead columnKey="achievement" currentSortBy={tlSortBy} currentSortOrder={tlSortOrder} onSort={(k, o) => { setTlSortBy(k); setTlSortOrder(o); }} className="font-semibold text-slate-500 text-center">Achievement</SortableTableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {teamLeaderRanking.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="h-[100px] text-center text-zinc-400">No TL data available</TableCell>
+                    <TableCell colSpan={5} className="h-[100px] text-center text-slate-400">No TL data available</TableCell>
                   </TableRow>
                 ) : (
                   teamLeaderRanking.map((tl: any, i: number) => (
-                    <TableRow key={tl.teamLeader} className="hover:bg-zinc-50/80 dark:hover:bg-zinc-800/50 transition-colors border-b border-zinc-50 dark:border-zinc-800/50 group">
+                    <TableRow key={tl.teamLeader} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors border-b border-slate-50 dark:border-slate-800/50 group">
                       <TableCell className="font-medium">
                         {i === 0 ? <span className="text-2xl drop-shadow-sm filter">🥇</span> : 
                          i === 1 ? <span className="text-2xl drop-shadow-sm filter">🥈</span> : 
                          i === 2 ? <span className="text-2xl drop-shadow-sm filter">🥉</span> : 
-                         <span className="text-zinc-400 w-8 inline-block text-center">{i + 1}</span>}
+                         <span className="text-slate-400 w-8 inline-block text-center">{i + 1}</span>}
                       </TableCell>
-                      <TableCell className="font-semibold text-zinc-800 dark:text-zinc-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">{tl.teamLeader}</TableCell>
-                      <TableCell className="text-right text-zinc-600 dark:text-zinc-400 font-medium">{tl.sampling.toLocaleString()}</TableCell>
+                      <TableCell className="font-semibold text-slate-800 dark:text-slate-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">{tl.teamLeader}</TableCell>
+                      <TableCell className="text-right text-slate-600 dark:text-slate-400 font-medium">{tl.sampling.toLocaleString()}</TableCell>
                       <TableCell className="text-right font-black text-lg">
                         <span className={cn(tl.qaScore >= TARGET_SCORE ? "text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-500" : "text-rose-500")}>
                           {tl.qaScore.toFixed(2)}
@@ -514,8 +521,8 @@ export default function QaScorePage() {
 
       {/* Achievement Parameter Chart */}
       {parameterAchievement.length > 0 && (
-        <div className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border border-zinc-100 dark:border-zinc-800/60 rounded-2xl p-6 shadow-sm">
-          <h3 className="text-sm font-bold text-zinc-800 dark:text-zinc-200 uppercase tracking-widest mb-6 flex items-center gap-2">
+        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm">
+          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-widest mb-6 flex items-center gap-2">
             <Target className="w-4 h-4 text-emerald-500" />
             Achievement Parameter
           </h3>
@@ -570,8 +577,8 @@ export default function QaScorePage() {
 
       {/* NC Detail Table */}
       {ncDetails.length > 0 && (
-        <div className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border border-zinc-100 dark:border-zinc-800/60 rounded-2xl p-6 shadow-sm">
-          <h3 className="text-sm font-bold text-zinc-800 dark:text-zinc-200 uppercase tracking-widest mb-6 flex items-center gap-2">
+        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm">
+          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-widest mb-6 flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 text-rose-500" />
             NC Detail (Non-Compliant Tickets)
             <span className="ml-2 px-2 py-0.5 bg-rose-50 dark:bg-rose-900/30 text-rose-600 rounded-full text-[11px] font-bold">{ncDetails.length}</span>
@@ -579,42 +586,42 @@ export default function QaScorePage() {
           <div className="overflow-auto">
             <Table>
               <TableHeader>
-                <TableRow className="border-b border-zinc-100 dark:border-zinc-800 hover:bg-transparent">
-                  <TableHead className="w-[50px] font-semibold text-zinc-500">#</TableHead>
-                  <SortableTableHead columnKey="idTiket" currentSortBy={ncSortBy} currentSortOrder={ncSortOrder} onSort={(k, o) => { setNcSortBy(k); setNcSortOrder(o); }} className="font-semibold text-zinc-500">ID Tiket</SortableTableHead>
-                  <SortableTableHead columnKey="score" currentSortBy={ncSortBy} currentSortOrder={ncSortOrder} onSort={(k, o) => { setNcSortBy(k); setNcSortOrder(o); }} className="font-semibold text-zinc-500 text-center">QA Score</SortableTableHead>
-                  <SortableTableHead columnKey="agent" currentSortBy={ncSortBy} currentSortOrder={ncSortOrder} onSort={(k, o) => { setNcSortBy(k); setNcSortOrder(o); }} className="font-semibold text-zinc-500">Nama Agent</SortableTableHead>
-                  <SortableTableHead columnKey="teamLeader" currentSortBy={ncSortBy} currentSortOrder={ncSortOrder} onSort={(k, o) => { setNcSortBy(k); setNcSortOrder(o); }} className="font-semibold text-zinc-500">Nama TL</SortableTableHead>
-                  <SortableTableHead columnKey="parameterPenilaian" currentSortBy={ncSortBy} currentSortOrder={ncSortOrder} onSort={(k, o) => { setNcSortBy(k); setNcSortOrder(o); }} className="font-semibold text-zinc-500">Parameter Penilaian</SortableTableHead>
-                  <SortableTableHead columnKey="subParameterPenilaian" currentSortBy={ncSortBy} currentSortOrder={ncSortOrder} onSort={(k, o) => { setNcSortBy(k); setNcSortOrder(o); }} className="font-semibold text-zinc-500">Sub Parameter</SortableTableHead>
-                  <SortableTableHead columnKey="notes" currentSortBy={ncSortBy} currentSortOrder={ncSortOrder} onSort={(k, o) => { setNcSortBy(k); setNcSortOrder(o); }} className="font-semibold text-zinc-500 min-w-[300px]">Notes QC</SortableTableHead>
-                  <SortableTableHead columnKey="createdAt" currentSortBy={ncSortBy} currentSortOrder={ncSortOrder} onSort={(k, o) => { setNcSortBy(k); setNcSortOrder(o); }} className="font-semibold text-zinc-500">Tanggal Tapping</SortableTableHead>
-                  <SortableTableHead columnKey="peak" currentSortBy={ncSortBy} currentSortOrder={ncSortOrder} onSort={(k, o) => { setNcSortBy(k); setNcSortOrder(o); }} className="font-semibold text-zinc-500 text-center">Peak</SortableTableHead>
-                  <SortableTableHead columnKey="komitmen" currentSortBy={ncSortBy} currentSortOrder={ncSortOrder} onSort={(k, o) => { setNcSortBy(k); setNcSortOrder(o); }} className="font-semibold text-zinc-500 min-w-[200px]">Komitmen</SortableTableHead>
+                <TableRow className="border-b border-slate-100 dark:border-slate-800 hover:bg-transparent">
+                  <TableHead className="w-[50px] font-semibold text-slate-500">#</TableHead>
+                  <SortableTableHead columnKey="idTiket" currentSortBy={ncSortBy} currentSortOrder={ncSortOrder} onSort={(k, o) => { setNcSortBy(k); setNcSortOrder(o); }} className="font-semibold text-slate-500">ID Tiket</SortableTableHead>
+                  <SortableTableHead columnKey="score" currentSortBy={ncSortBy} currentSortOrder={ncSortOrder} onSort={(k, o) => { setNcSortBy(k); setNcSortOrder(o); }} className="font-semibold text-slate-500 text-center">QA Score</SortableTableHead>
+                  <SortableTableHead columnKey="agent" currentSortBy={ncSortBy} currentSortOrder={ncSortOrder} onSort={(k, o) => { setNcSortBy(k); setNcSortOrder(o); }} className="font-semibold text-slate-500">Nama Agent</SortableTableHead>
+                  <SortableTableHead columnKey="teamLeader" currentSortBy={ncSortBy} currentSortOrder={ncSortOrder} onSort={(k, o) => { setNcSortBy(k); setNcSortOrder(o); }} className="font-semibold text-slate-500">Nama TL</SortableTableHead>
+                  <SortableTableHead columnKey="parameterPenilaian" currentSortBy={ncSortBy} currentSortOrder={ncSortOrder} onSort={(k, o) => { setNcSortBy(k); setNcSortOrder(o); }} className="font-semibold text-slate-500">Parameter Penilaian</SortableTableHead>
+                  <SortableTableHead columnKey="subParameterPenilaian" currentSortBy={ncSortBy} currentSortOrder={ncSortOrder} onSort={(k, o) => { setNcSortBy(k); setNcSortOrder(o); }} className="font-semibold text-slate-500">Sub Parameter</SortableTableHead>
+                  <SortableTableHead columnKey="notes" currentSortBy={ncSortBy} currentSortOrder={ncSortOrder} onSort={(k, o) => { setNcSortBy(k); setNcSortOrder(o); }} className="font-semibold text-slate-500 min-w-[300px]">Notes QC</SortableTableHead>
+                  <SortableTableHead columnKey="createdAt" currentSortBy={ncSortBy} currentSortOrder={ncSortOrder} onSort={(k, o) => { setNcSortBy(k); setNcSortOrder(o); }} className="font-semibold text-slate-500">Tanggal Tapping</SortableTableHead>
+                  <SortableTableHead columnKey="peak" currentSortBy={ncSortBy} currentSortOrder={ncSortOrder} onSort={(k, o) => { setNcSortBy(k); setNcSortOrder(o); }} className="font-semibold text-slate-500 text-center">Peak</SortableTableHead>
+                  <SortableTableHead columnKey="komitmen" currentSortBy={ncSortBy} currentSortOrder={ncSortOrder} onSort={(k, o) => { setNcSortBy(k); setNcSortOrder(o); }} className="font-semibold text-slate-500 min-w-[200px]">Komitmen</SortableTableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {paginatedNc.map((nc: any, i: number) => (
-                  <TableRow key={i} className="hover:bg-zinc-50/80 dark:hover:bg-zinc-800/50 transition-colors border-b border-zinc-50 dark:border-zinc-800/50 group">
-                    <TableCell className="text-zinc-400 font-medium">{(ncPage - 1) * ncPerPage + i + 1}</TableCell>
+                  <TableRow key={i} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors border-b border-slate-50 dark:border-slate-800/50 group">
+                    <TableCell className="text-slate-400 font-medium">{(ncPage - 1) * ncPerPage + i + 1}</TableCell>
                     <TableCell className="font-bold text-indigo-600 dark:text-indigo-400">{nc.idTiket || "-"}</TableCell>
                     <TableCell className="text-center font-bold text-rose-600 dark:text-rose-400">{nc.score ?? "-"}</TableCell>
-                    <TableCell className="font-semibold text-zinc-800 dark:text-zinc-200 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors">{nc.agent}</TableCell>
-                    <TableCell className="text-zinc-500 font-medium">{nc.teamLeader || "-"}</TableCell>
-                    <TableCell className="font-medium text-zinc-700 dark:text-zinc-300">
-                      <span className="bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded-md text-xs">{nc.parameterPenilaian || "-"}</span>
+                    <TableCell className="font-semibold text-slate-800 dark:text-slate-200 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors">{nc.agent}</TableCell>
+                    <TableCell className="text-slate-500 font-medium">{nc.teamLeader || "-"}</TableCell>
+                    <TableCell className="font-medium text-slate-700 dark:text-slate-300">
+                      <span className="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md text-xs">{nc.parameterPenilaian || "-"}</span>
                     </TableCell>
-                    <TableCell className="font-medium text-zinc-700 dark:text-zinc-300">
-                      <span className="bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded-md text-xs">{nc.subParameterPenilaian || "-"}</span>
+                    <TableCell className="font-medium text-slate-700 dark:text-slate-300">
+                      <span className="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md text-xs">{nc.subParameterPenilaian || "-"}</span>
                     </TableCell>
-                    <TableCell className="text-zinc-500 min-w-[300px] max-w-[400px]">
+                    <TableCell className="text-slate-500 min-w-[300px] max-w-[400px]">
                       {nc.notes ? (
                         <div className="flex items-start justify-between gap-2">
                           <p className="line-clamp-3 whitespace-pre-wrap break-words text-xs">{nc.notes}</p>
                           <Button 
                             variant="ghost" 
                             size="icon" 
-                            className="h-6 w-6 shrink-0 text-zinc-400 hover:text-indigo-600 hover:bg-indigo-50 opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="h-6 w-6 shrink-0 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 opacity-0 group-hover:opacity-100 transition-opacity"
                             onClick={() => {
                               navigator.clipboard.writeText(nc.notes);
                               toast.success("Notes disalin ke clipboard!");
@@ -626,17 +633,17 @@ export default function QaScorePage() {
                         </div>
                       ) : "-"}
                     </TableCell>
-                    <TableCell className="text-zinc-500 font-medium">{new Date(nc.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}</TableCell>
-                    <TableCell className="text-center text-zinc-600 dark:text-zinc-400 font-medium">
+                    <TableCell className="text-slate-500 font-medium">{new Date(nc.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}</TableCell>
+                    <TableCell className="text-center text-slate-600 dark:text-slate-400 font-medium">
                       Peak {nc.peak}
                     </TableCell>
-                    <TableCell className="text-zinc-600 dark:text-zinc-300 min-w-[200px] align-top">
+                    <TableCell className="text-slate-600 dark:text-slate-300 min-w-[200px] align-top">
                       <div className="flex flex-col gap-2">
                         {nc.komitmen ? (
                           <p className="text-xs whitespace-pre-wrap">{nc.komitmen}</p>
                         ) : (
                           !(user?.role === "USER" && user?.name === nc.agent) && (
-                            <span className="text-xs text-zinc-400 italic">Belum ada komitmen</span>
+                            <span className="text-xs text-slate-400 italic">Belum ada komitmen</span>
                           )
                         )}
                         {user?.role === "USER" && user?.name === nc.agent && (
@@ -656,9 +663,9 @@ export default function QaScorePage() {
               </TableBody>
             </Table>
           </div>
-          <div className="flex items-center justify-between mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-800/50">
+          <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-100 dark:border-slate-800/50">
             <div className="flex items-center gap-4">
-              <span className="text-sm text-zinc-500 font-medium">
+              <span className="text-sm text-slate-500 font-medium">
                 Showing {(ncPage - 1) * ncPerPage + 1} - {Math.min(ncPage * ncPerPage, ncDetails.length)} of {ncDetails.length} records
               </span>
               <Select value={ncPerPage.toString()} onValueChange={(v) => { setNcPerPage(Number(v)); setNcPage(1); }}>
@@ -687,11 +694,11 @@ export default function QaScorePage() {
       </div>
 
       <Dialog open={komitmenOpen} onOpenChange={setKomitmenOpen}>
-        <DialogContent className="sm:max-w-[500px] bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800">
+        <DialogContent className="sm:max-w-[500px] bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold">Isi Komitmen</DialogTitle>
             <DialogDescription>
-              Silakan tuliskan komitmen Anda terhadap evaluasi tiket <strong className="text-zinc-900 dark:text-white">{selectedRow?.idTiket}</strong>.
+              Silakan tuliskan komitmen Anda terhadap evaluasi tiket <strong className="text-slate-900 dark:text-white">{selectedRow?.idTiket}</strong>.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
