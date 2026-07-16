@@ -193,6 +193,7 @@ export default function DetailTappingPage() {
   const stats = response?.stats || {
     totalSampling: 0, qaScore: 0, totalNC: 0,
     ncValiditas: 0, ncServiceLevel: 0, ncKalimat: 0, ncResponTime: 0, ncDokumentasi: 0,
+    eksekutorPercentage: 0, totalEksekutorTappings: 0,
   };
 
   const ncCards = [
@@ -234,7 +235,7 @@ export default function DetailTappingPage() {
 
 
       {/* Summary Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm flex items-center justify-between">
           <div>
             <div className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">Total Sampling</div>
@@ -250,6 +251,16 @@ export default function DetailTappingPage() {
             <div className={cn("text-4xl font-extrabold", stats.qaScore >= 97 ? "text-emerald-600" : "text-rose-600")}>{stats.qaScore}</div>
           </div>
           <div className={cn("w-14 h-14 rounded-full flex items-center justify-center", stats.qaScore >= 97 ? "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-500" : "bg-rose-50 dark:bg-rose-900/30 text-rose-500")}>
+            <BarChart3 className="w-6 h-6" />
+          </div>
+        </div>
+        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm flex items-center justify-between">
+          <div>
+            <div className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">% Tapping Eksekutor</div>
+            <div className="text-4xl font-extrabold text-indigo-600">{stats.eksekutorPercentage}%</div>
+            <div className="text-xs font-medium text-slate-500 mt-1">{stats.totalEksekutorTappings} / {stats.totalSampling} tappings</div>
+          </div>
+          <div className="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-500 w-14 h-14 rounded-full flex items-center justify-center">
             <BarChart3 className="w-6 h-6" />
           </div>
         </div>

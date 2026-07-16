@@ -21,6 +21,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Users, Settings, Activity, Clock, CheckCircle2, LayoutDashboard, Target } from "lucide-react";
+import { isSmartMatch } from '@/lib/agent-matcher';
 
 export default function ProductivityQcPage() {
   const { user } = useAuth();
@@ -112,24 +113,36 @@ export default function ProductivityQcPage() {
       
       const { parsedAgents, parsedQcs } = res.data;
       
-      // Update agentSettings
+      // Update agentSettings - update existing and add new agents
       if (parsedAgents && parsedAgents.length > 0) {
         setAgentSettings(prev => {
           const newSettings = [...prev];
           parsedAgents.forEach((pa: any) => {
             let index = newSettings.findIndex(a => a.name.toLowerCase() === pa.name.toLowerCase());
             if (index === -1) {
-              index = newSettings.findIndex(a => pa.name.toLowerCase().includes(a.name.toLowerCase()));
+              index = newSettings.findIndex(a => isSmartMatch(a.name, pa.name) || pa.name.toLowerCase().includes(a.name.toLowerCase()));
             }
             if (index !== -1) {
-              newSettings[index] = { ...newSettings[index], peak1: pa.peak1, peak2: pa.peak2, peak3: pa.peak3 };
+              newSettings[index] = { ...newSettings[index], peak1: pa.peak1, peak2: pa.peak2, peak3: pa.peak3, tapper: pa.tapper, group: pa.group, teamLeader: pa.teamLeader };
+            } else {
+              // Agent baru dari Excel, langsung tambahkan ke tabel
+              newSettings.push({
+                name: pa.name,
+                peak1: pa.peak1,
+                peak2: pa.peak2,
+                peak3: pa.peak3,
+                monthly: 0,
+                tapper: pa.tapper,
+                group: pa.group,
+                teamLeader: pa.teamLeader,
+              });
             }
           });
           return newSettings;
         });
       }
       
-      // Update qcSettings
+      // Update qcSettings - update existing and add new QCs
       if (parsedQcs && parsedQcs.length > 0) {
         setQcSettings(prev => {
           const newSettings = [...prev];
@@ -140,6 +153,16 @@ export default function ProductivityQcPage() {
             }
             if (index !== -1) {
               newSettings[index] = { ...newSettings[index], daily: pq.daily };
+            } else {
+              // QC baru dari Excel, langsung tambahkan ke tabel
+              newSettings.push({
+                name: pq.name,
+                daily: pq.daily,
+                peak1: 0,
+                peak2: 0,
+                peak3: 0,
+                monthly: 0,
+              });
             }
           });
           return newSettings;
@@ -313,7 +336,7 @@ export default function ProductivityQcPage() {
           <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm flex items-center justify-between">
             <div>
               <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold mb-1">
-                REALTIME TAPPING ALL
+                REALTIME TAPPING ALL CHANNEL/KIP
               </div>
               <div className="text-slate-500 dark:text-slate-400 text-sm font-medium">80% dari jumlah target ALL</div>
             </div>
@@ -597,7 +620,16 @@ export default function ProductivityQcPage() {
                             const p3sisa = ag.peak3Target - ag.peak3Realization;
                             return (
                               <TableRow key={aIdx}>
-                                <TableCell className="font-semibold text-slate-800 dark:text-slate-200">{ag.agent}</TableCell>
+                                <TableCell className="font-semibold text-slate-800 dark:text-slate-200">
+                                  <div className="flex items-center gap-2">
+                                    {ag.agent}
+                                    {ag.isEksekutor && (
+                                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 uppercase tracking-wider">
+                                        Eksekutor
+                                      </span>
+                                    )}
+                                  </div>
+                                </TableCell>
                                 {/* Peak 1 */}
                                 <TableCell className="text-center font-bold text-indigo-600 border-l bg-indigo-50/20 dark:bg-indigo-900/5">{ag.peak1Realization}</TableCell>
                                 <TableCell className="text-center font-medium text-slate-500 bg-indigo-50/20 dark:bg-indigo-900/5">{ag.peak1Target}</TableCell>
@@ -736,6 +768,9 @@ export default function ProductivityQcPage() {
                 <TableHeader className="bg-slate-100 dark:bg-slate-900 sticky top-0 z-10">
                   <TableRow className="border-b border-slate-200 dark:border-slate-800">
                     <TableHead className="font-semibold">Nama Agent</TableHead>
+                    <TableHead className="w-[100px] font-semibold">Grouping</TableHead>
+                    <TableHead className="w-[120px] font-semibold">Tapper</TableHead>
+                    <TableHead className="w-[120px] font-semibold">Team Leader</TableHead>
                     <TableHead className="w-[100px] font-semibold">Peak 1</TableHead>
                     <TableHead className="w-[100px] font-semibold">Peak 2</TableHead>
                     <TableHead className="w-[100px] font-semibold">Peak 3</TableHead>
@@ -743,10 +778,22 @@ export default function ProductivityQcPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {agentSettings.length === 0 && <TableRow><TableCell colSpan={5} className="text-center py-8 text-slate-500">Belum ada data Agent</TableCell></TableRow>}
+                  {agentSettings.length === 0 && <TableRow><TableCell colSpan={8} className="text-center py-8 text-slate-500">Belum ada data Agent</TableCell></TableRow>}
                   {agentSettings.map((ag, i) => (
                     <TableRow key={i} className="border-b border-slate-100 dark:border-slate-800/60">
-                      <TableCell className="font-medium text-slate-900 dark:text-slate-100">{ag.name}</TableCell>
+                      <TableCell className="font-medium text-slate-900 dark:text-slate-100">
+                        <div className="flex items-center gap-2">
+                          {ag.name}
+                          {ag.group && ag.group.toUpperCase() === 'EKSEKUTOR' && (
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 uppercase tracking-wider">
+                              Eksekutor
+                            </span>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-xs text-slate-500 dark:text-slate-400">{ag.group || '-'}</TableCell>
+                      <TableCell className="text-xs text-slate-500 dark:text-slate-400">{ag.tapper || '-'}</TableCell>
+                      <TableCell className="text-xs text-slate-500 dark:text-slate-400">{ag.teamLeader || '-'}</TableCell>
                       <TableCell>
                         <Input type="number" min="0" className="h-8 bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800" value={ag.peak1} onChange={(e) => {
                           const newAgs = [...agentSettings];

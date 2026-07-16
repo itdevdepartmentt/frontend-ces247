@@ -44,6 +44,8 @@ interface Ticket {
   customerRequests: string;
   agentResponse: string;
   handlingTime?: string;
+  msisdn?: string;
+  createdTicket?: string;
 }
 
 export default function EvaluateTicketPage() {
@@ -221,6 +223,8 @@ export default function EvaluateTicketPage() {
       customerRequests: formData.customerRequests,
       agentResponse: formData.agentResponse,
       handlingTime: formData.handlingTime,
+      msisdn: formData.msisdn || null,
+      createdTicket: formData.createdTicket ? new Date(formData.createdTicket).toISOString() : null,
       scoreValiditas,
       scoreServiceLevel,
       scoreKalimat,
@@ -386,6 +390,37 @@ export default function EvaluateTicketPage() {
                       <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">{formData.handlingTime || "-"}</p>
                     )}
                   </div>
+                  <div className="flex flex-col gap-2.5">
+                    <Label className="text-[11px] text-slate-400 font-bold uppercase tracking-widest">
+                      MSISDN <span className="text-rose-500">*</span>
+                    </Label>
+                    {isEditingForm ? (
+                      <Input
+                        value={formData.msisdn || ""}
+                        onChange={(e) => handleInputChange("msisdn", e.target.value)}
+                        placeholder="Nomor MSISDN pelanggan"
+                        required
+                        className="h-11 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 font-medium text-slate-800 dark:text-slate-200"
+                      />
+                    ) : (
+                      <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">{formData.msisdn || <span className="italic text-slate-400">-</span>}</p>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-2.5">
+                    <Label className="text-[11px] text-slate-400 font-bold uppercase tracking-widest">Tgl. Tiket Dibuat</Label>
+                    {isEditingForm ? (
+                      <Input
+                        type="datetime-local"
+                        value={formData.createdTicket ? formData.createdTicket.slice(0, 16) : ""}
+                        onChange={(e) => handleInputChange("createdTicket", e.target.value)}
+                        className="h-11 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 font-medium text-slate-800 dark:text-slate-200"
+                      />
+                    ) : (
+                      <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                        {formData.createdTicket ? new Date(formData.createdTicket).toLocaleString("id-ID", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : <span className="italic text-slate-400">-</span>}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </section>
 
@@ -416,6 +451,7 @@ export default function EvaluateTicketPage() {
                     )}
                   </div>
                 </div>
+
               </section>
             </div>
           </div>
@@ -489,6 +525,23 @@ export default function EvaluateTicketPage() {
               <section className="pt-8 border-t border-slate-100 dark:border-slate-800/60 space-y-8">
                 <div className="space-y-8">
                   <div className="flex flex-col gap-3">
+                    <Label className="font-bold text-slate-700 dark:text-slate-300">Parameter Penilaian *</Label>
+                    <div className="flex flex-wrap gap-2 mt-1">
+                      {["OK", "Proses & Sikap", "Kualitas Solusi Layanan"].map((opt) => (
+                        <div key={opt} 
+                          className={cn("cursor-pointer px-4 py-2 rounded-xl border text-sm font-semibold transition-all select-none flex items-center gap-2", parameterPenilaian.includes(opt) ? "bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-900 dark:border-white shadow-md" : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-800 dark:hover:border-slate-700 shadow-sm")}
+                          onClick={() => {
+                            if (parameterPenilaian.includes(opt)) setParameterPenilaian(parameterPenilaian.filter(x => x !== opt));
+                            else setParameterPenilaian([...parameterPenilaian, opt]);
+                          }}
+                        >
+                          {opt}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-3">
                     <Label className="font-bold text-slate-700 dark:text-slate-300">Sub Parameter Penilaian *</Label>
                     <div className="flex flex-wrap gap-2 mt-1">
                       {["OK", "Validitas Closing Case", "Service Level Closing", "Penyampaian Kalimat", "Respon Time", "Dokumentasi"].map((opt) => (
@@ -505,7 +558,6 @@ export default function EvaluateTicketPage() {
                     </div>
                   </div>
 
-                  {/* Solusi moved below Sub Parameter */}
                   <div className="flex flex-col gap-3">
                     <Label className="font-bold text-slate-700 dark:text-slate-300">Solusi *</Label>
                     <div className="flex flex-wrap gap-2">
@@ -527,23 +579,6 @@ export default function EvaluateTicketPage() {
                           onClick={() => {
                             if (solusi.includes(opt)) setSolusi(solusi.filter(x => x !== opt));
                             else setSolusi([...solusi, opt]);
-                          }}
-                        >
-                          {opt}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-3">
-                    <Label className="font-bold text-slate-700 dark:text-slate-300">Parameter Penilaian *</Label>
-                    <div className="flex flex-wrap gap-2 mt-1">
-                      {["OK", "Proses & Sikap", "Kualitas Solusi Layanan"].map((opt) => (
-                        <div key={opt} 
-                          className={cn("cursor-pointer px-4 py-2 rounded-xl border text-sm font-semibold transition-all select-none flex items-center gap-2", parameterPenilaian.includes(opt) ? "bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-900 dark:border-white shadow-md" : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-800 dark:hover:border-slate-700 shadow-sm")}
-                          onClick={() => {
-                            if (parameterPenilaian.includes(opt)) setParameterPenilaian(parameterPenilaian.filter(x => x !== opt));
-                            else setParameterPenilaian([...parameterPenilaian, opt]);
                           }}
                         >
                           {opt}

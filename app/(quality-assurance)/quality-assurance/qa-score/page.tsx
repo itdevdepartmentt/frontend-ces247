@@ -15,7 +15,8 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import api from "@/lib/api";
-import { TrendingUp, Users, Award, AlertTriangle, Target, ChevronLeft, ChevronRight, Download, UploadCloud, Loader2, Copy, MessageCircle, Edit3 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { TrendingUp, Users, Award, AlertTriangle, Target, ChevronLeft, ChevronRight, Download, UploadCloud, Loader2, Copy, MessageCircle, Edit3, ShieldCheck, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
@@ -57,6 +58,8 @@ export default function QaScorePage() {
   const [peak, setPeak] = useState<string>("");
   const [ncPage, setNcPage] = useState(1);
   const [ncPerPage, setNcPerPage] = useState(10);
+  const [ncSearch, setNcSearch] = useState("");
+  const [nonNcSearch, setNonNcSearch] = useState("");
   const { user } = useAuth();
 
   const [komitmenOpen, setKomitmenOpen] = useState(false);
@@ -165,16 +168,19 @@ export default function QaScorePage() {
   let agentRanking = [...(dashboardData?.agentRanking || [])];
   let teamLeaderRanking = [...(dashboardData?.teamLeaderRanking || [])];
   let ncDetails = [...(dashboardData?.ncDetails || [])];
+  const nonNcDetails = [...(dashboardData?.nonNcDetails || [])];
 
   const parameterAchievement = dashboardData?.parameterAchievement || [];
   const totalSampling = dashboardData?.totalSampling || 0;
 
-  const [agentSortBy, setAgentSortBy] = useState<string | undefined>();
+  const [agentSortBy, setAgentSortBy] = useState("qaScore");
   const [agentSortOrder, setAgentSortOrder] = useState<"asc" | "desc">("desc");
-  const [tlSortBy, setTlSortBy] = useState<string | undefined>();
+  const [tlSortBy, setTlSortBy] = useState("qaScore");
   const [tlSortOrder, setTlSortOrder] = useState<"asc" | "desc">("desc");
-  const [ncSortBy, setNcSortBy] = useState<string | undefined>();
+  const [ncSortBy, setNcSortBy] = useState("createdAt");
   const [ncSortOrder, setNcSortOrder] = useState<"asc" | "desc">("desc");
+  const [nonNcSortBy, setNonNcSortBy] = useState("qaScore");
+  const [nonNcSortOrder, setNonNcSortOrder] = useState<"asc" | "desc">("desc");
 
   const sortArray = (arr: any[], key?: string, order?: "asc" | "desc") => {
     if (!key) return arr;
@@ -204,8 +210,23 @@ export default function QaScorePage() {
     ? (monthlyScores.reduce((s: number, m: any) => s + m.avgScore, 0) / monthlyScores.length).toFixed(2)
     : "0";
 
-  const totalNcPages = Math.ceil(ncDetails.length / ncPerPage);
-  const paginatedNc = ncDetails.slice((ncPage - 1) * ncPerPage, ncPage * ncPerPage);
+  // Filter NC by search
+  const filteredNcDetails = ncSearch.trim()
+    ? ncDetails.filter((nc: any) => {
+        const q = ncSearch.toLowerCase();
+        return (
+          (nc.agent || "").toLowerCase().includes(q) ||
+          (nc.teamLeader || "").toLowerCase().includes(q) ||
+          (nc.idTiket || "").toLowerCase().includes(q) ||
+          (nc.parameterPenilaian || "").toLowerCase().includes(q) ||
+          (nc.subParameterPenilaian || "").toLowerCase().includes(q) ||
+          (nc.notes || "").toLowerCase().includes(q)
+        );
+      })
+    : ncDetails;
+
+  const totalNcPages = Math.ceil(filteredNcDetails.length / ncPerPage);
+  const paginatedNc = filteredNcDetails.slice((ncPage - 1) * ncPerPage, ncPage * ncPerPage);
 
   if (isLoading) {
     return (
@@ -455,7 +476,7 @@ export default function QaScorePage() {
                         </span>
                       </TableCell>
                       <TableCell className="text-center">
-                        <span className={cn("px-3 py-1.5 rounded-xl text-[11px] font-black tracking-widest uppercase shadow-sm border", a.achievement === "ACHIEVE" ? "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400" : "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-500/10 dark:border-rose-500/20 dark:text-rose-400")}>
+                        <span className={cn("px-3 py-1.5 rounded-xl text-[11px] font-black tracking-widest uppercase shadow-sm border", a.achievement === "Achieved" ? "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400" : "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-500/10 dark:border-rose-500/20 dark:text-rose-400")}>
                           {a.achievement}
                         </span>
                       </TableCell>
@@ -506,7 +527,7 @@ export default function QaScorePage() {
                         </span>
                       </TableCell>
                       <TableCell className="text-center">
-                        <span className={cn("px-3 py-1.5 rounded-xl text-[11px] font-black tracking-widest uppercase shadow-sm border", tl.achievement === "ACHIEVE" ? "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400" : "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-500/10 dark:border-rose-500/20 dark:text-rose-400")}>
+                        <span className={cn("px-3 py-1.5 rounded-xl text-[11px] font-black tracking-widest uppercase shadow-sm border", tl.achievement === "Achieved" ? "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400" : "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-500/10 dark:border-rose-500/20 dark:text-rose-400")}>
                           {tl.achievement}
                         </span>
                       </TableCell>
@@ -516,6 +537,81 @@ export default function QaScorePage() {
               </TableBody>
             </Table>
           </div>
+        </div>
+      </div>
+
+      {/* Tiket Tanpa NC Table */}
+      <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+          <h3 className="text-sm font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4" />
+            Tiket Tanpa NC
+            <span className="ml-2 px-2 py-0.5 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 rounded-full text-[11px] font-bold">
+              {nonNcSearch.trim()
+                ? `${nonNcDetails.filter((t: any) => { const q = nonNcSearch.toLowerCase(); return (t.agent||"").toLowerCase().includes(q)||(t.teamLeader||"").toLowerCase().includes(q)||(t.idTiket||"").toLowerCase().includes(q); }).length} / ${nonNcDetails.length}`
+                : nonNcDetails.length}
+            </span>
+          </h3>
+          <div className="relative w-full sm:w-72">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+            <Input
+              value={nonNcSearch}
+              onChange={(e) => setNonNcSearch(e.target.value)}
+              placeholder="Cari agent, ID tiket, atau TL..."
+              className="pl-9 h-9 text-sm rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
+            />
+          </div>
+        </div>
+        <div className="overflow-auto max-h-[400px]">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-b border-slate-100 dark:border-slate-800 hover:bg-transparent">
+                <TableHead className="w-[40px] font-semibold text-slate-500">#</TableHead>
+                <SortableTableHead columnKey="idTiket" currentSortBy={nonNcSortBy} currentSortOrder={nonNcSortOrder} onSort={(k, o) => { setNonNcSortBy(k); setNonNcSortOrder(o); }} className="font-semibold text-slate-500">ID Tiket</SortableTableHead>
+                <SortableTableHead columnKey="score" currentSortBy={nonNcSortBy} currentSortOrder={nonNcSortOrder} onSort={(k, o) => { setNonNcSortBy(k); setNonNcSortOrder(o); }} className="font-semibold text-slate-500 text-center">QA Score</SortableTableHead>
+                <SortableTableHead columnKey="agent" currentSortBy={nonNcSortBy} currentSortOrder={nonNcSortOrder} onSort={(k, o) => { setNonNcSortBy(k); setNonNcSortOrder(o); }} className="font-semibold text-slate-500">Nama Agent</SortableTableHead>
+                <SortableTableHead columnKey="teamLeader" currentSortBy={nonNcSortBy} currentSortOrder={nonNcSortOrder} onSort={(k, o) => { setNonNcSortBy(k); setNonNcSortOrder(o); }} className="font-semibold text-slate-500">Nama TL</SortableTableHead>
+                <SortableTableHead columnKey="tapper" currentSortBy={nonNcSortBy} currentSortOrder={nonNcSortOrder} onSort={(k, o) => { setNonNcSortBy(k); setNonNcSortOrder(o); }} className="font-semibold text-slate-500">Tapper</SortableTableHead>
+                <SortableTableHead columnKey="createdAt" currentSortBy={nonNcSortBy} currentSortOrder={nonNcSortOrder} onSort={(k, o) => { setNonNcSortBy(k); setNonNcSortOrder(o); }} className="font-semibold text-slate-500">Tanggal Tapping</SortableTableHead>
+                <SortableTableHead columnKey="peak" currentSortBy={nonNcSortBy} currentSortOrder={nonNcSortOrder} onSort={(k, o) => { setNonNcSortBy(k); setNonNcSortOrder(o); }} className="font-semibold text-slate-500 text-center">Peak</SortableTableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {(() => {
+                let rows = [...nonNcDetails];
+                if (nonNcSearch.trim()) {
+                  const q = nonNcSearch.toLowerCase();
+                  rows = rows.filter((t: any) =>
+                    (t.agent || "").toLowerCase().includes(q) ||
+                    (t.teamLeader || "").toLowerCase().includes(q) ||
+                    (t.idTiket || "").toLowerCase().includes(q)
+                  );
+                }
+                rows = sortArray(rows, nonNcSortBy, nonNcSortOrder);
+
+                return rows.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={8} className="h-[100px] text-center text-slate-400">Tidak ada tiket tanpa NC</TableCell>
+                  </TableRow>
+                ) : (
+                  rows.map((t: any, i: number) => (
+                    <TableRow key={t.id || i} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors border-b border-slate-50 dark:border-slate-800/50 group">
+                      <TableCell className="text-slate-400 font-medium w-8 text-center">{i + 1}</TableCell>
+                      <TableCell className="font-bold text-indigo-600 dark:text-indigo-400">{t.idTiket || "-"}</TableCell>
+                      <TableCell className="text-center font-black text-lg">
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-500">{t.score}</span>
+                      </TableCell>
+                      <TableCell className="font-semibold text-slate-800 dark:text-slate-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">{t.agent}</TableCell>
+                      <TableCell className="text-slate-500 dark:text-slate-400 font-medium">{t.teamLeader || "-"}</TableCell>
+                      <TableCell className="text-slate-500 dark:text-slate-400 font-medium">{t.tapper || "-"}</TableCell>
+                      <TableCell className="text-slate-500 font-medium">{new Date(t.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}</TableCell>
+                      <TableCell className="text-center text-slate-600 dark:text-slate-400 font-medium">Peak {t.peak}</TableCell>
+                    </TableRow>
+                  ))
+                );
+              })()}
+            </TableBody>
+          </Table>
         </div>
       </div>
 
@@ -578,11 +674,24 @@ export default function QaScorePage() {
       {/* NC Detail Table */}
       {ncDetails.length > 0 && (
         <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm">
-          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-widest mb-6 flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 text-rose-500" />
-            NC Detail (Non-Compliant Tickets)
-            <span className="ml-2 px-2 py-0.5 bg-rose-50 dark:bg-rose-900/30 text-rose-600 rounded-full text-[11px] font-bold">{ncDetails.length}</span>
-          </h3>
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-widest flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-rose-500" />
+              NC Detail (Non-Compliant Tickets)
+              <span className="ml-2 px-2 py-0.5 bg-rose-50 dark:bg-rose-900/30 text-rose-600 rounded-full text-[11px] font-bold">
+                {ncSearch.trim() ? `${filteredNcDetails.length} / ${ncDetails.length}` : ncDetails.length}
+              </span>
+            </h3>
+            <div className="relative w-full sm:w-72">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+              <Input
+                value={ncSearch}
+                onChange={(e) => { setNcSearch(e.target.value); setNcPage(1); }}
+                placeholder="Cari agent, ID tiket, parameter..."
+                className="pl-9 h-9 text-sm rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
+              />
+            </div>
+          </div>
           <div className="overflow-auto">
             <Table>
               <TableHeader>
@@ -666,7 +775,7 @@ export default function QaScorePage() {
           <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-100 dark:border-slate-800/50">
             <div className="flex items-center gap-4">
               <span className="text-sm text-slate-500 font-medium">
-                Showing {(ncPage - 1) * ncPerPage + 1} - {Math.min(ncPage * ncPerPage, ncDetails.length)} of {ncDetails.length} records
+                Showing {filteredNcDetails.length === 0 ? 0 : (ncPage - 1) * ncPerPage + 1} - {Math.min(ncPage * ncPerPage, filteredNcDetails.length)} of {filteredNcDetails.length} records
               </span>
               <Select value={ncPerPage.toString()} onValueChange={(v) => { setNcPerPage(Number(v)); setNcPage(1); }}>
                 <SelectTrigger className="w-[80px] h-9">
