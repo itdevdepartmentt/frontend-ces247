@@ -440,13 +440,13 @@ export default function FormTappingPage() {
               </div>
               <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">Drag & drop your file here</h3>
               <p className="text-slate-500 text-center mb-10 max-w-lg text-base">
-                Upload a CSV file containing your latest tickets. Make sure the headers match our standard format. Maximum file size is 10MB.
+                Upload a CSV or RAW DSC (.xlsx) file containing your latest tickets. Make sure the headers match our standard format. Maximum file size is 10MB.
               </p>
               
               <div className="flex flex-col items-center gap-6 w-full max-w-md relative">
                 <Input 
                   type="file" 
-                  accept=".csv" 
+                  accept=".csv, .xlsx" 
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
                   onChange={(e) => setFile(e.target.files?.[0] || null)} 
                   disabled={uploadMutation.isPending}
