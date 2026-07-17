@@ -139,6 +139,27 @@ export default function DetailTappingPage() {
     }
   };
 
+  const handleApproveKomitmen = async (id: string) => {
+    try {
+      await api.patch(`/qa/${id}/komitmen/approve`);
+      toast.success("Berhasil menyetujui komitmen.");
+      refetch();
+    } catch (error) {
+      console.error(error);
+      toast.error("Gagal menyetujui komitmen.");
+    }
+  };
+
+  const handleRejectKomitmen = async (id: string) => {
+    try {
+      await api.patch(`/qa/${id}/komitmen/reject`);
+      toast.success("Berhasil menolak komitmen.");
+      refetch();
+    } catch (error) {
+      console.error(error);
+      toast.error("Gagal menolak komitmen.");
+    }
+  };
   // Fetch filter options (custom detail tapping options + history column options)
   const { data: detailOptions } = useQuery({
     queryKey: ["qa-detail-tapping-options"],
@@ -449,7 +470,12 @@ export default function DetailTappingPage() {
                     <TableCell className="text-slate-600 dark:text-slate-300 min-w-[200px] align-top">
                       <div className="flex flex-col gap-2">
                         {row.komitmen ? (
-                          <p className="text-xs whitespace-pre-wrap">{row.komitmen}</p>
+                          <div className="flex flex-col gap-1">
+                            {row.komitmenStatus === 'REJECTED' && user?.role === 'USER' && user?.name === row.agent && (
+                              <span className="text-[10px] font-bold text-rose-500 bg-rose-50 px-2 py-0.5 rounded w-fit mb-1">DITOLAK TL (HARAP REVISI)</span>
+                            )}
+                            <p className="text-xs whitespace-pre-wrap">{row.komitmen}</p>
+                          </div>
                         ) : (
                           !(user?.role === "USER" && user?.name === row.agent) && (
                             <span className="text-xs text-slate-400 italic">Belum ada komitmen</span>
@@ -469,19 +495,42 @@ export default function DetailTappingPage() {
                     </TableCell>
                     {user?.role === "TL" && (
                       <TableCell className="text-center">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          onClick={() => handleOpenRekon(row)} 
-                          disabled={row.hasPendingRekon}
-                          className="h-8 gap-2 text-xs font-semibold hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 disabled:opacity-50"
-                        >
-                          {row.hasPendingRekon ? (
-                            <><Clock className="w-3 h-3" /> Pending Rekon</>
-                          ) : (
-                            <><Edit3 className="w-3 h-3" /> Rekon</>
+                        <div className="flex flex-col gap-2 items-center">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => handleOpenRekon(row)} 
+                            disabled={row.hasPendingRekon}
+                            className="h-8 gap-2 text-xs font-semibold hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 disabled:opacity-50 w-full max-w-[130px]"
+                          >
+                            {row.hasPendingRekon ? (
+                              <><Clock className="w-3 h-3" /> Pending Rekon</>
+                            ) : (
+                              <><Scale className="w-3 h-3" /> Aksi Rekon</>
+                            )}
+                          </Button>
+                          
+                          {row.komitmenStatus === 'PENDING' && (
+                            <div className="flex flex-col gap-1 w-full max-w-[130px]">
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={() => handleApproveKomitmen(row.id)} 
+                                className="h-7 text-[10px] font-bold text-emerald-600 border-emerald-200 hover:bg-emerald-50 w-full"
+                              >
+                                <Check className="w-3 h-3 mr-1" /> Approve Komitmen
+                              </Button>
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={() => handleRejectKomitmen(row.id)} 
+                                className="h-7 text-[10px] font-bold text-rose-600 border-rose-200 hover:bg-rose-50 w-full"
+                              >
+                                <X className="w-3 h-3 mr-1" /> Tolak Komitmen
+                              </Button>
+                            </div>
                           )}
-                        </Button>
+                        </div>
                       </TableCell>
                     )}
                   </TableRow>
