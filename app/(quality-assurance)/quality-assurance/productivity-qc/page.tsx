@@ -20,7 +20,8 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Users, Settings, Activity, Clock, CheckCircle2, LayoutDashboard, Target } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Users, Settings, Activity, Clock, CheckCircle2, LayoutDashboard, Target, Trash2 } from "lucide-react";
 import { isSmartMatch } from '@/lib/agent-matcher';
 
 export default function ProductivityQcPage() {
@@ -48,6 +49,9 @@ export default function ProductivityQcPage() {
   const [settingsActiveTab, setSettingsActiveTab] = useState("qc");
   const [isSaving, setIsSaving] = useState(false);
 
+  const [selectedApAgents, setSelectedApAgents] = useState<string[]>([]);
+  const [isDeletingAp, setIsDeletingAp] = useState(false);
+
   const { data: dashboardData, isLoading, refetch } = useQuery({
     queryKey: ["qa-productivity", month, year, dateStr],
     queryFn: async () => {
@@ -74,6 +78,22 @@ export default function ProductivityQcPage() {
 
   const [apSortBy, setApSortBy] = useState<string | undefined>();
   const [apSortOrder, setApSortOrder] = useState<"asc" | "desc">("desc");
+
+  const handleBulkDeleteAp = async () => {
+    if (selectedApAgents.length === 0) return;
+    try {
+      setIsDeletingAp(true);
+      await api.post('/qa/productivity/settings/bulk-delete', { agentNames: selectedApAgents });
+      toast.success(`${selectedApAgents.length} agent berhasil dihapus`);
+      setSelectedApAgents([]);
+      refetch();
+    } catch (e) {
+      console.error(e);
+      toast.error('Gagal menghapus agent');
+    } finally {
+      setIsDeletingAp(false);
+    }
+  };
 
   const handleSaveSettings = async () => {
     try {
@@ -552,14 +572,30 @@ export default function ProductivityQcPage() {
 
         {/* PERFORMANCE / TAPPER Table */}
         <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm overflow-hidden flex flex-col">
-          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-widest mb-4 flex items-center gap-2">
-            <Users className="w-4 h-4 text-emerald-500" />
-            Performance / Tapper
-          </h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-widest flex items-center gap-2">
+              <Users className="w-4 h-4 text-emerald-500" />
+              Performance / Tapper
+            </h3>
+            {selectedApAgents.length > 0 && (
+              <Button onClick={handleBulkDeleteAp} disabled={isDeletingAp} variant="destructive" size="sm" className="h-8">
+                <Trash2 className="w-3.5 h-3.5 mr-2" /> Hapus Terpilih ({selectedApAgents.length})
+              </Button>
+            )}
+          </div>
           <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
             <Table className="whitespace-nowrap">
               <TableHeader className="bg-slate-50 dark:bg-slate-900/50">
                 <TableRow>
+                  <TableHead className="w-[50px] text-center" rowSpan={2}>
+                    <Checkbox 
+                      checked={agentPerformance.length > 0 && selectedApAgents.length === agentPerformance.length}
+                      onCheckedChange={(c) => {
+                        if (c) setSelectedApAgents(agentPerformance.map((a: any) => a.agent));
+                        else setSelectedApAgents([]);
+                      }}
+                    />
+                  </TableHead>
                   <SortableTableHead columnKey="agent" currentSortBy={apSortBy} currentSortOrder={apSortOrder} onSort={(k, o) => { setApSortBy(k); setApSortOrder(o); }} className="text-xs font-semibold text-slate-500 w-[200px]" rowSpan={2}>Nama Agent</SortableTableHead>
                   <TableHead className="text-xs font-bold text-indigo-600 bg-indigo-50/50 dark:bg-indigo-900/10 text-center border-l border-b-0" colSpan={4}>Peak 1</TableHead>
                   <TableHead className="text-xs font-bold text-indigo-600 bg-indigo-50/50 dark:bg-indigo-900/10 text-center border-l border-b-0" colSpan={4}>Peak 2</TableHead>
@@ -586,7 +622,7 @@ export default function ProductivityQcPage() {
               <TableBody>
                 {agentPerformance.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={13} className="h-[100px] text-center text-slate-400">Belum ada data performance agent</TableCell>
+                    <TableCell colSpan={14} className="h-[100px] text-center text-slate-400">Belum ada data performance agent</TableCell>
                   </TableRow>
                 ) : (
                   (() => {
@@ -609,7 +645,7 @@ export default function ProductivityQcPage() {
                         <React.Fragment key={tIdx}>
                           {/* Tapper Header */}
                           <TableRow className="bg-emerald-100/50 dark:bg-emerald-900/30">
-                            <TableCell colSpan={13} className="font-bold text-emerald-800 dark:text-emerald-400 uppercase tracking-wide border-y border-emerald-200 dark:border-emerald-800/50">
+                            <TableCell colSpan={14} className="font-bold text-emerald-800 dark:text-emerald-400 uppercase tracking-wide border-y border-emerald-200 dark:border-emerald-800/50">
                               {tapperName}
                             </TableCell>
                           </TableRow>
@@ -620,6 +656,15 @@ export default function ProductivityQcPage() {
                             const p3sisa = ag.peak3Target - ag.peak3Realization;
                             return (
                               <TableRow key={aIdx}>
+                                <TableCell className="text-center">
+                                  <Checkbox 
+                                    checked={selectedApAgents.includes(ag.agent)}
+                                    onCheckedChange={(c) => {
+                                      if (c) setSelectedApAgents(prev => [...prev, ag.agent]);
+                                      else setSelectedApAgents(prev => prev.filter(x => x !== ag.agent));
+                                    }}
+                                  />
+                                </TableCell>
                                 <TableCell className="font-semibold text-slate-800 dark:text-slate-200 uppercase">
                                   <div className="flex items-center gap-2">
                                     {ag.agent}
