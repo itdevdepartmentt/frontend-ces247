@@ -921,28 +921,28 @@ export default function ProductivityQcPage() {
                       <TableCell className="text-xs text-slate-500 dark:text-slate-400">{ag.tapper || '-'}</TableCell>
                       <TableCell className="text-xs text-slate-500 dark:text-slate-400">{ag.teamLeader || '-'}</TableCell>
                       <TableCell>
-                        <Input type="number" min="0" className="h-8 bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800" value={ag.peak1} onChange={(e) => {
+                        <Input type="number" min="0" className="h-8 min-w-[60px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800" value={ag.peak1} onChange={(e) => {
                           const newAgs = [...agentSettings];
                           newAgs[i].peak1 = e.target.value;
                           setAgentSettings(newAgs);
                         }} />
                       </TableCell>
                       <TableCell>
-                        <Input type="number" min="0" className="h-8 bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800" value={ag.peak2} onChange={(e) => {
+                        <Input type="number" min="0" className="h-8 min-w-[60px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800" value={ag.peak2} onChange={(e) => {
                           const newAgs = [...agentSettings];
                           newAgs[i].peak2 = e.target.value;
                           setAgentSettings(newAgs);
                         }} />
                       </TableCell>
                       <TableCell>
-                        <Input type="number" min="0" className="h-8 bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800" value={ag.peak3} onChange={(e) => {
+                        <Input type="number" min="0" className="h-8 min-w-[60px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800" value={ag.peak3} onChange={(e) => {
                           const newAgs = [...agentSettings];
                           newAgs[i].peak3 = e.target.value;
                           setAgentSettings(newAgs);
                         }} />
                       </TableCell>
                       <TableCell>
-                        <Input type="number" min="0" className="h-8 bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800" value={ag.monthly} onChange={(e) => {
+                        <Input type="number" min="0" className="h-8 min-w-[60px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800" value={ag.monthly} onChange={(e) => {
                           const newAgs = [...agentSettings];
                           newAgs[i].monthly = e.target.value;
                           setAgentSettings(newAgs);
