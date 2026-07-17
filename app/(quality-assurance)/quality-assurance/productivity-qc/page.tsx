@@ -50,6 +50,7 @@ export default function ProductivityQcPage() {
   const [isSaving, setIsSaving] = useState(false);
 
   const [selectedApAgents, setSelectedApAgents] = useState<string[]>([]);
+  const [lastSelectedApAgent, setLastSelectedApAgent] = useState<string | null>(null);
   const [isDeletingAp, setIsDeletingAp] = useState(false);
   const [isSelectionMode, setIsSelectionMode] = useState(false);
 
@@ -699,12 +700,43 @@ export default function ProductivityQcPage() {
                             return (
                               <TableRow key={aIdx}>
                                 {isSelectionMode && (
-                                  <TableCell className="text-center">
+                                  <TableCell className="text-center" onClickCapture={(e) => {
+                                    if (e.shiftKey && lastSelectedApAgent) {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      
+                                      const tempGrouped: Record<string, any[]> = {};
+                                      agentPerformance.forEach((a: any) => {
+                                        const t = a.tapper || 'Unknown Tapper';
+                                        if (!tempGrouped[t]) tempGrouped[t] = [];
+                                        tempGrouped[t].push(a);
+                                      });
+                                      const allAgentsFlat = Object.values(tempGrouped).flat().map((a: any) => a.agent);
+                                      
+                                      const startIdx = allAgentsFlat.indexOf(lastSelectedApAgent);
+                                      const endIdx = allAgentsFlat.indexOf(ag.agent);
+                                      
+                                      if (startIdx !== -1 && endIdx !== -1) {
+                                        const minIdx = Math.min(startIdx, endIdx);
+                                        const maxIdx = Math.max(startIdx, endIdx);
+                                        const range = allAgentsFlat.slice(minIdx, maxIdx + 1);
+                                        
+                                        const isCurrentlyChecked = selectedApAgents.includes(ag.agent);
+                                        if (!isCurrentlyChecked) {
+                                          setSelectedApAgents(prev => Array.from(new Set([...prev, ...range])));
+                                        } else {
+                                          setSelectedApAgents(prev => prev.filter(x => !range.includes(x)));
+                                        }
+                                      }
+                                      setLastSelectedApAgent(ag.agent);
+                                    }
+                                  }}>
                                     <Checkbox 
                                       checked={selectedApAgents.includes(ag.agent)}
                                       onCheckedChange={(c) => {
                                         if (c) setSelectedApAgents(prev => [...prev, ag.agent]);
                                         else setSelectedApAgents(prev => prev.filter(x => x !== ag.agent));
+                                        setLastSelectedApAgent(ag.agent);
                                       }}
                                     />
                                   </TableCell>
