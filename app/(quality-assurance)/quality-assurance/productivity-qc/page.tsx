@@ -81,6 +81,25 @@ export default function ProductivityQcPage() {
   const [apSortBy, setApSortBy] = useState<string | undefined>();
   const [apSortOrder, setApSortOrder] = useState<"asc" | "desc">("desc");
 
+  const [selectedQcNames, setSelectedQcNames] = useState<string[]>([]);
+  const [isDeletingQc, setIsDeletingQc] = useState(false);
+
+  const handleBulkDeleteQc = async () => {
+    if (selectedQcNames.length === 0) return;
+    try {
+      setIsDeletingQc(true);
+      await api.post('/qa/productivity/settings/bulk-delete', { agentNames: selectedQcNames, type: 'QC' });
+      toast.success(`${selectedQcNames.length} QC berhasil dihapus`);
+      setSelectedQcNames([]);
+      refetch();
+    } catch (e) {
+      console.error(e);
+      toast.error('Gagal menghapus QC');
+    } finally {
+      setIsDeletingQc(false);
+    }
+  };
+
   const handleBulkDeleteAp = async () => {
     if (selectedApAgents.length === 0) return;
     try {
@@ -387,16 +406,39 @@ export default function ProductivityQcPage() {
         </div>
         
         {/* Productivity QC Table */}
-        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm overflow-hidden flex flex-col mb-6">
-          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-widest mb-4 flex items-center gap-2">
-            <Users className="w-4 h-4 text-indigo-500" />
-            Produktivitas QC
-          </h3>
-          <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
-            <Table className="whitespace-nowrap">
-              <TableHeader className="bg-slate-50 dark:bg-slate-900/50">
+        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm overflow-hidden flex flex-col mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-widest flex items-center gap-2">
+              <Target className="w-4 h-4 text-indigo-500" />
+              QC Productivity
+            </h3>
+            <div className="flex items-center gap-2">
+              {isSelectionMode && selectedQcNames.length > 0 && (
+                <Button onClick={handleBulkDeleteQc} disabled={isDeletingQc} variant="destructive" size="sm" className="h-8">
+                  <Trash2 className="w-3.5 h-3.5 mr-2" /> Hapus Terpilih ({selectedQcNames.length})
+                </Button>
+              )}
+            </div>
+          </div>
+          <div className="overflow-x-auto overflow-y-visible rounded-xl border border-slate-200/60 dark:border-slate-700/60">
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <SortableTableHead columnKey="tapper" currentSortBy={qcSortBy} currentSortOrder={qcSortOrder} onSort={(k, o) => { setQcSortBy(k); setQcSortOrder(o); }} className="text-xs font-semibold text-slate-500 w-[180px]" rowSpan={2}>Nama Tapper</SortableTableHead>
+                  {isSelectionMode && (
+                    <TableHead className="w-[40px] px-2 text-center border-r-0 border-b-0" rowSpan={2}>
+                      <Checkbox
+                        checked={qcProductivity.length > 0 && selectedQcNames.length === qcProductivity.length}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setSelectedQcNames(qcProductivity.map((q: any) => q.tapper));
+                          } else {
+                            setSelectedQcNames([]);
+                          }
+                        }}
+                      />
+                    </TableHead>
+                  )}
+                  <SortableTableHead columnKey="tapper" currentSortBy={qcSortBy} currentSortOrder={qcSortOrder} onSort={(k, o) => { setQcSortBy(k); setQcSortOrder(o); }} className="text-xs font-semibold text-slate-500 w-[150px]" rowSpan={2}>Tapper</SortableTableHead>
                   <SortableTableHead columnKey="totalAgent" currentSortBy={qcSortBy} currentSortOrder={qcSortOrder} onSort={(k, o) => { setQcSortBy(k); setQcSortOrder(o); }} className="text-xs font-semibold text-slate-500 text-center w-[100px]" rowSpan={2}>Jml Agent</SortableTableHead>
                   <SortableTableHead columnKey="agentNames" currentSortBy={qcSortBy} currentSortOrder={qcSortOrder} onSort={(k, o) => { setQcSortBy(k); setQcSortOrder(o); }} className="text-xs font-semibold text-slate-500 w-[200px]" rowSpan={2}>Nama Agent</SortableTableHead>
                   <TableHead className="text-xs font-bold text-indigo-600 bg-indigo-50/50 dark:bg-indigo-900/10 text-center border-l border-b-0" colSpan={3}>Peak 1</TableHead>
@@ -426,7 +468,7 @@ export default function ProductivityQcPage() {
               <TableBody>
                 {qcProductivity.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={15} className="h-[100px] text-center text-slate-400">Belum ada data produktivitas</TableCell>
+                    <TableCell colSpan={isSelectionMode ? 16 : 15} className="h-[100px] text-center text-slate-400">Belum ada data produktivitas</TableCell>
                   </TableRow>
                 ) : (
                   <>
@@ -437,6 +479,20 @@ export default function ProductivityQcPage() {
                       const mSisa = qc.monthlyTarget - qc.monthlyRealization;
                       return (
                         <TableRow key={i}>
+                          {isSelectionMode && (
+                            <TableCell className="text-center px-2">
+                              <Checkbox
+                                checked={selectedQcNames.includes(qc.tapper)}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    setSelectedQcNames([...selectedQcNames, qc.tapper]);
+                                  } else {
+                                    setSelectedQcNames(selectedQcNames.filter((n) => n !== qc.tapper));
+                                  }
+                                }}
+                              />
+                            </TableCell>
+                          )}
                           <TableCell className="font-semibold text-slate-800 dark:text-slate-200">{qc.tapper}</TableCell>
                           <TableCell className="text-center font-medium">{qc.totalAgent}</TableCell>
                           <TableCell className="text-sm text-slate-500"><span className="block truncate max-w-[200px]" title={qc.agentNames}>{qc.agentNames}</span></TableCell>
@@ -465,7 +521,7 @@ export default function ProductivityQcPage() {
                     })}
                     {/* Grand Total Row */}
                     <TableRow className="font-bold bg-indigo-50 dark:bg-indigo-900/20">
-                      <TableCell colSpan={2} className="text-center text-indigo-700 dark:text-indigo-300">TOTAL KESELURUHAN</TableCell>
+                      <TableCell colSpan={isSelectionMode ? 3 : 2} className="text-center text-indigo-700 dark:text-indigo-300">TOTAL KESELURUHAN</TableCell>
                       <TableCell className="text-center text-indigo-700 dark:text-indigo-300 border-l">-</TableCell>
                       <TableCell className="text-center text-indigo-700 dark:text-indigo-300 border-l">{qcProductivity.reduce((acc:any, cur:any) => acc + cur.peak1Target, 0)}</TableCell>
                       <TableCell className="text-center text-indigo-700 dark:text-indigo-300">{qcProductivity.reduce((acc:any, cur:any) => acc + cur.peak1Realization, 0)}</TableCell>
