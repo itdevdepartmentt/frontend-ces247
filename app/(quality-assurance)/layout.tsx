@@ -11,6 +11,13 @@ export default function QualityAssuranceLayout({ children }: { children: React.R
     return <LogoLoader fullscreen />;
   }
 
+  if (user?.email === "TselPrime@gmail.com") {
+    if (typeof window !== "undefined") {
+      window.location.href = "/dashboard";
+    }
+    return <LogoLoader fullscreen />;
+  }
+
   return (
     <div className="flex h-screen overflow-hidden bg-slate-50 dark:bg-slate-950">
       <Sidebar />

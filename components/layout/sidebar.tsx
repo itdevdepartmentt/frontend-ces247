@@ -249,6 +249,9 @@ export function Sidebar() {
             {links.map((link) => {
               if (user && !link.roles.includes(user.role)) return null;
               
+              // Custom restriction: Hide QA menu for specific email
+              if (user && link.title === "Quality Assurance" && user.email === "TselPrime@gmail.com") return null;
+              
               // Filter subItems based on user roles
               const subItems = link.subItems?.filter(sub => user && sub.roles.includes(user.role)) || [];
               const hasSubItems = subItems.length > 0;
