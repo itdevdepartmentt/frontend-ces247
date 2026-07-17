@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 import api from "@/lib/api";
 import {
   BarChart3, AlertTriangle, ChevronLeft, ChevronRight,
-  FileText, ShieldAlert, Zap, MessageSquare, Clock, FileCheck, Users, Edit3, Loader2, Copy, MessageCircle
+  FileText, ShieldAlert, Zap, MessageSquare, Clock, FileCheck, Users, Edit3, Loader2, Copy, MessageCircle, Scale, Check, X
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
