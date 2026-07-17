@@ -129,66 +129,38 @@ export default function ProductivityQcPage() {
       const formData = new FormData();
       formData.append('file', file);
       
-      const res = await api.post('/qa/productivity/settings/parse-excel', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+      const res = await api.post('/qa/productivity/settings/parse-excel', formData);
       
       const { parsedAgents, parsedQcs } = res.data;
       
-      // Update agentSettings - update existing and add new agents
+      // Update agentSettings - completely replace existing agents with data from Excel
       if (parsedAgents && parsedAgents.length > 0) {
-        setAgentSettings(prev => {
-          const newSettings = [...prev];
-          parsedAgents.forEach((pa: any) => {
-            let index = newSettings.findIndex(a => a.name.toLowerCase() === pa.name.toLowerCase());
-            if (index === -1) {
-              index = newSettings.findIndex(a => isSmartMatch(a.name, pa.name) || pa.name.toLowerCase().includes(a.name.toLowerCase()));
-            }
-            if (index !== -1) {
-              newSettings[index] = { ...newSettings[index], peak1: pa.peak1, peak2: pa.peak2, peak3: pa.peak3, tapper: pa.tapper, group: pa.group, teamLeader: pa.teamLeader };
-            } else {
-              // Agent baru dari Excel, langsung tambahkan ke tabel
-              newSettings.push({
-                name: pa.name,
-                peak1: pa.peak1,
-                peak2: pa.peak2,
-                peak3: pa.peak3,
-                monthly: 0,
-                tapper: pa.tapper,
-                group: pa.group,
-                teamLeader: pa.teamLeader,
-              });
-            }
-          });
-          return newSettings;
-        });
+        setAgentSettings(
+          parsedAgents.map((pa: any) => ({
+            name: pa.name,
+            peak1: pa.peak1,
+            peak2: pa.peak2,
+            peak3: pa.peak3,
+            monthly: 0,
+            tapper: pa.tapper,
+            group: pa.group,
+            teamLeader: pa.teamLeader,
+          }))
+        );
       }
       
-      // Update qcSettings - update existing and add new QCs
+      // Update qcSettings - completely replace existing QCs with data from Excel
       if (parsedQcs && parsedQcs.length > 0) {
-        setQcSettings(prev => {
-          const newSettings = [...prev];
-          parsedQcs.forEach((pq: any) => {
-            let index = newSettings.findIndex(q => q.name.toLowerCase() === pq.name.toLowerCase());
-            if (index === -1) {
-              index = newSettings.findIndex(q => pq.name.toLowerCase().includes(q.name.toLowerCase()));
-            }
-            if (index !== -1) {
-              newSettings[index] = { ...newSettings[index], daily: pq.daily };
-            } else {
-              // QC baru dari Excel, langsung tambahkan ke tabel
-              newSettings.push({
-                name: pq.name,
-                daily: pq.daily,
-                peak1: 0,
-                peak2: 0,
-                peak3: 0,
-                monthly: 0,
-              });
-            }
-          });
-          return newSettings;
-        });
+        setQcSettings(
+          parsedQcs.map((pq: any) => ({
+            name: pq.name,
+            daily: pq.daily,
+            peak1: 0,
+            peak2: 0,
+            peak3: 0,
+            monthly: 0,
+          }))
+        );
       }
       
       toast.success("File Excel berhasil diproses", { id: "upload-excel" });
