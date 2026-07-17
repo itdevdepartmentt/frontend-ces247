@@ -51,6 +51,7 @@ export default function ProductivityQcPage() {
 
   const [selectedApAgents, setSelectedApAgents] = useState<string[]>([]);
   const [isDeletingAp, setIsDeletingAp] = useState(false);
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
 
   const { data: dashboardData, isLoading, refetch } = useQuery({
     queryKey: ["qa-productivity", month, year, dateStr],
@@ -577,25 +578,40 @@ export default function ProductivityQcPage() {
               <Users className="w-4 h-4 text-emerald-500" />
               Performance / Tapper
             </h3>
-            {selectedApAgents.length > 0 && (
-              <Button onClick={handleBulkDeleteAp} disabled={isDeletingAp} variant="destructive" size="sm" className="h-8">
-                <Trash2 className="w-3.5 h-3.5 mr-2" /> Hapus Terpilih ({selectedApAgents.length})
+            <div className="flex items-center gap-2">
+              {isSelectionMode && selectedApAgents.length > 0 && (
+                <Button onClick={handleBulkDeleteAp} disabled={isDeletingAp} variant="destructive" size="sm" className="h-8">
+                  <Trash2 className="w-3.5 h-3.5 mr-2" /> Hapus Terpilih ({selectedApAgents.length})
+                </Button>
+              )}
+              <Button 
+                onClick={() => {
+                  setIsSelectionMode(!isSelectionMode);
+                  if (isSelectionMode) setSelectedApAgents([]);
+                }} 
+                variant={isSelectionMode ? "secondary" : "outline"} 
+                size="sm" 
+                className="h-8"
+              >
+                {isSelectionMode ? "Batal" : "Mode Hapus"}
               </Button>
-            )}
+            </div>
           </div>
           <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
             <Table className="whitespace-nowrap">
               <TableHeader className="bg-slate-50 dark:bg-slate-900/50">
                 <TableRow>
-                  <TableHead className="w-[50px] text-center" rowSpan={2}>
-                    <Checkbox 
-                      checked={agentPerformance.length > 0 && selectedApAgents.length === agentPerformance.length}
-                      onCheckedChange={(c) => {
-                        if (c) setSelectedApAgents(agentPerformance.map((a: any) => a.agent));
-                        else setSelectedApAgents([]);
-                      }}
-                    />
-                  </TableHead>
+                  {isSelectionMode && (
+                    <TableHead className="w-[50px] text-center" rowSpan={2}>
+                      <Checkbox 
+                        checked={agentPerformance.length > 0 && selectedApAgents.length === agentPerformance.length}
+                        onCheckedChange={(c) => {
+                          if (c) setSelectedApAgents(agentPerformance.map((a: any) => a.agent));
+                          else setSelectedApAgents([]);
+                        }}
+                      />
+                    </TableHead>
+                  )}
                   <SortableTableHead columnKey="agent" currentSortBy={apSortBy} currentSortOrder={apSortOrder} onSort={(k, o) => { setApSortBy(k); setApSortOrder(o); }} className="text-xs font-semibold text-slate-500 w-[200px]" rowSpan={2}>Nama Agent</SortableTableHead>
                   <TableHead className="text-xs font-bold text-indigo-600 bg-indigo-50/50 dark:bg-indigo-900/10 text-center border-l border-b-0" colSpan={4}>Peak 1</TableHead>
                   <TableHead className="text-xs font-bold text-indigo-600 bg-indigo-50/50 dark:bg-indigo-900/10 text-center border-l border-b-0" colSpan={4}>Peak 2</TableHead>
@@ -622,7 +638,7 @@ export default function ProductivityQcPage() {
               <TableBody>
                 {agentPerformance.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={14} className="h-[100px] text-center text-slate-400">Belum ada data performance agent</TableCell>
+                    <TableCell colSpan={isSelectionMode ? 14 : 13} className="h-[100px] text-center text-slate-400">Belum ada data performance agent</TableCell>
                   </TableRow>
                 ) : (
                   (() => {
@@ -644,9 +660,35 @@ export default function ProductivityQcPage() {
                       return (
                         <React.Fragment key={tIdx}>
                           {/* Tapper Header */}
-                          <TableRow className="bg-emerald-100/50 dark:bg-emerald-900/30">
-                            <TableCell colSpan={14} className="font-bold text-emerald-800 dark:text-emerald-400 uppercase tracking-wide border-y border-emerald-200 dark:border-emerald-800/50">
-                              {tapperName}
+                          <TableRow className="bg-emerald-100/50 dark:bg-emerald-900/30 group">
+                            <TableCell colSpan={isSelectionMode ? 14 : 13} className="font-bold text-emerald-800 dark:text-emerald-400 uppercase tracking-wide border-y border-emerald-200 dark:border-emerald-800/50 p-0">
+                              <div className="flex justify-between items-center px-4 py-2">
+                                <span>{tapperName}</span>
+                                {isSelectionMode && (
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    className="h-6 px-2 text-red-500 hover:text-red-700 hover:bg-red-200/50 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      const agentNames = agents.map((a: any) => a.agent);
+                                      if (window.confirm(`Yakin ingin menghapus semua agent di grup ${tapperName}?`)) {
+                                        setIsDeletingAp(true);
+                                        api.post('/qa/productivity/settings/bulk-delete', { agentNames })
+                                          .then(() => {
+                                            toast.success(`${agentNames.length} agent di grup ${tapperName} dihapus`);
+                                            refetch();
+                                            setSelectedApAgents([]);
+                                          })
+                                          .catch(() => toast.error('Gagal menghapus grup'))
+                                          .finally(() => setIsDeletingAp(false));
+                                      }
+                                    }}
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5 mr-1" /> Hapus Grup
+                                  </Button>
+                                )}
+                              </div>
                             </TableCell>
                           </TableRow>
                           {/* Agent Rows */}
@@ -656,15 +698,17 @@ export default function ProductivityQcPage() {
                             const p3sisa = ag.peak3Target - ag.peak3Realization;
                             return (
                               <TableRow key={aIdx}>
-                                <TableCell className="text-center">
-                                  <Checkbox 
-                                    checked={selectedApAgents.includes(ag.agent)}
-                                    onCheckedChange={(c) => {
-                                      if (c) setSelectedApAgents(prev => [...prev, ag.agent]);
-                                      else setSelectedApAgents(prev => prev.filter(x => x !== ag.agent));
-                                    }}
-                                  />
-                                </TableCell>
+                                {isSelectionMode && (
+                                  <TableCell className="text-center">
+                                    <Checkbox 
+                                      checked={selectedApAgents.includes(ag.agent)}
+                                      onCheckedChange={(c) => {
+                                        if (c) setSelectedApAgents(prev => [...prev, ag.agent]);
+                                        else setSelectedApAgents(prev => prev.filter(x => x !== ag.agent));
+                                      }}
+                                    />
+                                  </TableCell>
+                                )}
                                 <TableCell className="font-semibold text-slate-800 dark:text-slate-200 uppercase">
                                   <div className="flex items-center gap-2">
                                     {ag.agent}
