@@ -367,40 +367,66 @@ export default function ProductivityQcPage() {
 
           <TabsContent value="overview" className="flex-1 space-y-6 mt-4">
             {/* Realtime Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
           {/* Eksekutor Card */}
-          <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm flex items-center justify-between">
-            <div>
-              <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold mb-1">
-                REALTIME TAPPING EKSEKUTOR AGENT
-              </div>
-              <div className="text-slate-500 dark:text-slate-400 text-sm font-medium">80% dari jumlah target agent EKSEKUTOR</div>
+          <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-4 shadow-sm flex flex-col justify-between">
+            <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold mb-4 uppercase text-xs">
+              EKSEKUTOR AGENT
             </div>
-            <div className="text-right">
-              <div className="text-4xl font-black text-slate-900 dark:text-white">
-                {realtimeOverview.totalEksekutor || 0}
-              </div>
-              <div className="text-xs font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-lg mt-1 inline-block">
-                Target: {realtimeOverview.targetEksekutor || 0}
-              </div>
+            <div className="flex items-end justify-between">
+              <div className="text-3xl font-black text-slate-900 dark:text-white">{realtimeOverview.totalEksekutor || 0}</div>
+              <div className="text-[10px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-lg">Target: {realtimeOverview.targetEksekutor || 0}</div>
+            </div>
+          </div>
+          
+          {/* Chat Card */}
+          <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-4 shadow-sm flex flex-col justify-between">
+            <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-bold mb-4 uppercase text-xs">
+              CHAT
+            </div>
+            <div className="flex items-end justify-between">
+              <div className="text-3xl font-black text-slate-900 dark:text-white">{realtimeOverview.totalChat || 0}</div>
+            </div>
+          </div>
+
+          {/* Call Center Card */}
+          <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-4 shadow-sm flex flex-col justify-between">
+            <div className="flex items-center gap-2 text-purple-600 dark:text-purple-400 font-bold mb-4 uppercase text-xs">
+              CALL CENTER
+            </div>
+            <div className="flex items-end justify-between">
+              <div className="text-3xl font-black text-slate-900 dark:text-white">{realtimeOverview.totalCallCenter || 0}</div>
+            </div>
+          </div>
+
+          {/* Billco Card */}
+          <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-4 shadow-sm flex flex-col justify-between">
+            <div className="flex items-center gap-2 text-orange-600 dark:text-orange-400 font-bold mb-4 uppercase text-xs">
+              BILLCO
+            </div>
+            <div className="flex items-end justify-between">
+              <div className="text-3xl font-black text-slate-900 dark:text-white">{realtimeOverview.totalBillco || 0}</div>
+            </div>
+          </div>
+
+          {/* Email GS Card */}
+          <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-4 shadow-sm flex flex-col justify-between">
+            <div className="flex items-center gap-2 text-teal-600 dark:text-teal-400 font-bold mb-4 uppercase text-xs">
+              EMAIL GS
+            </div>
+            <div className="flex items-end justify-between">
+              <div className="text-3xl font-black text-slate-900 dark:text-white">{realtimeOverview.totalEmailGs || 0}</div>
             </div>
           </div>
           
           {/* All Card */}
-          <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm flex items-center justify-between">
-            <div>
-              <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold mb-1">
-                REALTIME TAPPING ALL CHANNEL/KIP
-              </div>
-              <div className="text-slate-500 dark:text-slate-400 text-sm font-medium">80% dari jumlah target ALL</div>
+          <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-4 shadow-sm flex flex-col justify-between">
+            <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold mb-4 uppercase text-xs">
+              ALL CHANNEL/KIP
             </div>
-            <div className="text-right">
-              <div className="text-4xl font-black text-slate-900 dark:text-white">
-                {realtimeOverview.totalAll || 0}
-              </div>
-              <div className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-500/10 px-2 py-1 rounded-lg mt-1 inline-block">
-                Target: {realtimeOverview.targetAll || 0}
-              </div>
+            <div className="flex items-end justify-between">
+              <div className="text-3xl font-black text-slate-900 dark:text-white">{realtimeOverview.totalAll || 0}</div>
+              <div className="text-[10px] font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-500/10 px-2 py-1 rounded-lg">Target: {realtimeOverview.targetAll || 0}</div>
             </div>
           </div>
         </div>
