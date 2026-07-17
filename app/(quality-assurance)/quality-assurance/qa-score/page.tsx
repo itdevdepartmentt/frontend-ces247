@@ -467,8 +467,8 @@ export default function QaScorePage() {
                          i === 2 ? <span className="text-2xl drop-shadow-sm filter">🥉</span> : 
                          <span className="text-slate-400 w-8 inline-block text-center">{i + 1}</span>}
                       </TableCell>
-                      <TableCell className="font-semibold text-slate-800 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{a.agent}</TableCell>
-                      <TableCell className="text-slate-500 dark:text-slate-400 font-medium">{a.teamLeader || "-"}</TableCell>
+                      <TableCell className="font-semibold text-slate-800 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors uppercase">{a.agent}</TableCell>
+                      <TableCell className="text-slate-500 dark:text-slate-400 font-medium uppercase">{a.teamLeader || "-"}</TableCell>
                       <TableCell className="text-right text-slate-600 dark:text-slate-400 font-medium">{a.sampling.toLocaleString()}</TableCell>
                       <TableCell className="text-right font-black text-lg">
                         <span className={cn(a.qaScore >= TARGET_SCORE ? "text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-blue-500" : "text-rose-500")}>
@@ -519,7 +519,7 @@ export default function QaScorePage() {
                          i === 2 ? <span className="text-2xl drop-shadow-sm filter">🥉</span> : 
                          <span className="text-slate-400 w-8 inline-block text-center">{i + 1}</span>}
                       </TableCell>
-                      <TableCell className="font-semibold text-slate-800 dark:text-slate-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">{tl.teamLeader}</TableCell>
+                      <TableCell className="font-semibold text-slate-800 dark:text-slate-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors uppercase">{tl.teamLeader}</TableCell>
                       <TableCell className="text-right text-slate-600 dark:text-slate-400 font-medium">{tl.sampling.toLocaleString()}</TableCell>
                       <TableCell className="text-right font-black text-lg">
                         <span className={cn(tl.qaScore >= TARGET_SCORE ? "text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-500" : "text-rose-500")}>
@@ -601,9 +601,9 @@ export default function QaScorePage() {
                       <TableCell className="text-center font-black text-lg">
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-500">{t.score}</span>
                       </TableCell>
-                      <TableCell className="font-semibold text-slate-800 dark:text-slate-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">{t.agent}</TableCell>
-                      <TableCell className="text-slate-500 dark:text-slate-400 font-medium">{t.teamLeader || "-"}</TableCell>
-                      <TableCell className="text-slate-500 dark:text-slate-400 font-medium">{t.tapper || "-"}</TableCell>
+                      <TableCell className="font-semibold text-slate-800 dark:text-slate-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors uppercase">{t.agent}</TableCell>
+                      <TableCell className="text-slate-500 dark:text-slate-400 font-medium uppercase">{t.teamLeader || "-"}</TableCell>
+                      <TableCell className="text-slate-500 dark:text-slate-400 font-medium uppercase">{t.tapper || "-"}</TableCell>
                       <TableCell className="text-slate-500 font-medium">{new Date(t.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}</TableCell>
                       <TableCell className="text-center text-slate-600 dark:text-slate-400 font-medium">Peak {t.peak}</TableCell>
                     </TableRow>

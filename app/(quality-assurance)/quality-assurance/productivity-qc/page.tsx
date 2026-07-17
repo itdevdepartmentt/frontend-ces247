@@ -620,7 +620,7 @@ export default function ProductivityQcPage() {
                             const p3sisa = ag.peak3Target - ag.peak3Realization;
                             return (
                               <TableRow key={aIdx}>
-                                <TableCell className="font-semibold text-slate-800 dark:text-slate-200">
+                                <TableCell className="font-semibold text-slate-800 dark:text-slate-200 uppercase">
                                   <div className="flex items-center gap-2">
                                     {ag.agent}
                                     {ag.isEksekutor && (

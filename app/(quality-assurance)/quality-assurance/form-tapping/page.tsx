@@ -355,9 +355,9 @@ export default function FormTappingPage() {
                         <TableCell className="text-slate-500">
                           {t.createdDate ? new Date(t.createdDate).toLocaleDateString() : t.createdAt ? new Date(t.createdAt).toLocaleDateString() : '-'}
                         </TableCell>
-                        <TableCell className="text-slate-700 dark:text-slate-300 font-medium">{t.tapper || '-'}</TableCell>
-                        <TableCell className="font-bold text-slate-900 dark:text-white">{t.idTiket || '-'}</TableCell>
-                        <TableCell className="text-slate-700 dark:text-slate-300 font-medium">{t.agent || '-'}</TableCell>
+                        <TableCell className="text-slate-700 dark:text-slate-300 font-medium uppercase">{t.tapper || '-'}</TableCell>
+                        <TableCell className="font-bold text-slate-900 dark:text-white uppercase">{t.idTiket || '-'}</TableCell>
+                        <TableCell className="text-slate-700 dark:text-slate-300 font-medium uppercase">{t.agent || '-'}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <span className="bg-slate-100 dark:bg-slate-800 w-6 h-6 flex items-center justify-center rounded-md text-xs font-bold text-slate-500">{t.channel ? t.channel.charAt(0) : '-'}</span>
