@@ -141,7 +141,7 @@ export default function DetailTappingPage() {
 
   const handleApproveKomitmen = async (id: string) => {
     try {
-      await api.patch(`/qa/${id}/komitmen/approve`);
+      await api.patch(`/qa/form-tapping/${id}/komitmen/approve`);
       toast.success("Berhasil menyetujui komitmen.");
       refetch();
     } catch (error) {
@@ -152,7 +152,7 @@ export default function DetailTappingPage() {
 
   const handleRejectKomitmen = async (id: string) => {
     try {
-      await api.patch(`/qa/${id}/komitmen/reject`);
+      await api.patch(`/qa/form-tapping/${id}/komitmen/reject`);
       toast.success("Berhasil menolak komitmen.");
       refetch();
     } catch (error) {
