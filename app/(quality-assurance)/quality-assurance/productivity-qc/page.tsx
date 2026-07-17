@@ -138,9 +138,9 @@ export default function ProductivityQcPage() {
         setAgentSettings(
           parsedAgents.map((pa: any) => ({
             name: pa.name,
-            peak1: pa.peak1,
-            peak2: pa.peak2,
-            peak3: pa.peak3,
+            peak1: pa.peak1 || 0,
+            peak2: pa.peak2 || 0,
+            peak3: pa.peak3 || 0,
             monthly: 0,
             tapper: pa.tapper,
             group: pa.group,
@@ -211,6 +211,47 @@ export default function ProductivityQcPage() {
   agentPerformance = sortArray(agentPerformance, apSortBy, apSortOrder);
 
   const { realtimeOverview = {} } = dashboardData || {};
+
+  const getGroupBadge = (group?: string) => {
+    if (!group) return null;
+    const g = group.toUpperCase();
+    if (g.includes('EKSEKUTOR')) {
+      return (
+        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 uppercase tracking-wider whitespace-nowrap">
+          Eksekutor
+        </span>
+      );
+    }
+    if (g.includes('CHAT')) {
+      return (
+        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400 uppercase tracking-wider whitespace-nowrap">
+          Chat
+        </span>
+      );
+    }
+    if (g.includes('CALL CENTER') || g === 'CC') {
+      return (
+        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-400 uppercase tracking-wider whitespace-nowrap">
+          Call Center
+        </span>
+      );
+    }
+    if (g.includes('BILLCO')) {
+      return (
+        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-400 uppercase tracking-wider whitespace-nowrap">
+          Billco
+        </span>
+      );
+    }
+    if (g.includes('EMAIL GS') || g.includes('EMAIL')) {
+      return (
+        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-teal-100 text-teal-700 dark:bg-teal-500/20 dark:text-teal-400 uppercase tracking-wider whitespace-nowrap">
+          Email GS
+        </span>
+      );
+    }
+    return null;
+  };
 
   return (
     <div className="h-full bg-slate-50 dark:bg-slate-950 flex flex-col overflow-hidden relative">
@@ -716,11 +757,7 @@ export default function ProductivityQcPage() {
                                 <TableCell className="font-semibold text-slate-800 dark:text-slate-200 uppercase">
                                   <div className="flex items-center gap-2">
                                     {ag.agent}
-                                    {ag.isEksekutor && (
-                                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 uppercase tracking-wider">
-                                        Eksekutor
-                                      </span>
-                                    )}
+                                    {getGroupBadge(ag.group || (ag.isEksekutor ? 'EKSEKUTOR' : undefined))}
                                   </div>
                                 </TableCell>
                                 {/* Peak 1 */}
@@ -877,11 +914,7 @@ export default function ProductivityQcPage() {
                       <TableCell className="font-medium text-slate-900 dark:text-slate-100">
                         <div className="flex items-center gap-2">
                           {ag.name}
-                          {ag.group && ag.group.toUpperCase() === 'EKSEKUTOR' && (
-                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 uppercase tracking-wider">
-                              Eksekutor
-                            </span>
-                          )}
+                          {getGroupBadge(ag.group)}
                         </div>
                       </TableCell>
                       <TableCell className="text-xs text-slate-500 dark:text-slate-400">{ag.group || '-'}</TableCell>
