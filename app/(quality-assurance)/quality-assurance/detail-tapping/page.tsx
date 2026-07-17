@@ -471,8 +471,14 @@ export default function DetailTappingPage() {
                       <div className="flex flex-col gap-2">
                         {row.komitmen ? (
                           <div className="flex flex-col gap-1">
+                            {row.komitmenStatus === 'PENDING' && row.komitmen !== '[Menunggu Approval TL]' && (
+                              <span className="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded w-fit mb-1 border border-amber-200">MENUNGGU APPROVAL TL</span>
+                            )}
+                            {row.komitmenStatus === 'APPROVED' && (
+                              <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded w-fit mb-1 border border-emerald-200">DISETUJUI</span>
+                            )}
                             {row.komitmenStatus === 'REJECTED' && user?.role === 'USER' && user?.name === row.agent && (
-                              <span className="text-[10px] font-bold text-rose-500 bg-rose-50 px-2 py-0.5 rounded w-fit mb-1">DITOLAK TL (HARAP REVISI)</span>
+                              <span className="text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded w-fit mb-1 border border-rose-200">DITOLAK TL (HARAP REVISI)</span>
                             )}
                             <p className="text-xs whitespace-pre-wrap">{row.komitmen}</p>
                           </div>
