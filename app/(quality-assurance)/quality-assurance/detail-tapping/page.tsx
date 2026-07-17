@@ -491,46 +491,43 @@ export default function DetailTappingPage() {
                             <MessageCircle className="w-3 h-3 mr-1" /> {row.komitmen ? "Edit Komitmen" : "Isi Komitmen"}
                           </Button>
                         )}
+                        {user?.role === "TL" && user?.name === row.teamLeader && row.komitmenStatus === 'PENDING' && (
+                          <div className="flex gap-2 mt-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={() => handleApproveKomitmen(row.id)} 
+                              className="h-7 px-2 text-[10px] font-bold text-emerald-600 border-emerald-200 hover:bg-emerald-50"
+                            >
+                              <Check className="w-3 h-3 mr-1" /> Approve
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={() => handleRejectKomitmen(row.id)} 
+                              className="h-7 px-2 text-[10px] font-bold text-rose-600 border-rose-200 hover:bg-rose-50"
+                            >
+                              <X className="w-3 h-3 mr-1" /> Tolak
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     </TableCell>
                     {user?.role === "TL" && (
                       <TableCell className="text-center">
-                        <div className="flex flex-col gap-2 items-center">
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            onClick={() => handleOpenRekon(row)} 
-                            disabled={row.hasPendingRekon}
-                            className="h-8 gap-2 text-xs font-semibold hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 disabled:opacity-50 w-full max-w-[130px]"
-                          >
-                            {row.hasPendingRekon ? (
-                              <><Clock className="w-3 h-3" /> Pending Rekon</>
-                            ) : (
-                              <><Scale className="w-3 h-3" /> Aksi Rekon</>
-                            )}
-                          </Button>
-                          
-                          {row.komitmenStatus === 'PENDING' && (
-                            <div className="flex flex-col gap-1 w-full max-w-[130px]">
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                onClick={() => handleApproveKomitmen(row.id)} 
-                                className="h-7 text-[10px] font-bold text-emerald-600 border-emerald-200 hover:bg-emerald-50 w-full"
-                              >
-                                <Check className="w-3 h-3 mr-1" /> Approve Komitmen
-                              </Button>
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                onClick={() => handleRejectKomitmen(row.id)} 
-                                className="h-7 text-[10px] font-bold text-rose-600 border-rose-200 hover:bg-rose-50 w-full"
-                              >
-                                <X className="w-3 h-3 mr-1" /> Tolak Komitmen
-                              </Button>
-                            </div>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => handleOpenRekon(row)} 
+                          disabled={row.hasPendingRekon}
+                          className="h-8 gap-2 text-xs font-semibold hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 disabled:opacity-50"
+                        >
+                          {row.hasPendingRekon ? (
+                            <><Clock className="w-3 h-3" /> Pending Rekon</>
+                          ) : (
+                            <><Scale className="w-3 h-3" />Rekon</>
                           )}
-                        </div>
+                        </Button>
                       </TableCell>
                     )}
                   </TableRow>
