@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Play, StopCircle, Clock, ListChecks, ArrowLeft, Loader2, Minus, Plus, User, Headset, Pencil, Check } from "lucide-react";
+import { Play, StopCircle, Clock, ListChecks, ArrowLeft, Loader2, Minus, Plus, User, Headset, Pencil, Check, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import api from "@/lib/api";
