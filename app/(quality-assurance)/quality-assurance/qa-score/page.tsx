@@ -298,45 +298,36 @@ export default function QaScorePage() {
 
       {/* Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-2xl border border-slate-100/50 dark:border-slate-800/50 rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden group transition-all duration-500 hover:shadow-[0_8px_40px_rgb(99,102,241,0.12)] hover:-translate-y-1">
-          <div className="absolute top-0 right-0 w-40 h-40 bg-indigo-500/20 rounded-full blur-3xl -mr-10 -mt-10 transition-transform duration-700 group-hover:scale-150 group-hover:bg-indigo-500/30" />
-          <div className="flex justify-between items-start relative z-10">
-            <div>
-              <p className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Total Sampling</p>
-              <h4 className="text-5xl font-black text-slate-800 dark:text-white tracking-tighter drop-shadow-sm">{totalSampling.toLocaleString()}</h4>
-            </div>
-            <div className="w-14 h-14 rounded-2xl bg-indigo-50/80 dark:bg-indigo-500/10 backdrop-blur-md border border-indigo-100/50 dark:border-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shadow-inner group-hover:rotate-6 transition-transform duration-300">
-              <Users className="w-7 h-7" />
-            </div>
+        <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex justify-between items-center group">
+          <div>
+            <p className="text-[13px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Total Sampling</p>
+            <h4 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">{totalSampling.toLocaleString()}</h4>
+          </div>
+          <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100/50 dark:border-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform duration-300">
+            <Users className="w-6 h-6" />
           </div>
         </div>
 
-        <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-2xl border border-slate-100/50 dark:border-slate-800/50 rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden group transition-all duration-500 hover:shadow-[0_8px_40px_rgb(16,185,129,0.12)] hover:-translate-y-1">
-          <div className="absolute top-0 right-0 w-40 h-40 bg-emerald-500/20 rounded-full blur-3xl -mr-10 -mt-10 transition-transform duration-700 group-hover:scale-150 group-hover:bg-emerald-500/30" />
-          <div className="flex justify-between items-start relative z-10">
-            <div>
-              <p className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Overall Score</p>
-              <div className="flex items-baseline gap-2">
-                <h4 className="text-5xl font-black text-slate-800 dark:text-white tracking-tighter drop-shadow-sm">{overallAvg}</h4>
-                <span className="text-sm font-bold text-emerald-500">/ 100</span>
-              </div>
+        <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex justify-between items-center group">
+          <div>
+            <p className="text-[13px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Overall Score</p>
+            <div className="flex items-baseline gap-1.5">
+              <h4 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">{overallAvg}</h4>
+              <span className="text-sm font-bold text-slate-400">/ 100</span>
             </div>
-            <div className="w-14 h-14 rounded-2xl bg-emerald-50/80 dark:bg-emerald-500/10 backdrop-blur-md border border-emerald-100/50 dark:border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-inner group-hover:rotate-6 transition-transform duration-300">
-              <Award className="w-7 h-7" />
-            </div>
+          </div>
+          <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100/50 dark:border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform duration-300">
+            <Award className="w-6 h-6" />
           </div>
         </div>
 
-        <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-2xl border border-slate-100/50 dark:border-slate-800/50 rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden group transition-all duration-500 hover:shadow-[0_8px_40px_rgb(244,63,94,0.12)] hover:-translate-y-1">
-          <div className="absolute top-0 right-0 w-40 h-40 bg-rose-500/20 rounded-full blur-3xl -mr-10 -mt-10 transition-transform duration-700 group-hover:scale-150 group-hover:bg-rose-500/30" />
-          <div className="flex justify-between items-start relative z-10">
-            <div>
-              <p className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Total NC</p>
-              <h4 className="text-5xl font-black text-rose-600 dark:text-rose-400 tracking-tighter drop-shadow-sm">{ncDetails.length}</h4>
-            </div>
-            <div className="w-14 h-14 rounded-2xl bg-rose-50/80 dark:bg-rose-500/10 backdrop-blur-md border border-rose-100/50 dark:border-rose-500/20 flex items-center justify-center text-rose-600 dark:text-rose-400 shadow-inner group-hover:-rotate-6 transition-transform duration-300">
-              <AlertTriangle className="w-7 h-7" />
-            </div>
+        <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex justify-between items-center group">
+          <div>
+            <p className="text-[13px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Total NC</p>
+            <h4 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">{ncDetails.length}</h4>
+          </div>
+          <div className="w-12 h-12 rounded-xl bg-rose-50 dark:bg-rose-500/10 border border-rose-100/50 dark:border-rose-500/20 flex items-center justify-center text-rose-600 dark:text-rose-400 group-hover:scale-110 transition-transform duration-300">
+            <AlertTriangle className="w-6 h-6" />
           </div>
         </div>
       </div>
