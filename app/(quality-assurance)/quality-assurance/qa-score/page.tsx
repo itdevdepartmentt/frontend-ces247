@@ -572,7 +572,7 @@ export default function QaScorePage() {
       <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm mb-8">
         <h3 className="text-sm font-bold text-rose-500 dark:text-rose-400 uppercase tracking-widest flex items-center gap-2 mb-6">
           <AlertTriangle className="w-4 h-4" />
-          Top 3 Parameter KIP 3 (NC)
+          Top 5 Parameter KIP 3 (NC)
         </h3>
         <div className="overflow-auto max-h-[320px] rounded-xl border border-slate-200/60 dark:border-slate-700/60">
           <Table>
