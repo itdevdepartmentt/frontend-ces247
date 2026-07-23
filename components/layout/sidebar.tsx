@@ -41,12 +41,25 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ModeToggle } from "../ui-mode-toggle";
 import Image from "next/image";
+import { useNotifications } from "@/hooks/use-notifications";
+import dynamic from "next/dynamic";
+
+const ActivityFeed = dynamic(
+  () => import("@/components/news/ActivityFeed").then((m) => ({ default: m.ActivityFeed })),
+  { ssr: false }
+);
 
 export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { pendingRekon, pendingKomitmen } = useNotifications();
+
+  // Map href -> badge count for sidebar
+  const badgeCounts: Record<string, number> = {
+    "/quality-assurance/reconciliation": pendingRekon,
+  };
 
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
@@ -129,12 +142,7 @@ export function Sidebar() {
       icon: DatabaseZap,
       roles: ["ADMIN", "QC", "TL_QC", "TL"],
     },
-    {
-      title: "Survey Management",
-      href: "/survey-management",
-      icon: ClipboardList,
-      roles: ["ADMIN", "USER", "QC", "TL_QC", "TL"],
-    },
+
     {
       title: "Quality Assurance",
       href: "#",
@@ -158,25 +166,26 @@ export function Sidebar() {
   };
 
   return (
-    <TooltipProvider delayDuration={0}>
-      <div
-        className={cn(
-          // --- Base Styles ---
-          "flex flex-col justify-between bg-gray-50/95 backdrop-blur supports-[backdrop-filter]:bg-gray-50/60 dark:bg-gray-900/95 border-gray-200 dark:border-gray-800 transition-all duration-300 ease-in-out z-50 overflow-hidden",
-
-          // --- Mobile Styles (Default) ---
-          // Position: Fixed at top
-          "fixed top-0 left-0 right-0 w-full border-b",
-          // Height: toggles between slim header (16) and full screen (screen)
-          isCollapsed ? "h-16" : "h-screen bottom-0",
-
-          // --- Desktop Styles (md:) ---
-          // Position: Relative (pushes content), Vertical, Full Height
-          "md:relative md:h-screen md:border-r md:border-b-0 md:bottom-auto",
-          // Width: toggles between 16 (icon only) and 64 (expanded)
-          isCollapsed ? "md:w-16" : "md:w-64",
-        )}
-      >
+    <>
+      <TooltipProvider delayDuration={0}>
+        <div
+          className={cn(
+            // --- Base Styles ---
+            "flex flex-col justify-between bg-gray-50/95 backdrop-blur supports-[backdrop-filter]:bg-gray-50/60 dark:bg-gray-900/95 border-gray-200 dark:border-gray-800 transition-all duration-300 ease-in-out z-50 overflow-hidden",
+  
+            // --- Mobile Styles (Default) ---
+            // Position: Fixed at top
+            "fixed top-0 left-0 right-0 w-full border-b",
+            // Height: toggles between slim header (16) and full screen (screen)
+            isCollapsed ? "h-16" : "h-screen bottom-0",
+  
+            // --- Desktop Styles (md:) ---
+            // Position: Relative (pushes content), Vertical, Full Height
+            "md:relative md:h-screen md:border-r md:border-b-0 md:bottom-auto",
+            // Width: toggles between 16 (icon only) and 64 (expanded)
+            isCollapsed ? "md:w-16" : "md:w-64",
+          )}
+        >
         {/* Top Section: Toggle & Nav */}
         <div className="flex flex-col">
           {/* Header / Logo Area */}
@@ -261,6 +270,11 @@ export function Sidebar() {
               const isOpen = openMenus[link.title] !== undefined ? openMenus[link.title] : isActive;
               
               // Render Icon-only Tooltip (Desktop Collapsed)
+              // Calculate total badge for this link's subItems
+              const linkBadge = link.subItems
+                ? link.subItems.reduce((sum, sub) => sum + (badgeCounts[sub.href] || 0), 0)
+                : (badgeCounts[link.href] || 0);
+
               if (isCollapsed && !isMobile) {
                 return hasSubItems ? (
                   <DropdownMenu key={link.title}>
@@ -269,13 +283,16 @@ export function Sidebar() {
                         <DropdownMenuTrigger asChild>
                           <button
                             className={cn(
-                              "flex h-9 w-9 items-center justify-center rounded-md transition-colors hover:bg-accent hover:text-accent-foreground mx-auto",
+                              "relative flex h-9 w-9 items-center justify-center rounded-md transition-colors hover:bg-accent hover:text-accent-foreground mx-auto",
                               isActive
                                 ? "bg-accent text-accent-foreground"
                                 : "text-muted-foreground",
                             )}
                           >
                             <Icon className="h-4 w-4" />
+                            {linkBadge > 0 && (
+                              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-rose-500 rounded-full" />
+                            )}
                             <span className="sr-only">{link.title}</span>
                           </button>
                         </DropdownMenuTrigger>
@@ -286,13 +303,21 @@ export function Sidebar() {
                     </Tooltip>
                     
                     <DropdownMenuContent side="right" align="start" className="w-48 ml-2">
-                      {subItems.map((sub) => (
-                        <DropdownMenuItem key={sub.title} asChild>
-                          <Link href={sub.href} className="w-full cursor-pointer">
-                            {sub.title}
-                          </Link>
-                        </DropdownMenuItem>
-                      ))}
+                      {subItems.map((sub) => {
+                        const subBadge = badgeCounts[sub.href] || 0;
+                        return (
+                          <DropdownMenuItem key={sub.title} asChild>
+                            <Link href={sub.href} className="w-full cursor-pointer flex items-center justify-between">
+                              <span>{sub.title}</span>
+                              {subBadge > 0 && (
+                                <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-black bg-rose-500 text-white rounded-full">
+                                  {subBadge > 99 ? '99+' : subBadge}
+                                </span>
+                              )}
+                            </Link>
+                          </DropdownMenuItem>
+                        );
+                      })}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 ) : (
@@ -362,21 +387,29 @@ export function Sidebar() {
                       )}
                     >
                       <div className="flex flex-col space-y-1 ml-6 border-l pl-2 border-border/50 py-1">
-                        {subItems.map((subItem) => (
-                           <Link
-                             key={subItem.href}
-                             href={subItem.href}
-                             className={cn(
-                               "flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-all duration-200",
-                               pathname === subItem.href
-                                 ? "bg-accent text-accent-foreground shadow-sm"
-                                 : "text-muted-foreground",
-                             )}
-                             onClick={() => isMobile && setIsCollapsed(true)}
-                           >
-                             {subItem.title}
-                           </Link>
-                        ))}
+                         {subItems.map((subItem) => {
+                           const badge = badgeCounts[subItem.href] || 0;
+                           return (
+                             <Link
+                               key={subItem.href}
+                               href={subItem.href}
+                               className={cn(
+                                 "flex items-center justify-between rounded-md px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-all duration-200",
+                                 pathname === subItem.href
+                                   ? "bg-accent text-accent-foreground shadow-sm"
+                                   : "text-muted-foreground",
+                               )}
+                               onClick={() => isMobile && setIsCollapsed(true)}
+                             >
+                               <span>{subItem.title}</span>
+                               {badge > 0 && (
+                                 <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-black bg-rose-500 text-white rounded-full animate-pulse shadow-sm">
+                                   {badge > 99 ? '99+' : badge}
+                                 </span>
+                               )}
+                             </Link>
+                           );
+                         })}
                       </div>
                     </div>
                   )}
@@ -426,6 +459,14 @@ export function Sidebar() {
           )}
         </div>
       </div>
-    </TooltipProvider>
+      </TooltipProvider>
+
+      {/* Global Bell Notification (Fixed top right) */}
+      {user && (
+        <div className="fixed top-3 right-6 z-50">
+          <ActivityFeed />
+        </div>
+      )}
+    </>
   );
 }

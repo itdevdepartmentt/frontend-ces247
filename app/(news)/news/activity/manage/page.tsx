@@ -1,17 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { formatDistanceToNow } from "date-fns";
 import { id as localeId } from "date-fns/locale";
 import { useMyActivity, ActivityFilter } from "@/hooks/use-my-activity";
-import { ArrowLeft, Bookmark, MessageCircle, Heart, BellRing, Activity } from "lucide-react";
+import { useAppNotifications } from "@/hooks/use-app-notifications";
+import { ArrowLeft, Bookmark, MessageCircle, Heart, BellRing, Activity, ClipboardCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const TABS: { id: ActivityFilter; label: string; icon: React.ElementType }[] = [
+type CombinedTabFilter = ActivityFilter | "QA";
+
+const TABS: { id: CombinedTabFilter; label: string; icon: React.ElementType }[] = [
   { id: "ALL", label: "Semua", icon: Activity },
+  { id: "QA", label: "Quality Assurance", icon: ClipboardCheck },
   { id: "BOOKMARKS", label: "Bookmarks", icon: Bookmark },
   { id: "COMMENTS", label: "Komentar", icon: MessageCircle },
   { id: "LIKES", label: "Disukai", icon: Heart },
@@ -19,10 +23,36 @@ const TABS: { id: ActivityFilter; label: string; icon: React.ElementType }[] = [
 
 export default function ManageActivityPage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<ActivityFilter>("ALL");
-  const { activities, isLoading } = useMyActivity(activeTab);
+  const [activeTab, setActiveTab] = useState<CombinedTabFilter>("ALL");
+  
+  // Only pass standard ActivityFilter to useMyActivity (fallback to ALL if QA is selected)
+  const queryFilter: ActivityFilter = activeTab === "QA" ? "ALL" : activeTab;
+  const { activities: newsActivities, isLoading: isNewsLoading } = useMyActivity(queryFilter);
+  
+  const { notifications: appNotifs, isLoading: isAppNotifsLoading, markAsRead } = useAppNotifications();
 
-  const getActivityIcon = (type: string) => {
+  const isLoading = isNewsLoading || isAppNotifsLoading;
+
+  // Combine data
+  const combinedActivities = useMemo(() => {
+    let list: any[] = [];
+    
+    if (activeTab !== "QA") {
+      list = [...list, ...newsActivities.map((a: any) => ({ ...a, source: 'news' }))];
+    }
+    
+    if (activeTab === "ALL" || activeTab === "QA") {
+      list = [...list, ...appNotifs.map((a: any) => ({ ...a, source: 'app' }))];
+    }
+    
+    return list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }, [activeTab, newsActivities, appNotifs]);
+
+  const getActivityIcon = (type: string, source: 'news'|'app') => {
+    if (source === 'app') {
+      if (type.startsWith('QA_')) return <ClipboardCheck className="h-4 w-4 text-indigo-500" />;
+      return <BellRing className="h-4 w-4" />;
+    }
     switch (type) {
       case "COMMENT":
       case "REPLY":
@@ -37,6 +67,18 @@ export default function ManageActivityPage() {
   };
 
   const getActivityText = (activity: any) => {
+    if (activity.source === 'app') {
+      return (
+        <>
+          <span className="font-semibold text-slate-800 dark:text-slate-200">
+            {activity.title}
+          </span>
+          <br />
+          {activity.message}
+        </>
+      );
+    }
+
     const title = activity.newsTitle.length > 50 ? activity.newsTitle.slice(0, 50) + "..." : activity.newsTitle;
 
     switch (activity.type) {
@@ -53,8 +95,17 @@ export default function ManageActivityPage() {
     }
   };
 
-  const handleActivityClick = (activity: any) => {
-    router.push(`/news/${activity.newsId}`);
+  const handleActivityClick = async (activity: any) => {
+    if (activity.source === 'app') {
+      if (!activity.isRead) {
+        await markAsRead(activity.id);
+      }
+      if (activity.link) {
+        router.push(activity.link);
+      }
+    } else {
+      router.push(`/news/${activity.newsId}`);
+    }
   };
 
   return (
@@ -134,10 +185,12 @@ export default function ManageActivityPage() {
               </div>
             ))}
           </div>
-        ) : activities.length === 0 ? (
+        ) : combinedActivities.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-[400px] text-center px-6">
             <div className="h-16 w-16 rounded-full bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center mb-4">
-              {activeTab === "BOOKMARKS" ? (
+              {activeTab === "QA" ? (
+                <ClipboardCheck className="h-8 w-8 text-indigo-300 dark:text-indigo-500/50" />
+              ) : activeTab === "BOOKMARKS" ? (
                 <Bookmark className="h-8 w-8 text-indigo-300 dark:text-indigo-500/50" />
               ) : activeTab === "COMMENTS" ? (
                 <MessageCircle className="h-8 w-8 text-indigo-300 dark:text-indigo-500/50" />
@@ -158,15 +211,16 @@ export default function ManageActivityPage() {
           </div>
         ) : (
           <div className="divide-y divide-slate-100 dark:divide-slate-800/60">
-            {activities.map((activity) => (
+            {combinedActivities.map((activity) => (
               <button
-                key={activity.id}
+                key={`${activity.source}-${activity.id}`}
                 onClick={() => handleActivityClick(activity)}
-                className="w-full flex items-start gap-4 p-5 text-left hover:bg-slate-50 dark:hover:bg-slate-900/40 transition-colors group cursor-pointer"
+                className="w-full text-left p-6 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors flex items-start gap-4 group cursor-pointer"
               >
-                {/* Icon */}
-                <div className="flex-shrink-0 mt-0.5 h-10 w-10 rounded-full flex items-center justify-center bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 group-hover:scale-110 transition-transform">
-                  {getActivityIcon(activity.type)}
+                <div className="flex-shrink-0 mt-0.5">
+                  <div className="h-10 w-10 rounded-full bg-slate-100 dark:bg-slate-800/80 flex items-center justify-center text-slate-500 dark:text-slate-400 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-500/20 group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors">
+                    {getActivityIcon(activity.type, activity.source)}
+                  </div>
                 </div>
 
                 {/* Content */}

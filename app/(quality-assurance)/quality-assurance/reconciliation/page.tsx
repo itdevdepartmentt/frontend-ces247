@@ -13,9 +13,9 @@ import {
 import { cn } from "@/lib/utils";
 import api from "@/lib/api";
 import { useAuth } from "@/hooks/use-auth";
-import {
-  FileText, CheckCircle2, XCircle, Clock, Search, ExternalLink, ShieldCheck, ChevronRight, MessageSquare, Copy, ChevronLeft, Trash2
-} from "lucide-react";
+import { Check, Search, Download, Filter, Eye, AlertTriangle, MessageSquare, ListTodo, FileText, ChevronRight, Copy, CheckCircle2, XCircle, Clock, ShieldCheck, ChevronLeft, Trash2 } from "lucide-react";
+import { TableSkeleton } from "@/components/ui/table-skeleton";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import {
@@ -131,8 +131,8 @@ export default function QaReconciliationPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full min-h-[500px]">
-        <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
+      <div className="p-6 md:p-8 space-y-6">
+        <TableSkeleton columns={8} rows={10} />
       </div>
     );
   }
@@ -198,16 +198,18 @@ export default function QaReconciliationPage() {
               {data.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={14} className="h-[300px]">
-                    <div className="flex flex-col items-center justify-center text-center h-full">
-                      <ShieldCheck className="w-8 h-8 text-slate-300 dark:text-slate-600 mb-4" />
-                      <h3 className="text-lg font-bold text-slate-700 dark:text-slate-300 mb-2">Belum ada Rekonsiliasi</h3>
-                      <p className="text-sm text-slate-500">Belum ada pengajuan rekon yang dibuat atau diterima.</p>
+                    <div className="flex flex-col items-center justify-center text-center h-full gap-3">
+                      <div className="w-16 h-16 rounded-full bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center mb-2">
+                        <ShieldCheck className="w-8 h-8 text-slate-300 dark:text-slate-500" />
+                      </div>
+                      <h3 className="text-lg font-bold text-slate-700 dark:text-slate-300">Belum ada Rekonsiliasi</h3>
+                      <p className="text-sm text-slate-500">Tidak ada data rekonsiliasi yang sesuai dengan filter Anda.</p>
                     </div>
                   </TableCell>
                 </TableRow>
               ) : (
                 paginatedData.map((row: any, i: number) => (
-                  <TableRow key={row.id} className="transition-colors border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50/80 dark:hover:bg-slate-800/50">
+                  <TableRow key={row.id} className="transition-all duration-300 border-b border-slate-100 dark:border-slate-800/50 hover:bg-indigo-50/40 dark:hover:bg-indigo-900/20 hover:shadow-[inset_3px_0_0_0_rgba(99,102,241,0.8)] cursor-default">
                     <TableCell className="text-slate-400 font-medium text-xs text-center w-10">
                       {(page - 1) * itemsPerPage + i + 1}
                     </TableCell>
@@ -225,19 +227,32 @@ export default function QaReconciliationPage() {
                     <TableCell className="text-slate-500 min-w-[200px] max-w-[300px]">
                       {row.reason ? (
                         <div className="flex items-start justify-between gap-2">
-                          <p className="line-clamp-3 whitespace-pre-wrap break-words text-xs">{row.reason}</p>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-6 w-6 shrink-0 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
-                            onClick={() => {
-                              navigator.clipboard.writeText(row.reason);
-                              toast.success("Reason disalin ke clipboard!");
-                            }}
-                            title="Copy full reason"
-                          >
-                            <Copy className="w-3.5 h-3.5" />
-                          </Button>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <p className="line-clamp-3 whitespace-pre-wrap break-words text-xs cursor-help">{row.reason}</p>
+                            </TooltipTrigger>
+                            <TooltipContent className="max-w-[400px] max-h-[300px] overflow-auto z-[100]" side="bottom" align="start">
+                              <p className="whitespace-pre-wrap text-sm">{row.reason}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-6 w-6 shrink-0 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(row.reason);
+                                  toast.success("Reason disalin ke clipboard!");
+                                }}
+                              >
+                                <Copy className="w-3.5 h-3.5" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Salin teks</p>
+                            </TooltipContent>
+                          </Tooltip>
                         </div>
                       ) : "-"}
                     </TableCell>
@@ -268,19 +283,32 @@ export default function QaReconciliationPage() {
                     <TableCell className="text-slate-500 min-w-[300px] max-w-[400px]">
                       {row.qcResponseNotes ? (
                         <div className="flex items-start justify-between gap-2">
-                          <p className="line-clamp-3 whitespace-pre-wrap break-words text-xs">{row.qcResponseNotes}</p>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-6 w-6 shrink-0 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
-                            onClick={() => {
-                              navigator.clipboard.writeText(row.qcResponseNotes);
-                              toast.success("Notes disalin ke clipboard!");
-                            }}
-                            title="Copy full notes"
-                          >
-                            <Copy className="w-3.5 h-3.5" />
-                          </Button>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <p className="line-clamp-3 whitespace-pre-wrap break-words text-xs cursor-help">{row.qcResponseNotes}</p>
+                            </TooltipTrigger>
+                            <TooltipContent className="max-w-[400px] max-h-[300px] overflow-auto z-[100]" side="bottom" align="start">
+                              <p className="whitespace-pre-wrap text-sm">{row.qcResponseNotes}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-6 w-6 shrink-0 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(row.qcResponseNotes);
+                                  toast.success("Response disalin ke clipboard!");
+                                }}
+                              >
+                                <Copy className="w-3.5 h-3.5" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Salin teks</p>
+                            </TooltipContent>
+                          </Tooltip>
                         </div>
                       ) : "-"}
                     </TableCell>
@@ -341,34 +369,65 @@ export default function QaReconciliationPage() {
               Tinjau pengajuan rekon dari <strong className="text-slate-900 dark:text-white">{currentRekon?.tlName}</strong>.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto">
-            <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800 shrink-0">
-              <div className="text-xs font-bold text-slate-500 mb-1">ALASAN TL:</div>
-              <div className="text-sm font-medium text-slate-700 dark:text-slate-300">
+          <div className="grid gap-4 py-4 max-h-[65vh] overflow-y-auto pr-2 custom-scrollbar">
+            <div className="bg-amber-50 dark:bg-amber-950/30 p-4 rounded-xl border border-amber-200 dark:border-amber-800/30 shrink-0">
+              <div className="text-xs font-bold text-amber-600 dark:text-amber-500 mb-1 flex items-center gap-1">
+                <AlertTriangle className="w-3.5 h-3.5" /> ALASAN BANDING (TL):
+              </div>
+              <div className="text-sm font-medium text-slate-700 dark:text-slate-300 whitespace-pre-wrap">
                 {currentRekon?.reason}
               </div>
             </div>
             
             <div className="grid gap-2 mt-2">
-              <Label className="font-semibold text-slate-700 dark:text-slate-300">Catatan Rekon</Label>
-              {currentRekon?.discussions?.length > 0 && (
-                <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 flex flex-col gap-2 max-h-[200px] overflow-y-auto">
-                  {currentRekon.discussions.map((msg: any, i: number) => (
-                    <div key={i} className="text-sm">
-                      <span className="font-bold text-slate-800 dark:text-slate-200">{msg.name} ({msg.sender}): </span>
-                      <span className="text-slate-600 dark:text-slate-400">{msg.message}</span>
-                    </div>
-                  ))}
+              <Label className="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                <MessageSquare className="w-4 h-4" /> Diskusi
+              </Label>
+              {currentRekon?.discussions?.length > 0 ? (
+                <div className="bg-slate-50/50 dark:bg-slate-900/30 border border-slate-200 dark:border-slate-800 rounded-xl p-4 flex flex-col gap-3 max-h-[250px] overflow-y-auto custom-scrollbar">
+                  {currentRekon.discussions.map((msg: any, i: number) => {
+                    const isMe = msg.name === user?.name;
+                    return (
+                      <div key={i} className={`flex flex-col w-full ${isMe ? 'items-end' : 'items-start'}`}>
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <span className="text-[10px] font-bold text-slate-500">{msg.name}</span>
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-md">{msg.sender}</span>
+                          <span className="text-[9px] text-slate-400">
+                            {msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' }) : ''}
+                          </span>
+                        </div>
+                        <div className={`text-sm px-3 py-2 rounded-2xl max-w-[85%] whitespace-pre-wrap ${
+                          isMe 
+                            ? 'bg-indigo-600 text-white rounded-tr-sm' 
+                            : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-tl-sm'
+                        }`}>
+                          {msg.message}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 border-dashed dark:border-slate-800 rounded-xl p-4 flex flex-col items-center justify-center text-slate-400 gap-2">
+                  <MessageSquare className="w-6 h-6 opacity-50" />
+                  <span className="text-sm">Belum ada diskusi</span>
                 </div>
               )}
               
               <Textarea
                 id="qcNotes"
-                placeholder="Tambahkan catatan rekon di sini..."
+                placeholder="Ketik pesan balasan di sini..."
                 value={qcNotes}
                 onChange={e => setQcNotes(e.target.value)}
-                className="min-h-[80px] resize-none mt-2"
+                className="min-h-[80px] resize-none mt-2 focus-visible:ring-indigo-500"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (qcNotes.trim() && !isSubmitting) handleReply();
+                  }
+                }}
               />
+              <p className="text-[10px] text-slate-400 text-right">Tekan Enter untuk mengirim, Shift+Enter untuk baris baru.</p>
             </div>
           </div>
           <DialogFooter className="flex flex-col sm:flex-row items-center sm:justify-between w-full gap-2">
@@ -377,7 +436,7 @@ export default function QaReconciliationPage() {
                 Kirim Catatan
               </Button>
             </div>
-            {(user?.role === "QC" || user?.role === "ADMIN" || user?.role === "TL_QC") && (
+            {(user?.role === "QC" || user?.role === "ADMIN" || user?.role === "TL_QC" || (user?.role === "TL" && user?.name !== currentRekon?.tlName)) && (
               <div className="flex gap-2 w-full sm:w-auto justify-end">
                 {currentRekon?.status !== 'REJECTED' && (
                   <Button variant="outline" onClick={() => handleAction('reject')} disabled={isSubmitting} className="rounded-xl border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700">Tolak Rekon</Button>

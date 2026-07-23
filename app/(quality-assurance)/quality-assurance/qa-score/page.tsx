@@ -1,7 +1,7 @@
 "use client";
-
-import React, { useState, useRef } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   ResponsiveContainer, ReferenceLine, Cell,
@@ -16,7 +16,9 @@ import {
 import { cn } from "@/lib/utils";
 import api from "@/lib/api";
 import { Input } from "@/components/ui/input";
-import { TrendingUp, Users, Award, AlertTriangle, Target, ChevronLeft, ChevronRight, Download, UploadCloud, Loader2, Copy, MessageCircle, Edit3, ShieldCheck, Search } from "lucide-react";
+import { TrendingUp, Users, Award, AlertTriangle, Target, ChevronLeft, ChevronRight, Loader2, Copy, MessageCircle, Edit3, ShieldCheck, Search, Inbox, UserX } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tooltip as UiTooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
@@ -52,15 +54,19 @@ const PARAM_COLORS = [
 const TARGET_SCORE = 97;
 
 export default function QaScorePage() {
+  const router = useRouter();
   const [year, setYear] = useState<string>(new Date().getFullYear().toString());
   const [month, setMonth] = useState<string>("");
   const [agent, setAgent] = useState<string>("");
+  const [teamLeader, setTeamLeader] = useState<string>("");
   const [peak, setPeak] = useState<string>("");
+
+  const { user } = useAuth();
+  const canSeeTapper = user?.role === "QC" || user?.role === "TL_QC";
   const [ncPage, setNcPage] = useState(1);
   const [ncPerPage, setNcPerPage] = useState(10);
   const [ncSearch, setNcSearch] = useState("");
   const [nonNcSearch, setNonNcSearch] = useState("");
-  const { user } = useAuth();
 
   const [komitmenOpen, setKomitmenOpen] = useState(false);
   const [komitmenText, setKomitmenText] = useState("");
@@ -91,55 +97,6 @@ export default function QaScorePage() {
   };
 
   const queryClient = useQueryClient();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isUploading, setIsUploading] = useState(false);
-
-  const downloadTemplate = async () => {
-    try {
-      const res = await api.get("/qa/form-tapping/history/export-template", { responseType: 'blob' });
-      const url = window.URL.createObjectURL(new Blob([res.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `Template_History_Tapping.csv`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    } catch (error) {
-      console.error(error);
-      toast.error("Gagal mendownload template");
-    }
-  };
-
-  const uploadMutation = useMutation({
-    mutationFn: async (file: File) => {
-      const formData = new FormData();
-      formData.append("file", file);
-      const res = await api.post("/qa/form-tapping/history/upload", formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      return res.data;
-    },
-    onSuccess: (data) => {
-      toast.success(data.message || "File berhasil diunggah");
-      queryClient.invalidateQueries({ queryKey: ["qa-score-dashboard"] });
-      queryClient.invalidateQueries({ queryKey: ["qa-detail-tapping-options"] });
-    },
-    onError: (error: any) => {
-      const errMsg = error.response?.data?.message || "Gagal mengunggah file";
-      toast.error(errMsg);
-    },
-    onSettled: () => {
-      setIsUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    }
-  });
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setIsUploading(true);
-    uploadMutation.mutate(file);
-  };
 
   // Fetch filter options
   const { data: filterOptions } = useQuery({
@@ -152,12 +109,13 @@ export default function QaScorePage() {
 
   // Fetch dashboard data
   const { data: dashboardData, isLoading } = useQuery({
-    queryKey: ["qa-score-dashboard", year, month, agent, peak],
+    queryKey: ["qa-score-dashboard", year, month, agent, peak, teamLeader],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (year) params.set("year", year);
       if (month) params.set("month", month);
       if (agent) params.set("agent", agent);
+      if (teamLeader) params.set("teamLeader", teamLeader);
       if (peak) params.set("peak", peak);
       const res = await api.get(`/qa/form-tapping/qa-score?${params.toString()}`);
       return res.data;
@@ -169,6 +127,7 @@ export default function QaScorePage() {
   let teamLeaderRanking = [...(dashboardData?.teamLeaderRanking || [])];
   let ncDetails = [...(dashboardData?.ncDetails || [])];
   const nonNcDetails = [...(dashboardData?.nonNcDetails || [])];
+  const topKipNc = dashboardData?.topKipNc || [];
 
   const parameterAchievement = dashboardData?.parameterAchievement || [];
   const totalSampling = dashboardData?.totalSampling || 0;
@@ -181,6 +140,8 @@ export default function QaScorePage() {
   const [ncSortOrder, setNcSortOrder] = useState<"asc" | "desc">("desc");
   const [nonNcSortBy, setNonNcSortBy] = useState("qaScore");
   const [nonNcSortOrder, setNonNcSortOrder] = useState<"asc" | "desc">("desc");
+  const [nonNcPage, setNonNcPage] = useState(1);
+  const [nonNcItemsPerPage, setNonNcItemsPerPage] = useState(10);
 
   const sortArray = (arr: any[], key?: string, order?: "asc" | "desc") => {
     if (!key) return arr;
@@ -230,10 +191,20 @@ export default function QaScorePage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full min-h-[500px]">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
-          <p className="text-slate-500 font-medium">Loading QA Score data...</p>
+      <div className="p-6 md:p-8 space-y-6">
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-8 w-48 bg-slate-200 dark:bg-slate-700" />
+          <Skeleton className="h-10 w-64 bg-slate-200 dark:bg-slate-700" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} className="h-32 w-full rounded-3xl bg-slate-200 dark:bg-slate-700" />
+          ))}
+        </div>
+        <Skeleton className="h-[300px] w-full rounded-2xl bg-slate-200 dark:bg-slate-700" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Skeleton className="h-[400px] w-full rounded-2xl bg-slate-200 dark:bg-slate-700" />
+          <Skeleton className="h-[400px] w-full rounded-2xl bg-slate-200 dark:bg-slate-700" />
         </div>
       </div>
     );
@@ -305,41 +276,19 @@ export default function QaScorePage() {
           </SelectContent>
         </Select>
 
-        <div className="ml-auto flex items-center gap-4 flex-wrap">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="h-10 rounded-xl gap-2 font-medium"
-            onClick={downloadTemplate}
-          >
-            <Download className="w-4 h-4" />
-            <span className="hidden sm:inline">Export Template</span>
-          </Button>
-          
-          <input 
-            type="file" 
-            ref={fileInputRef} 
-            className="hidden" 
-            accept=".csv"
-            onChange={handleFileUpload} 
-          />
-          <Button 
-            variant="default" 
-            size="sm" 
-            className="h-10 rounded-xl gap-2 font-medium bg-indigo-600 hover:bg-indigo-700 text-white"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isUploading}
-          >
-            {isUploading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <UploadCloud className="w-4 h-4" />
-            )}
-            <span className="hidden sm:inline">
-              {isUploading ? "Uploading..." : "Import History"}
-            </span>
-          </Button>
+        <Select value={teamLeader || "all"} onValueChange={(v) => { setTeamLeader(v === "all" ? "" : v); setNcPage(1); }}>
+          <SelectTrigger className="w-[180px] h-10 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-medium">
+            <SelectValue placeholder="All Team Leader" />
+          </SelectTrigger>
+          <SelectContent className="rounded-xl max-h-[300px]">
+            <SelectItem value="all">All Team Leader</SelectItem>
+            {(filterOptions?.teamLeaders || []).map((a: string) => (
+              <SelectItem key={a} value={a}>{a}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
+        <div className="ml-auto flex items-center gap-4 flex-wrap">
           <div className="flex items-center gap-2 bg-indigo-50/50 dark:bg-indigo-900/20 px-4 py-2 rounded-xl border border-indigo-100/50 dark:border-indigo-800/30">
             <Target className="w-4 h-4 text-indigo-500" />
             <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">Target: {TARGET_SCORE}</span>
@@ -433,188 +382,6 @@ export default function QaScorePage() {
         )}
       </div>
 
-      {/* Rankings */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Agent Ranking Table */}
-        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm">
-          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-widest mb-6 flex items-center gap-2">
-            <Award className="w-4 h-4 text-amber-500" />
-            Agent Ranking
-          </h3>
-          <div className="overflow-auto max-h-[400px]">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-b border-slate-100 dark:border-slate-800 hover:bg-transparent">
-                  <TableHead className="w-[40px] font-semibold text-slate-500">#</TableHead>
-                  <SortableTableHead columnKey="agent" currentSortBy={agentSortBy} currentSortOrder={agentSortOrder} onSort={(k, o) => { setAgentSortBy(k); setAgentSortOrder(o); }} className="font-semibold text-slate-500">Nama Agent</SortableTableHead>
-                  <SortableTableHead columnKey="teamLeader" currentSortBy={agentSortBy} currentSortOrder={agentSortOrder} onSort={(k, o) => { setAgentSortBy(k); setAgentSortOrder(o); }} className="font-semibold text-slate-500">Nama TL</SortableTableHead>
-                  <SortableTableHead columnKey="sampling" currentSortBy={agentSortBy} currentSortOrder={agentSortOrder} onSort={(k, o) => { setAgentSortBy(k); setAgentSortOrder(o); }} className="font-semibold text-slate-500 text-right">Sampling</SortableTableHead>
-                  <SortableTableHead columnKey="qaScore" currentSortBy={agentSortBy} currentSortOrder={agentSortOrder} onSort={(k, o) => { setAgentSortBy(k); setAgentSortOrder(o); }} className="font-semibold text-slate-500 text-right">QA Score</SortableTableHead>
-                  <SortableTableHead columnKey="achievement" currentSortBy={agentSortBy} currentSortOrder={agentSortOrder} onSort={(k, o) => { setAgentSortBy(k); setAgentSortOrder(o); }} className="font-semibold text-slate-500 text-center">Achievement</SortableTableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {agentRanking.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="h-[100px] text-center text-slate-400">No agent data available</TableCell>
-                  </TableRow>
-                ) : (
-                  agentRanking.map((a: any, i: number) => (
-                    <TableRow key={a.agent} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors border-b border-slate-50 dark:border-slate-800/50 group">
-                      <TableCell className="font-medium">
-                        {i === 0 ? <span className="text-2xl drop-shadow-sm filter">🥇</span> : 
-                         i === 1 ? <span className="text-2xl drop-shadow-sm filter">🥈</span> : 
-                         i === 2 ? <span className="text-2xl drop-shadow-sm filter">🥉</span> : 
-                         <span className="text-slate-400 w-8 inline-block text-center">{i + 1}</span>}
-                      </TableCell>
-                      <TableCell className="font-semibold text-slate-800 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors uppercase">{a.agent}</TableCell>
-                      <TableCell className="text-slate-500 dark:text-slate-400 font-medium uppercase">{a.teamLeader || "-"}</TableCell>
-                      <TableCell className="text-right text-slate-600 dark:text-slate-400 font-medium">{a.sampling.toLocaleString()}</TableCell>
-                      <TableCell className="text-right font-black text-lg">
-                        <span className={cn(a.qaScore >= TARGET_SCORE ? "text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-blue-500" : "text-rose-500")}>
-                          {a.qaScore.toFixed(2)}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <span className={cn("px-3 py-1.5 rounded-xl text-[11px] font-black tracking-widest uppercase shadow-sm border", a.achievement === "Achieved" ? "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400" : "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-500/10 dark:border-rose-500/20 dark:text-rose-400")}>
-                          {a.achievement}
-                        </span>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </div>
-
-        {/* Team Leader Ranking Table */}
-        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm">
-          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-widest mb-6 flex items-center gap-2">
-            <Users className="w-4 h-4 text-emerald-500" />
-            Team Leader Ranking
-          </h3>
-          <div className="overflow-auto max-h-[400px]">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-b border-slate-100 dark:border-slate-800 hover:bg-transparent">
-                  <TableHead className="w-[40px] font-semibold text-slate-500">#</TableHead>
-                  <SortableTableHead columnKey="teamLeader" currentSortBy={tlSortBy} currentSortOrder={tlSortOrder} onSort={(k, o) => { setTlSortBy(k); setTlSortOrder(o); }} className="font-semibold text-slate-500">Team Leader</SortableTableHead>
-                  <SortableTableHead columnKey="sampling" currentSortBy={tlSortBy} currentSortOrder={tlSortOrder} onSort={(k, o) => { setTlSortBy(k); setTlSortOrder(o); }} className="font-semibold text-slate-500 text-right">Sampling</SortableTableHead>
-                  <SortableTableHead columnKey="qaScore" currentSortBy={tlSortBy} currentSortOrder={tlSortOrder} onSort={(k, o) => { setTlSortBy(k); setTlSortOrder(o); }} className="font-semibold text-slate-500 text-right">QA Score</SortableTableHead>
-                  <SortableTableHead columnKey="achievement" currentSortBy={tlSortBy} currentSortOrder={tlSortOrder} onSort={(k, o) => { setTlSortBy(k); setTlSortOrder(o); }} className="font-semibold text-slate-500 text-center">Achievement</SortableTableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {teamLeaderRanking.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="h-[100px] text-center text-slate-400">No TL data available</TableCell>
-                  </TableRow>
-                ) : (
-                  teamLeaderRanking.map((tl: any, i: number) => (
-                    <TableRow key={tl.teamLeader} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors border-b border-slate-50 dark:border-slate-800/50 group">
-                      <TableCell className="font-medium">
-                        {i === 0 ? <span className="text-2xl drop-shadow-sm filter">🥇</span> : 
-                         i === 1 ? <span className="text-2xl drop-shadow-sm filter">🥈</span> : 
-                         i === 2 ? <span className="text-2xl drop-shadow-sm filter">🥉</span> : 
-                         <span className="text-slate-400 w-8 inline-block text-center">{i + 1}</span>}
-                      </TableCell>
-                      <TableCell className="font-semibold text-slate-800 dark:text-slate-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors uppercase">{tl.teamLeader}</TableCell>
-                      <TableCell className="text-right text-slate-600 dark:text-slate-400 font-medium">{tl.sampling.toLocaleString()}</TableCell>
-                      <TableCell className="text-right font-black text-lg">
-                        <span className={cn(tl.qaScore >= TARGET_SCORE ? "text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-500" : "text-rose-500")}>
-                          {tl.qaScore.toFixed(2)}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <span className={cn("px-3 py-1.5 rounded-xl text-[11px] font-black tracking-widest uppercase shadow-sm border", tl.achievement === "Achieved" ? "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400" : "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-500/10 dark:border-rose-500/20 dark:text-rose-400")}>
-                          {tl.achievement}
-                        </span>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </div>
-      </div>
-
-      {/* Tiket Tanpa NC Table */}
-      <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-          <h3 className="text-sm font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4" />
-            Tiket Tanpa NC
-            <span className="ml-2 px-2 py-0.5 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 rounded-full text-[11px] font-bold">
-              {nonNcSearch.trim()
-                ? `${nonNcDetails.filter((t: any) => { const q = nonNcSearch.toLowerCase(); return (t.agent||"").toLowerCase().includes(q)||(t.teamLeader||"").toLowerCase().includes(q)||(t.idTiket||"").toLowerCase().includes(q); }).length} / ${nonNcDetails.length}`
-                : nonNcDetails.length}
-            </span>
-          </h3>
-          <div className="relative w-full sm:w-72">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-            <Input
-              value={nonNcSearch}
-              onChange={(e) => setNonNcSearch(e.target.value)}
-              placeholder="Cari agent, ID tiket, atau TL..."
-              className="pl-9 h-9 text-sm rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
-            />
-          </div>
-        </div>
-        <div className="overflow-auto max-h-[400px]">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-b border-slate-100 dark:border-slate-800 hover:bg-transparent">
-                <TableHead className="w-[40px] font-semibold text-slate-500">#</TableHead>
-                <SortableTableHead columnKey="idTiket" currentSortBy={nonNcSortBy} currentSortOrder={nonNcSortOrder} onSort={(k, o) => { setNonNcSortBy(k); setNonNcSortOrder(o); }} className="font-semibold text-slate-500">ID Tiket</SortableTableHead>
-                <SortableTableHead columnKey="score" currentSortBy={nonNcSortBy} currentSortOrder={nonNcSortOrder} onSort={(k, o) => { setNonNcSortBy(k); setNonNcSortOrder(o); }} className="font-semibold text-slate-500 text-center">QA Score</SortableTableHead>
-                <SortableTableHead columnKey="agent" currentSortBy={nonNcSortBy} currentSortOrder={nonNcSortOrder} onSort={(k, o) => { setNonNcSortBy(k); setNonNcSortOrder(o); }} className="font-semibold text-slate-500">Nama Agent</SortableTableHead>
-                <SortableTableHead columnKey="teamLeader" currentSortBy={nonNcSortBy} currentSortOrder={nonNcSortOrder} onSort={(k, o) => { setNonNcSortBy(k); setNonNcSortOrder(o); }} className="font-semibold text-slate-500">Nama TL</SortableTableHead>
-                <SortableTableHead columnKey="tapper" currentSortBy={nonNcSortBy} currentSortOrder={nonNcSortOrder} onSort={(k, o) => { setNonNcSortBy(k); setNonNcSortOrder(o); }} className="font-semibold text-slate-500">Tapper</SortableTableHead>
-                <SortableTableHead columnKey="createdAt" currentSortBy={nonNcSortBy} currentSortOrder={nonNcSortOrder} onSort={(k, o) => { setNonNcSortBy(k); setNonNcSortOrder(o); }} className="font-semibold text-slate-500">Tanggal Tapping</SortableTableHead>
-                <SortableTableHead columnKey="peak" currentSortBy={nonNcSortBy} currentSortOrder={nonNcSortOrder} onSort={(k, o) => { setNonNcSortBy(k); setNonNcSortOrder(o); }} className="font-semibold text-slate-500 text-center">Peak</SortableTableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {(() => {
-                let rows = [...nonNcDetails];
-                if (nonNcSearch.trim()) {
-                  const q = nonNcSearch.toLowerCase();
-                  rows = rows.filter((t: any) =>
-                    (t.agent || "").toLowerCase().includes(q) ||
-                    (t.teamLeader || "").toLowerCase().includes(q) ||
-                    (t.idTiket || "").toLowerCase().includes(q)
-                  );
-                }
-                rows = sortArray(rows, nonNcSortBy, nonNcSortOrder);
-
-                return rows.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={8} className="h-[100px] text-center text-slate-400">Tidak ada tiket tanpa NC</TableCell>
-                  </TableRow>
-                ) : (
-                  rows.map((t: any, i: number) => (
-                    <TableRow key={t.id || i} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors border-b border-slate-50 dark:border-slate-800/50 group">
-                      <TableCell className="text-slate-400 font-medium w-8 text-center">{i + 1}</TableCell>
-                      <TableCell className="font-bold text-indigo-600 dark:text-indigo-400">{t.idTiket || "-"}</TableCell>
-                      <TableCell className="text-center font-black text-lg">
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-500">{t.score}</span>
-                      </TableCell>
-                      <TableCell className="font-semibold text-slate-800 dark:text-slate-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors uppercase">{t.agent}</TableCell>
-                      <TableCell className="text-slate-500 dark:text-slate-400 font-medium uppercase">{t.teamLeader || "-"}</TableCell>
-                      <TableCell className="text-slate-500 dark:text-slate-400 font-medium uppercase">{t.tapper || "-"}</TableCell>
-                      <TableCell className="text-slate-500 font-medium">{new Date(t.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}</TableCell>
-                      <TableCell className="text-center text-slate-600 dark:text-slate-400 font-medium">Peak {t.peak}</TableCell>
-                    </TableRow>
-                  ))
-                );
-              })()}
-            </TableBody>
-          </Table>
-        </div>
-      </div>
-
       {/* Achievement Parameter Chart */}
       {parameterAchievement.length > 0 && (
         <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm">
@@ -655,8 +422,8 @@ export default function QaScorePage() {
               <XAxis dataKey="month" tick={{ fontSize: 12, fill: "#71717a", fontWeight: 500 }} axisLine={false} tickLine={false} dy={10} />
               <YAxis domain={[80, 100]} tick={{ fontSize: 12, fill: "#71717a", fontWeight: 500 }} tickFormatter={(v) => `${v}%`} axisLine={false} tickLine={false} />
               <Tooltip
-                cursor={{ fill: "rgba(99, 102, 241, 0.05)" }}
-                contentStyle={{ background: "rgba(255, 255, 255, 0.95)", backdropFilter: "blur(8px)", border: "none", borderRadius: "16px", boxShadow: "0 10px 40px rgba(0,0,0,0.12)" }}
+                cursor={{ fill: "var(--accent)" }}
+                contentStyle={{ backgroundColor: "var(--background)", color: "var(--foreground)", backdropFilter: "blur(8px)", border: "1px solid var(--border)", borderRadius: "12px", boxShadow: "0 10px 40px rgba(0,0,0,0.12)" }}
                 itemStyle={{ fontWeight: "bold" }}
                 formatter={(value: any, name: any) => [`${Number(value).toFixed(2)}%`, name]}
               />
@@ -670,6 +437,263 @@ export default function QaScorePage() {
           </ResponsiveContainer>
         </div>
       )}
+
+
+      {/* Rankings */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Agent Ranking Table */}
+        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm">
+          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-widest mb-6 flex items-center gap-2">
+            <Award className="w-4 h-4 text-amber-500" />
+            Agent Ranking
+          </h3>
+          <div className="overflow-auto max-h-[400px] rounded-xl border border-slate-200/60 dark:border-slate-700/60">
+            <Table>
+              <TableHeader className="bg-slate-50/90 dark:bg-slate-900/90 sticky top-0 z-10 backdrop-blur-xl shadow-sm">
+                <TableRow className="border-b border-slate-100 dark:border-slate-800 hover:bg-transparent">
+                  <TableHead className="w-[40px] font-semibold text-slate-500">#</TableHead>
+                  <SortableTableHead columnKey="agent" currentSortBy={agentSortBy} currentSortOrder={agentSortOrder} onSort={(k, o) => { setAgentSortBy(k); setAgentSortOrder(o); }} className="font-semibold text-slate-500">Nama Agent</SortableTableHead>
+                  <SortableTableHead columnKey="teamLeader" currentSortBy={agentSortBy} currentSortOrder={agentSortOrder} onSort={(k, o) => { setAgentSortBy(k); setAgentSortOrder(o); }} className="font-semibold text-slate-500">Nama TL</SortableTableHead>
+                  <SortableTableHead columnKey="sampling" currentSortBy={agentSortBy} currentSortOrder={agentSortOrder} onSort={(k, o) => { setAgentSortBy(k); setAgentSortOrder(o); }} className="font-semibold text-slate-500 text-right">Sampling</SortableTableHead>
+                  <SortableTableHead columnKey="qaScore" currentSortBy={agentSortBy} currentSortOrder={agentSortOrder} onSort={(k, o) => { setAgentSortBy(k); setAgentSortOrder(o); }} className="font-semibold text-slate-500 text-right">QA Score</SortableTableHead>
+                  <SortableTableHead columnKey="achievement" currentSortBy={agentSortBy} currentSortOrder={agentSortOrder} onSort={(k, o) => { setAgentSortBy(k); setAgentSortOrder(o); }} className="font-semibold text-slate-500 text-center">Achievement</SortableTableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {agentRanking.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="h-[250px] text-center">
+                      <div className="flex flex-col items-center justify-center gap-3 text-slate-400">
+                        <div className="w-14 h-14 rounded-full bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center">
+                          <UserX className="w-7 h-7 text-slate-300 dark:text-slate-500" />
+                        </div>
+                        <h3 className="text-base font-semibold text-slate-600 dark:text-slate-300">Belum ada data agent</h3>
+                        <p className="text-sm">Sesuaikan filter untuk melihat data.</p>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  agentRanking.map((a: any, i: number) => (
+                    <TableRow key={a.agent} className="transition-all duration-300 hover:bg-indigo-50/40 dark:hover:bg-indigo-900/20 hover:shadow-[inset_3px_0_0_0_rgba(99,102,241,0.8)] border-b border-slate-100 dark:border-slate-800/50 group cursor-default">
+                      <TableCell className="font-medium">
+                        {i === 0 ? <span className="text-2xl drop-shadow-sm filter">🥇</span> : 
+                         i === 1 ? <span className="text-2xl drop-shadow-sm filter">🥈</span> : 
+                         i === 2 ? <span className="text-2xl drop-shadow-sm filter">🥉</span> : 
+                         <span className="text-slate-400 w-8 inline-block text-center">{i + 1}</span>}
+                      </TableCell>
+                      <TableCell className="font-semibold text-slate-800 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors uppercase">{a.agent}</TableCell>
+                      <TableCell className="text-slate-500 dark:text-slate-400 font-medium uppercase">{a.teamLeader || "-"}</TableCell>
+                      <TableCell className="text-right text-slate-600 dark:text-slate-400 font-medium">{a.sampling.toLocaleString()}</TableCell>
+                      <TableCell className="text-right font-black text-lg">
+                        <span className={cn(a.qaScore >= TARGET_SCORE ? "text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-blue-500" : "text-rose-500")}>
+                          {a.qaScore.toFixed(2)}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <span className={cn("px-3 py-1.5 rounded-xl text-[11px] font-black tracking-widest uppercase shadow-sm border", a.achievement === "Achieved" ? "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400" : "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-500/10 dark:border-rose-500/20 dark:text-rose-400")}>
+                          {a.achievement}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+
+        {/* Team Leader Ranking Table */}
+        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm">
+          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-widest mb-6 flex items-center gap-2">
+            <Users className="w-4 h-4 text-emerald-500" />
+            Team Leader Ranking
+          </h3>
+          <div className="overflow-auto max-h-[400px] rounded-xl border border-slate-200/60 dark:border-slate-700/60">
+            <Table>
+              <TableHeader className="bg-slate-50/90 dark:bg-slate-900/90 sticky top-0 z-10 backdrop-blur-xl shadow-sm">
+                <TableRow className="border-b border-slate-100 dark:border-slate-800 hover:bg-transparent">
+                  <TableHead className="w-[40px] font-semibold text-slate-500">#</TableHead>
+                  <SortableTableHead columnKey="teamLeader" currentSortBy={tlSortBy} currentSortOrder={tlSortOrder} onSort={(k, o) => { setTlSortBy(k); setTlSortOrder(o); }} className="font-semibold text-slate-500">Team Leader</SortableTableHead>
+                  <SortableTableHead columnKey="sampling" currentSortBy={tlSortBy} currentSortOrder={tlSortOrder} onSort={(k, o) => { setTlSortBy(k); setTlSortOrder(o); }} className="font-semibold text-slate-500 text-right">Sampling</SortableTableHead>
+                  <SortableTableHead columnKey="qaScore" currentSortBy={tlSortBy} currentSortOrder={tlSortOrder} onSort={(k, o) => { setTlSortBy(k); setTlSortOrder(o); }} className="font-semibold text-slate-500 text-right">QA Score</SortableTableHead>
+                  <SortableTableHead columnKey="achievement" currentSortBy={tlSortBy} currentSortOrder={tlSortOrder} onSort={(k, o) => { setTlSortBy(k); setTlSortOrder(o); }} className="font-semibold text-slate-500 text-center">Achievement</SortableTableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {teamLeaderRanking.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="h-[250px] text-center">
+                      <div className="flex flex-col items-center justify-center gap-3 text-slate-400">
+                        <div className="w-14 h-14 rounded-full bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center">
+                          <UserX className="w-7 h-7 text-slate-300 dark:text-slate-500" />
+                        </div>
+                        <h3 className="text-base font-semibold text-slate-600 dark:text-slate-300">Belum ada data TL</h3>
+                        <p className="text-sm">Sesuaikan filter untuk melihat data.</p>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  teamLeaderRanking.map((tl: any, i: number) => (
+                    <TableRow key={tl.teamLeader} className="transition-all duration-300 hover:bg-emerald-50/40 dark:hover:bg-emerald-900/20 hover:shadow-[inset_3px_0_0_0_rgba(16,185,129,0.8)] border-b border-slate-100 dark:border-slate-800/50 group cursor-default">
+                      <TableCell className="font-medium">
+                        {i === 0 ? <span className="text-2xl drop-shadow-sm filter">🥇</span> : 
+                         i === 1 ? <span className="text-2xl drop-shadow-sm filter">🥈</span> : 
+                         i === 2 ? <span className="text-2xl drop-shadow-sm filter">🥉</span> : 
+                         <span className="text-slate-400 w-8 inline-block text-center">{i + 1}</span>}
+                      </TableCell>
+                      <TableCell className="font-semibold text-slate-800 dark:text-slate-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors uppercase">{tl.teamLeader}</TableCell>
+                      <TableCell className="text-right text-slate-600 dark:text-slate-400 font-medium">{tl.sampling.toLocaleString()}</TableCell>
+                      <TableCell className="text-right font-black text-lg">
+                        <span className={cn(tl.qaScore >= TARGET_SCORE ? "text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-500" : "text-rose-500")}>
+                          {tl.qaScore.toFixed(2)}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <span className={cn("px-3 py-1.5 rounded-xl text-[11px] font-black tracking-widest uppercase shadow-sm border", tl.achievement === "Achieved" ? "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400" : "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-500/10 dark:border-rose-500/20 dark:text-rose-400")}>
+                          {tl.achievement}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+      </div>
+
+      {/* Top 3 KIP NC Table */}
+      <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm mb-8">
+        <h3 className="text-sm font-bold text-rose-500 dark:text-rose-400 uppercase tracking-widest flex items-center gap-2 mb-6">
+          <AlertTriangle className="w-4 h-4" />
+          Top 3 Parameter KIP 3 (NC)
+        </h3>
+        <div className="overflow-auto max-h-[320px] rounded-xl border border-slate-200/60 dark:border-slate-700/60">
+          <Table>
+            <TableHeader className="bg-slate-50/90 dark:bg-slate-900/90 sticky top-0 z-10 backdrop-blur-xl shadow-sm">
+              <TableRow className="border-b border-slate-100 dark:border-slate-800 hover:bg-transparent">
+                <TableHead className="w-[60px] font-semibold text-slate-500">Rank</TableHead>
+                <TableHead className="font-semibold text-slate-500">KIP Level 3</TableHead>
+                <TableHead className="w-[120px] font-semibold text-slate-500 text-center">Jumlah NC</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {topKipNc.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={3} className="text-center text-slate-400 py-6">Tidak ada data KIP NC</TableCell>
+                </TableRow>
+              ) : (
+                topKipNc.map((item: any, idx: number) => (
+                  <TableRow key={idx} className="transition-all duration-300 hover:bg-rose-50/40 dark:hover:bg-rose-900/10 hover:shadow-[inset_3px_0_0_0_rgba(244,63,94,0.7)] border-b border-slate-100 dark:border-slate-800/50 cursor-default">
+                    <TableCell className="font-medium text-slate-700 dark:text-slate-300">
+                      {idx === 0 ? <span className="text-2xl drop-shadow-sm filter">🥇</span> : 
+                       idx === 1 ? <span className="text-2xl drop-shadow-sm filter">🥈</span> : 
+                       idx === 2 ? <span className="text-2xl drop-shadow-sm filter">🥉</span> : 
+                       <span className="text-slate-400 w-8 inline-block text-center">{idx + 1}</span>}
+                    </TableCell>
+                    <TableCell className="font-semibold text-slate-800 dark:text-slate-200">{item.kip}</TableCell>
+                    <TableCell className="text-center font-bold text-rose-500">{item.count}</TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+
+      {/* Tiket Tanpa NC Table */}
+      <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+          <h3 className="text-sm font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4" />
+            Tiket Tanpa NC
+            <span className="ml-2 px-2 py-0.5 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 rounded-full text-[11px] font-bold">
+              {nonNcSearch.trim()
+                ? `${nonNcDetails.filter((t: any) => { const q = nonNcSearch.toLowerCase(); return (t.agent||"").toLowerCase().includes(q)||(t.teamLeader||"").toLowerCase().includes(q)||(t.idTiket||"").toLowerCase().includes(q); }).length} / ${nonNcDetails.length}`
+                : nonNcDetails.length}
+            </span>
+          </h3>
+          <div className="relative w-full sm:w-72">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+            <Input
+              value={nonNcSearch}
+              onChange={(e) => { setNonNcSearch(e.target.value); setNonNcPage(1); }}
+              placeholder="Cari agent, ID tiket, atau TL..."
+              className="pl-9 h-9 text-sm rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
+            />
+          </div>
+        </div>
+        <div className="overflow-auto max-h-[400px] rounded-xl border border-slate-200/60 dark:border-slate-700/60">
+          <Table>
+            <TableHeader className="bg-slate-50/90 dark:bg-slate-900/90 sticky top-0 z-10 backdrop-blur-xl shadow-sm">
+              <TableRow className="border-b border-slate-100 dark:border-slate-800 hover:bg-transparent">
+                <TableHead className="w-[40px] font-semibold text-slate-500">#</TableHead>
+                <SortableTableHead columnKey="idTiket" currentSortBy={nonNcSortBy} currentSortOrder={nonNcSortOrder} onSort={(k, o) => { setNonNcSortBy(k); setNonNcSortOrder(o); }} className="font-semibold text-slate-500">ID Tiket</SortableTableHead>
+                <SortableTableHead columnKey="score" currentSortBy={nonNcSortBy} currentSortOrder={nonNcSortOrder} onSort={(k, o) => { setNonNcSortBy(k); setNonNcSortOrder(o); }} className="font-semibold text-slate-500 text-center">QA Score</SortableTableHead>
+                <SortableTableHead columnKey="agent" currentSortBy={nonNcSortBy} currentSortOrder={nonNcSortOrder} onSort={(k, o) => { setNonNcSortBy(k); setNonNcSortOrder(o); }} className="font-semibold text-slate-500">Nama Agent</SortableTableHead>
+                <SortableTableHead columnKey="teamLeader" currentSortBy={nonNcSortBy} currentSortOrder={nonNcSortOrder} onSort={(k, o) => { setNonNcSortBy(k); setNonNcSortOrder(o); }} className="font-semibold text-slate-500">Nama TL</SortableTableHead>
+                {canSeeTapper && (
+                  <SortableTableHead columnKey="tapper" currentSortBy={nonNcSortBy} currentSortOrder={nonNcSortOrder} onSort={(k, o) => { setNonNcSortBy(k); setNonNcSortOrder(o); }} className="font-semibold text-slate-500">Tapper</SortableTableHead>
+                )}
+                <SortableTableHead columnKey="createdAt" currentSortBy={nonNcSortBy} currentSortOrder={nonNcSortOrder} onSort={(k, o) => { setNonNcSortBy(k); setNonNcSortOrder(o); }} className="font-semibold text-slate-500">Tanggal Tapping</SortableTableHead>
+                <SortableTableHead columnKey="peak" currentSortBy={nonNcSortBy} currentSortOrder={nonNcSortOrder} onSort={(k, o) => { setNonNcSortBy(k); setNonNcSortOrder(o); }} className="font-semibold text-slate-500 text-center">Peak</SortableTableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {(() => {
+                let rows = [...nonNcDetails];
+                if (nonNcSearch.trim()) {
+                  const q = nonNcSearch.toLowerCase();
+                  rows = rows.filter((t: any) =>
+                    (t.agent || "").toLowerCase().includes(q) ||
+                    (t.teamLeader || "").toLowerCase().includes(q) ||
+                    (t.idTiket || "").toLowerCase().includes(q)
+                  );
+                }
+                
+                if (nonNcSortBy) {
+                  rows = sortArray(rows, nonNcSortBy, nonNcSortOrder);
+                }
+
+                const totalFiltered = rows.length;
+                const totalPages = Math.ceil(totalFiltered / nonNcItemsPerPage) || 1;
+                const paginatedRows = rows.slice((nonNcPage - 1) * nonNcItemsPerPage, nonNcPage * nonNcItemsPerPage);
+
+                if (paginatedRows.length === 0) {
+                  return (
+                    <TableRow>
+                      <TableCell colSpan={8} className="text-center text-slate-400 py-12">Tidak ada tiket tanpa NC</TableCell>
+                    </TableRow>
+                  );
+                }
+
+                return paginatedRows.map((t: any, i: number) => (
+                  <TableRow key={t.id} className="cursor-pointer hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors border-b border-slate-50 dark:border-slate-800/50 group" onClick={() => router.push(`/quality-assurance/form-tapping/${t.id}`)}>
+                    <TableCell className="text-slate-400 font-medium">{(nonNcPage - 1) * nonNcItemsPerPage + i + 1}</TableCell>
+                    <TableCell className="font-bold text-slate-900 dark:text-white uppercase">{t.idTiket}</TableCell>
+                    <TableCell className="text-center">
+                      <span className="inline-flex items-center justify-center bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 px-2.5 py-1 rounded-full text-xs font-bold">
+                        {t.score}
+                      </span>
+                    </TableCell>
+                    <TableCell className="font-semibold text-slate-800 dark:text-slate-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors uppercase">{t.agent}</TableCell>
+                    <TableCell className="text-slate-500 dark:text-slate-400 font-medium uppercase">{t.teamLeader || "-"}</TableCell>
+                    {canSeeTapper && (
+                      <TableCell className="text-slate-500 dark:text-slate-400 font-medium uppercase">{t.tapper || "-"}</TableCell>
+                    )}
+                    <TableCell className="text-slate-500 font-medium whitespace-nowrap">
+                      {new Date(t.createdAt).toLocaleString("id-ID", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                    </TableCell>
+                    <TableCell className="text-center text-slate-600 dark:text-slate-400 font-medium">Peak {t.peak}</TableCell>
+                  </TableRow>
+                ))
+              })()}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+
+
 
       {/* NC Detail Table */}
       {ncDetails.length > 0 && (
@@ -726,34 +750,49 @@ export default function QaScorePage() {
                     <TableCell className="text-slate-500 min-w-[300px] max-w-[400px]">
                       {nc.notes ? (
                         <div className="flex items-start justify-between gap-2">
-                          <p className="line-clamp-3 whitespace-pre-wrap break-words text-xs">{nc.notes}</p>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-6 w-6 shrink-0 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 opacity-0 group-hover:opacity-100 transition-opacity"
-                            onClick={() => {
-                              navigator.clipboard.writeText(nc.notes);
-                              toast.success("Notes disalin ke clipboard!");
-                            }}
-                            title="Copy full notes"
-                          >
-                            <Copy className="w-3.5 h-3.5" />
-                          </Button>
+                          <UiTooltip>
+                            <TooltipTrigger asChild>
+                              <p className="line-clamp-3 whitespace-pre-wrap break-words text-xs cursor-help">{nc.notes}</p>
+                            </TooltipTrigger>
+                            <TooltipContent className="max-w-[400px] max-h-[300px] overflow-auto z-[100]" side="bottom" align="start">
+                              <p className="whitespace-pre-wrap text-sm">{nc.notes}</p>
+                            </TooltipContent>
+                          </UiTooltip>
+                          <UiTooltip>
+                            <TooltipTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-6 w-6 shrink-0 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(nc.notes);
+                                  toast.success("Notes disalin ke clipboard!");
+                                }}
+                              >
+                                <Copy className="w-3.5 h-3.5" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Salin teks</p>
+                            </TooltipContent>
+                          </UiTooltip>
                         </div>
                       ) : "-"}
                     </TableCell>
-                    <TableCell className="text-slate-500 font-medium">{new Date(nc.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}</TableCell>
+                    <TableCell className="text-slate-500 font-medium whitespace-nowrap">
+                      {new Date(nc.createdAt).toLocaleString("id-ID", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                    </TableCell>
                     <TableCell className="text-center text-slate-600 dark:text-slate-400 font-medium">
                       Peak {nc.peak}
                     </TableCell>
                     <TableCell className="text-slate-600 dark:text-slate-300 min-w-[200px] align-top">
                       <div className="flex flex-col gap-2">
-                        {nc.komitmen ? (
+                        {user?.role === "USER" && user?.name !== nc.agent ? (
+                          <span className="text-slate-500 font-medium">-</span>
+                        ) : nc.komitmen ? (
                           <p className="text-xs whitespace-pre-wrap">{nc.komitmen}</p>
                         ) : (
-                          !(user?.role === "USER" && user?.name === nc.agent) && (
-                            <span className="text-xs text-slate-400 italic">Belum ada komitmen</span>
-                          )
+                          <span className="text-xs text-slate-400 italic">Belum ada komitmen</span>
                         )}
                         {user?.role === "USER" && user?.name === nc.agent && (
                           <Button

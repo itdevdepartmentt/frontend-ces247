@@ -12,10 +12,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import api from "@/lib/api";
-import {
-  BarChart3, AlertTriangle, ChevronLeft, ChevronRight,
-  FileText, ShieldAlert, Zap, MessageSquare, Clock, FileCheck, Users, Edit3, Loader2, Copy, MessageCircle, Scale, Check, X
-} from "lucide-react";
+import { Check, Search, Download, Filter, Eye, AlertTriangle, MessageSquare, ListTodo, FileText, ChevronRight, Copy, ChevronLeft, BarChart3, Zap, Clock, FileCheck, Users, Edit3, Loader2, MessageCircle, Scale, X, ShieldAlert } from "lucide-react";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import {
@@ -30,16 +28,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ColumnFilterPopover } from "@/components/ui/column-filter-popover";
-import { Search } from "lucide-react";
 
 export default function DetailTappingPage() {
   const [year, setYear] = useState<string>(new Date().getFullYear().toString());
   const [month, setMonth] = useState<string>("");
   const [agent, setAgent] = useState<string>("");
+  const [teamLeader, setTeamLeader] = useState<string>("");
   const [peak, setPeak] = useState<string>("");
   const [itemsPerPage, setItemsPerPage] = useState(50);
-  const [page, setPage] = useState(1);
   const { user } = useAuth();
+  const canSeeTapper = user?.role === "QC" || user?.role === "TL_QC";
+
+  const [page, setPage] = useState(1);
 
   const [searchInput, setSearchInput] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -130,10 +130,11 @@ export default function DetailTappingPage() {
         oldScoreResponTime: selectedRow.scoreResponTime,
         oldScoreDokumentasi: selectedRow.scoreDokumentasi,
       });
-      alert("Berhasil: Pengajuan Rekonsiliasi berhasil dikirim ke QC.");
+      toast.success("Berhasil: Pengajuan Rekonsiliasi berhasil dikirim ke QC.");
       setRekonOpen(false);
-    } catch (error) {
-      alert("Gagal: Terjadi kesalahan saat mengajukan Rekonsiliasi.");
+    } catch (error: any) {
+      const errMsg = error.response?.data?.message || "Gagal: Terjadi kesalahan saat mengajukan Rekonsiliasi.";
+      toast.error(errMsg);
     } finally {
       setIsSubmittingRekon(false);
     }
@@ -181,8 +182,8 @@ export default function DetailTappingPage() {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
   // Fetch detail tapping data
-  const { data: response, isLoading, isFetching } = useQuery({
-    queryKey: ["qa-detail-tapping", page, itemsPerPage, year, month, agent, peak, debouncedSearch, debouncedColumnFilters, sortBy, sortOrder],
+  const { data: response, isLoading, isFetching, refetch } = useQuery({
+    queryKey: ["qa-detail-tapping", page, itemsPerPage, year, month, agent, peak, teamLeader, debouncedSearch, debouncedColumnFilters, sortBy, sortOrder],
     queryFn: async () => {
       const params = new URLSearchParams();
       params.set("page", page.toString());
@@ -190,6 +191,7 @@ export default function DetailTappingPage() {
       if (year) params.set("year", year);
       if (month) params.set("month", month);
       if (agent) params.set("agent", agent);
+      if (teamLeader) params.set("teamLeader", teamLeader);
       if (peak) params.set("peak", peak);
       if (debouncedSearch) params.set("search", debouncedSearch);
       if (sortBy) params.set("sortBy", sortBy);
@@ -275,16 +277,18 @@ export default function DetailTappingPage() {
             <BarChart3 className="w-6 h-6" />
           </div>
         </div>
-        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm flex items-center justify-between">
-          <div>
-            <div className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">% Tapping Eksekutor</div>
-            <div className="text-4xl font-extrabold text-indigo-600">{stats.eksekutorPercentage}%</div>
-            <div className="text-xs font-medium text-slate-500 mt-1">{stats.totalEksekutorTappings} / {stats.totalSampling} tappings</div>
+        {user?.role !== 'TL' && (
+          <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm flex items-center justify-between">
+            <div>
+              <div className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">% Tapping Eksekutor</div>
+              <div className="text-4xl font-extrabold text-indigo-600">{stats.eksekutorPercentage}%</div>
+              <div className="text-xs font-medium text-slate-500 mt-1">{stats.totalEksekutorTappings} / {stats.totalSampling} tappings</div>
+            </div>
+            <div className="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-500 w-14 h-14 rounded-full flex items-center justify-center">
+              <BarChart3 className="w-6 h-6" />
+            </div>
           </div>
-          <div className="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-500 w-14 h-14 rounded-full flex items-center justify-center">
-            <BarChart3 className="w-6 h-6" />
-          </div>
-        </div>
+        )}
         <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm flex items-center justify-between">
           <div>
             <div className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">Total NC</div>
@@ -318,6 +322,18 @@ export default function DetailTappingPage() {
           <SelectContent className="rounded-xl max-h-[300px]">
             <SelectItem value="all">All Agents</SelectItem>
             {(detailOptions?.agents || []).map((a: string) => (
+              <SelectItem key={a} value={a}>{a}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={teamLeader || "all"} onValueChange={(v) => { setTeamLeader(v === "all" ? "" : v); setPage(1); }}>
+          <SelectTrigger className="w-[180px] h-10 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-medium">
+            <SelectValue placeholder="All Team Leader" />
+          </SelectTrigger>
+          <SelectContent className="rounded-xl max-h-[300px]">
+            <SelectItem value="all">All Team Leader</SelectItem>
+            {(detailOptions?.teamLeaders || []).map((a: string) => (
               <SelectItem key={a} value={a}>{a}</SelectItem>
             ))}
           </SelectContent>
@@ -379,17 +395,19 @@ export default function DetailTappingPage() {
               <SortableTableHead columnKey="createdDate" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">Created Date</SortableTableHead>
               <SortableTableHead columnKey="agent" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">Nama Agent</SortableTableHead>
               <SortableTableHead columnKey="teamLeader" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">Nama TL</SortableTableHead>
-              <TableHead className="font-semibold text-slate-500">
-                <div className="flex items-center">
-                  <span className="flex items-center gap-1 cursor-pointer select-none" onClick={() => handleSort("tapper", sortOrder === "asc" ? "desc" : "asc")}>
-                    Tapper (QC)
-                    {sortBy === "tapper" && (
-                      <span className="text-indigo-500">{sortOrder === "asc" ? "↑" : "↓"}</span>
-                    )}
-                  </span>
-                  <ColumnFilterPopover columnKey="tapper" columnLabel="Tapper" columnFilters={columnFilters} setColumnFilters={setColumnFilters} options={historyOptions?.tapper || []} />
-                </div>
-              </TableHead>
+              {canSeeTapper && (
+                <TableHead className="font-semibold text-slate-500">
+                  <div className="flex items-center">
+                    <span className="flex items-center gap-1 cursor-pointer select-none" onClick={() => handleSort("tapper", sortOrder === "asc" ? "desc" : "asc")}>
+                      Tapper (QC)
+                      {sortBy === "tapper" && (
+                        <span className="text-indigo-500">{sortOrder === "asc" ? "↑" : "↓"}</span>
+                      )}
+                    </span>
+                    <ColumnFilterPopover columnKey="tapper" columnLabel="Tapper" columnFilters={columnFilters} setColumnFilters={setColumnFilters} options={historyOptions?.tapper || []} />
+                  </div>
+                </TableHead>
+              )}
               <SortableTableHead columnKey="idTiket" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">ID Tiket</SortableTableHead>
               <SortableTableHead columnKey="solusi" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">Solusi</SortableTableHead>
               <SortableTableHead columnKey="tagging" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">Tagging</SortableTableHead>
@@ -426,34 +444,49 @@ export default function DetailTappingPage() {
                 return (
                   <TableRow key={row.id} className={cn("transition-colors border-b border-slate-50 dark:border-slate-800/50", isNC ? "bg-rose-50/30 dark:bg-rose-900/10" : "hover:bg-slate-50/80 dark:hover:bg-slate-800/50")}>
                     <TableCell className="text-slate-400 font-medium">{(page - 1) * itemsPerPage + i + 1}</TableCell>
-                    <TableCell className="text-slate-600 dark:text-slate-400 whitespace-nowrap">
-                      {new Date(row.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}
+                    <TableCell className="text-slate-500 font-medium whitespace-nowrap">
+                      {new Date(row.createdAt).toLocaleString("id-ID", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
                     </TableCell>
                     <TableCell className="text-slate-500 whitespace-nowrap">
                       {row.createdDate ? new Date(row.createdDate).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }) : "-"}
                     </TableCell>
                     <TableCell className="font-semibold text-slate-900 dark:text-white whitespace-nowrap">{row.agent}</TableCell>
                     <TableCell className="text-slate-500 whitespace-nowrap">{row.teamLeader || "-"}</TableCell>
-                    <TableCell className="font-bold text-slate-900 dark:text-white whitespace-nowrap">{row.tapper}</TableCell>
+                    {canSeeTapper && (
+                      <TableCell className="font-bold text-slate-900 dark:text-white whitespace-nowrap">{row.tapper}</TableCell>
+                    )}
                     <TableCell className="font-bold text-slate-900 dark:text-white whitespace-nowrap">{row.idTiket}</TableCell>
                     <TableCell className="text-slate-600 dark:text-slate-300 min-w-[150px]">{row.solusi?.replace(/ \| /g, ", ") || "-"}</TableCell>
                     <TableCell className="text-slate-600 dark:text-slate-300 whitespace-nowrap">{row.tagging || "-"}</TableCell>
                     <TableCell className="text-slate-500 min-w-[300px] max-w-[400px]">
                       {row.notes ? (
                         <div className="flex items-start justify-between gap-2">
-                          <p className="line-clamp-3 whitespace-pre-wrap break-words text-xs">{row.notes}</p>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-6 w-6 shrink-0 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
-                            onClick={() => {
-                              navigator.clipboard.writeText(row.notes);
-                              toast.success("Notes disalin ke clipboard!");
-                            }}
-                            title="Copy full notes"
-                          >
-                            <Copy className="w-3.5 h-3.5" />
-                          </Button>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <p className="line-clamp-3 whitespace-pre-wrap break-words text-xs cursor-help">{row.notes}</p>
+                            </TooltipTrigger>
+                            <TooltipContent className="max-w-[400px] max-h-[300px] overflow-auto z-[100]" side="bottom" align="start">
+                              <p className="whitespace-pre-wrap text-sm">{row.notes}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-6 w-6 shrink-0 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(row.notes);
+                                  toast.success("Notes disalin ke clipboard!");
+                                }}
+                              >
+                                <Copy className="w-3.5 h-3.5" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Salin teks</p>
+                            </TooltipContent>
+                          </Tooltip>
                         </div>
                       ) : "-"}
                     </TableCell>
@@ -469,7 +502,9 @@ export default function DetailTappingPage() {
                     </TableCell>
                     <TableCell className="text-slate-600 dark:text-slate-300 min-w-[200px] align-top">
                       <div className="flex flex-col gap-2">
-                        {row.komitmen ? (
+                        {user?.role === "USER" && user?.name !== row.agent ? (
+                          <span className="text-slate-500 font-medium">-</span>
+                        ) : row.komitmen ? (
                           <div className="flex flex-col gap-1">
                             {row.komitmenStatus === 'PENDING' && row.komitmen !== '[Menunggu Approval TL]' && (
                               <span className="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded w-fit mb-1 border border-amber-200">MENUNGGU APPROVAL TL</span>
@@ -483,9 +518,7 @@ export default function DetailTappingPage() {
                             <p className="text-xs whitespace-pre-wrap">{row.komitmen}</p>
                           </div>
                         ) : (
-                          !(user?.role === "USER" && user?.name === row.agent) && (
-                            <span className="text-xs text-slate-400 italic">Belum ada komitmen</span>
-                          )
+                          <span className="text-xs text-slate-400 italic">Belum ada komitmen</span>
                         )}
                         {user?.role === "USER" && user?.name === row.agent && (
                           <Button
@@ -591,32 +624,31 @@ export default function DetailTappingPage() {
                 { key: 'scoreResponTime', label: 'Respon', max: 15 },
                 { key: 'scoreDokumentasi', label: 'Dokumen', max: 15 },
               ].map(item => {
-                const isSelected = rekonScores[item.key as keyof typeof rekonScores] !== (selectedRow?.[item.key] ?? 0);
                 const originalScore = selectedRow?.[item.key] ?? 0;
+                const proposedScore = rekonScores[item.key as keyof typeof rekonScores] ?? originalScore;
+                const isChanged = proposedScore !== originalScore;
                 
                 return (
-                  <button
-                    key={item.key}
-                    type="button"
-                    onClick={() => setRekonScores(s => ({ ...s, [item.key]: isSelected ? originalScore : item.max }))}
-                    className={`flex flex-col items-center justify-center gap-1 p-2 rounded-xl border transition-all focus:outline-none ${
-                      isSelected 
-                        ? "bg-indigo-50 border-indigo-200 text-indigo-700 dark:bg-indigo-500/20 dark:border-indigo-500/30 dark:text-indigo-300 shadow-sm" 
-                        : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-800 dark:hover:bg-slate-800/50"
-                    }`}
-                  >
-                    <span className="text-[10px] uppercase font-bold">{item.label}</span>
-                    <div className="flex items-center gap-1.5">
-                       {isSelected ? (
-                         <>
-                           <span className="text-xs line-through opacity-60">{originalScore}</span>
-                           <span className="text-sm font-black">{item.max}</span>
-                         </>
-                       ) : (
-                         <span className="text-sm font-bold">{originalScore}</span>
-                       )}
+                  <div key={item.key} className={`flex flex-col items-center justify-center gap-1.5 p-2 rounded-xl border transition-all ${isChanged ? 'bg-indigo-50 border-indigo-200 dark:bg-indigo-500/10 dark:border-indigo-500/30' : 'bg-slate-50 border-slate-100 dark:bg-slate-900/50 dark:border-slate-800'}`}>
+                    <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400">{item.label}</span>
+                    <div className="flex items-center gap-1 w-full justify-center">
+                      <span className={`text-xs font-medium w-6 text-center ${isChanged ? 'text-slate-400 line-through' : 'text-slate-700 dark:text-slate-300'}`}>{originalScore}</span>
+                      {isChanged && <ChevronRight className="w-3 h-3 text-indigo-400" />}
+                      <input
+                        type="number"
+                        min={0}
+                        max={item.max}
+                        value={proposedScore}
+                        onChange={(e) => {
+                          let val = parseInt(e.target.value) || 0;
+                          if (val > item.max) val = item.max;
+                          if (val < 0) val = 0;
+                          setRekonScores(s => ({ ...s, [item.key]: val }));
+                        }}
+                        className={`w-10 h-7 text-center text-sm font-bold rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isChanged ? 'bg-white dark:bg-slate-950 text-indigo-600 border border-indigo-200 dark:border-indigo-800' : 'bg-transparent border-transparent text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800'}`}
+                      />
                     </div>
-                  </button>
+                  </div>
                 )
               })}
             </div>

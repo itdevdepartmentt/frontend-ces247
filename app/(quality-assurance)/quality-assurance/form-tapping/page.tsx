@@ -54,6 +54,7 @@ interface Ticket {
   tapper?: string;
   idTiket: string;
   agent: string;
+  teamLeader?: string;
   channel: string;
   jenisInteraksi: string;
   kipLevel2: string;
@@ -128,8 +129,8 @@ export default function FormTappingPage() {
 
   const tickets: Ticket[] = ticketsResponse?.data || [];
   
-  const totalTicketPages = ticketsResponse?.meta?.totalPages || 1;
-  const totalTicketsCount = ticketsResponse?.meta?.total || 0;
+  const totalTicketPages = ticketsResponse?.meta?.totalPages || ticketsResponse?.totalPages || 1;
+  const totalTicketsCount = ticketsResponse?.meta?.total || ticketsResponse?.total || 0;
   
   // File State
   const [file, setFile] = useState<File | null>(null);
@@ -299,6 +300,12 @@ export default function FormTappingPage() {
                         <ColumnFilterPopover columnKey="agent" columnLabel="Agent" columnFilters={ticketColumnFilters} setColumnFilters={setTicketColumnFilters} options={ticketFilterOptions?.agent || []} />
                       </div>
                     </SortableTableHead>
+                    <SortableTableHead columnKey="teamLeader" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">
+                      <div className="flex items-center">
+                        Nama TL
+                        <ColumnFilterPopover columnKey="teamLeader" columnLabel="Team Leader" columnFilters={ticketColumnFilters} setColumnFilters={setTicketColumnFilters} options={ticketFilterOptions?.teamLeader || []} />
+                      </div>
+                    </SortableTableHead>
                     <SortableTableHead columnKey="channel" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">
                       <div className="flex items-center">
                         Channel
@@ -335,7 +342,7 @@ export default function FormTappingPage() {
                 <TableBody className={cn("transition-opacity duration-200", isFetchingTickets ? "opacity-50 pointer-events-none" : "opacity-100")}>
                   {tickets.length === 0 && !isFetchingTickets ? (
                     <TableRow>
-                      <TableCell colSpan={11} className="h-[400px]">
+                      <TableCell colSpan={12} className="h-[400px]">
                         <div className="flex flex-col items-center justify-center text-center h-full">
                           <div className="w-16 h-16 bg-slate-50 dark:bg-slate-900/50 rounded-full flex items-center justify-center mb-4 border border-slate-100 dark:border-slate-800 shadow-sm">
                             <FolderOpen className="w-8 h-8 text-slate-300 dark:text-slate-600" />
@@ -352,12 +359,13 @@ export default function FormTappingPage() {
                     tickets.map((t, i) => (
                       <TableRow key={t.id} className="cursor-pointer hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors border-b border-slate-50 dark:border-slate-800/50" onClick={() => router.push(`/quality-assurance/form-tapping/${t.id}`)}>
                         <TableCell className="text-slate-400 font-medium">{(ticketPage - 1) * itemsPerPage + i + 1}</TableCell>
-                        <TableCell className="text-slate-500">
-                          {t.createdDate ? new Date(t.createdDate).toLocaleDateString() : t.createdAt ? new Date(t.createdAt).toLocaleDateString() : '-'}
+                        <TableCell className="text-slate-500 whitespace-nowrap">
+                          {t.createdDate ? new Date(t.createdDate).toLocaleString("id-ID", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : t.createdAt ? new Date(t.createdAt).toLocaleString("id-ID", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : '-'}
                         </TableCell>
                         <TableCell className="text-slate-700 dark:text-slate-300 font-medium uppercase">{t.tapper || '-'}</TableCell>
                         <TableCell className="font-bold text-slate-900 dark:text-white uppercase">{t.idTiket || '-'}</TableCell>
                         <TableCell className="text-slate-700 dark:text-slate-300 font-medium uppercase">{t.agent || '-'}</TableCell>
+                        <TableCell className="text-slate-700 dark:text-slate-300 font-medium uppercase">{t.teamLeader || '-'}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <span className="bg-slate-100 dark:bg-slate-800 w-6 h-6 flex items-center justify-center rounded-md text-xs font-bold text-slate-500">{t.channel ? t.channel.charAt(0) : '-'}</span>

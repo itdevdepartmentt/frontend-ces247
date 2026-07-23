@@ -72,14 +72,14 @@ export default function EvaluateTicketPage() {
     if (currentTicket) {
       setFormData(currentTicket);
       
-      const dateString = currentTicket.createdDate || currentTicket.createdAt;
-      if (dateString) {
-        const date = new Date(dateString);
-        const day = date.getDate();
-        if (day >= 1 && day <= 10) setPeak(1);
-        else if (day >= 11 && day <= 20) setPeak(2);
-        else setPeak(3);
-      }
+      // Prioritize the actual interaction date (createdTicket), then createdDate/createdAt, fallback to today
+      const dateString = currentTicket.createdTicket || currentTicket.createdDate || currentTicket.createdAt;
+      const date = dateString ? new Date(dateString) : new Date();
+      
+      const day = date.getDate();
+      if (day >= 1 && day <= 10) setPeak(1);
+      else if (day >= 11 && day <= 20) setPeak(2);
+      else setPeak(3);
     }
   }, [currentTicket]);
 
@@ -135,7 +135,56 @@ export default function EvaluateTicketPage() {
   const [notes, setNotes] = useState("");
   const [subParameterPenilaian, setSubParameterPenilaian] = useState<string[]>([]);
   const [parameterPenilaian, setParameterPenilaian] = useState<string[]>([]);
-  const [peak, setPeak] = useState<number>(3);
+  
+  // Auto-calculate default peak based on today's date
+  const [peak, setPeak] = useState<number>(() => {
+    const date = new Date().getDate();
+    if (date <= 10) return 1;
+    if (date <= 20) return 2;
+    return 3;
+  });
+
+  // Auto-Save: Load draft on mount
+  useEffect(() => {
+    if (!ticketId) return;
+    const savedDraft = localStorage.getItem(`draft_${ticketId}`);
+    if (savedDraft) {
+      try {
+        const parsed = JSON.parse(savedDraft);
+        if (parsed.scoreValiditas !== undefined) setScoreValiditas(parsed.scoreValiditas);
+        if (parsed.scoreServiceLevel !== undefined) setScoreServiceLevel(parsed.scoreServiceLevel);
+        if (parsed.scoreKalimat !== undefined) setScoreKalimat(parsed.scoreKalimat);
+        if (parsed.scoreResponTime !== undefined) setScoreResponTime(parsed.scoreResponTime);
+        if (parsed.scoreDokumentasi !== undefined) setScoreDokumentasi(parsed.scoreDokumentasi);
+        if (parsed.status) setStatus(parsed.status);
+        if (parsed.solusi) setSolusi(parsed.solusi);
+        if (parsed.tagging) setTagging(parsed.tagging);
+        if (parsed.taggingCustom) setTaggingCustom(parsed.taggingCustom);
+        if (parsed.notes) setNotes(parsed.notes);
+        if (parsed.subParameterPenilaian) setSubParameterPenilaian(parsed.subParameterPenilaian);
+        if (parsed.parameterPenilaian) setParameterPenilaian(parsed.parameterPenilaian);
+        if (parsed.tappingSeconds) setTappingSeconds(parsed.tappingSeconds);
+        if (parsed.isTapping) setIsTapping(parsed.isTapping);
+      } catch (e) {
+        console.error("Failed to parse draft", e);
+      }
+    }
+  }, [ticketId]);
+
+  // Auto-Save: Save draft on change
+  useEffect(() => {
+    if (!ticketId) return;
+    const draft = {
+      scoreValiditas, scoreServiceLevel, scoreKalimat, scoreResponTime, scoreDokumentasi,
+      status, solusi, tagging, taggingCustom, notes, subParameterPenilaian, parameterPenilaian,
+      tappingSeconds, isTapping
+    };
+    localStorage.setItem(`draft_${ticketId}`, JSON.stringify(draft));
+  }, [
+    scoreValiditas, scoreServiceLevel, scoreKalimat, scoreResponTime, scoreDokumentasi,
+    status, solusi, tagging, taggingCustom, notes, subParameterPenilaian, parameterPenilaian,
+    tappingSeconds, isTapping, ticketId
+  ]);
 
   // Timer Effect
   useEffect(() => {
@@ -162,6 +211,7 @@ export default function EvaluateTicketPage() {
       return await api.post("/qa/form-tapping", reviewData);
     },
     onSuccess: () => {
+      localStorage.removeItem(`draft_${ticketId}`);
       toast.success("Review submitted successfully");
       queryClient.invalidateQueries({ queryKey: ["qa-form-tapping"] });
       queryClient.invalidateQueries({ queryKey: ["qa-tickets"] });
@@ -213,6 +263,7 @@ export default function EvaluateTicketPage() {
       tapper: user?.name || formData.tapper || "",
       idTiket: formData.idTiket,
       agent: formData.agent,
+      teamLeader: formData.teamLeader || "",
       channel: formData.channel,
       jenisInteraksi: formData.jenisInteraksi,
       kipLevel2: formData.kipLevel2,
@@ -246,6 +297,18 @@ export default function EvaluateTicketPage() {
     
     submitMutation.mutate(reviewData);
   };
+
+  // Hotkey Effect
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+        e.preventDefault();
+        handleSubmitReview();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleSubmitReview]);
 
   if (isLoading) {
     return (
@@ -592,9 +655,9 @@ export default function EvaluateTicketPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div className="flex flex-col gap-3">
                       <Label className="font-bold text-slate-700 dark:text-slate-300">Final Status *</Label>
-                      <div className="bg-slate-100/80 dark:bg-slate-800/80 p-1.5 rounded-xl flex gap-1 border border-slate-200/50 dark:border-slate-700/50 shadow-inner">
-                        <button onClick={() => setStatus("Sample")} className={cn("flex-1 h-10 rounded-lg text-sm font-bold transition-all duration-200", status === "Sample" ? "bg-white dark:bg-slate-700 shadow text-slate-900 dark:text-white" : "text-slate-500 hover:text-slate-900")}>Sample</button>
-                        <button onClick={() => setStatus("Cancel")} className={cn("flex-1 h-10 rounded-lg text-sm font-bold transition-all duration-200", status === "Cancel" ? "bg-white dark:bg-slate-700 shadow text-red-600" : "text-slate-500 hover:text-red-600")}>Cancel</button>
+                      <div className="bg-slate-100/80 dark:bg-slate-800/80 p-1.5 rounded-xl flex gap-1 border border-slate-200/50 dark:border-slate-700/50 shadow-inner overflow-x-auto">
+                        <button onClick={() => setStatus("Sample")} className={cn("flex-1 h-10 px-4 rounded-lg text-sm font-bold transition-all duration-200", status === "Sample" ? "bg-white dark:bg-slate-700 shadow text-slate-900 dark:text-white" : "text-slate-500 hover:text-slate-900")}>Sample</button>
+                        <button onClick={() => setStatus("Cancel")} className={cn("flex-1 h-10 px-4 rounded-lg text-sm font-bold transition-all duration-200", status === "Cancel" ? "bg-white dark:bg-slate-700 shadow text-red-600" : "text-slate-500 hover:text-red-600")}>Cancel</button>
                       </div>
                     </div>
                   </div>

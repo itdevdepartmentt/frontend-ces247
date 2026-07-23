@@ -9,19 +9,19 @@ import { cn } from "@/lib/utils";
 import { 
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
 import { SortableTableHead } from "@/components/ui/sortable-table-head";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import ReviewHistoryTab from "./review-history-tab";
-import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Users, Settings, Activity, Clock, CheckCircle2, LayoutDashboard, Target, Trash2 } from "lucide-react";
+import { ShieldCheck, ChevronLeft, Trash2, Calendar, Target, User, Users, Activity, Clock, CheckCircle2, LayoutDashboard, BarChart3, Mail, MessageSquare, Phone, MoreHorizontal, Copy, Edit, Building2, Search, Inbox, Settings } from "lucide-react";
 import { isSmartMatch } from '@/lib/agent-matcher';
 
 export default function ProductivityQcPage() {
@@ -194,10 +194,21 @@ export default function ProductivityQcPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full min-h-[500px]">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
-          <p className="text-slate-500 font-medium">Loading Productivity data...</p>
+      <div className="p-6 md:p-8 space-y-6">
+        <div className="flex items-center justify-between mb-8">
+          <Skeleton className="h-8 w-64 bg-slate-200 dark:bg-slate-700" />
+          <Skeleton className="h-10 w-48 bg-slate-200 dark:bg-slate-700" />
+        </div>
+        
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-24 w-full rounded-2xl bg-slate-200 dark:bg-slate-700" />
+          ))}
+        </div>
+
+        <div className="space-y-6">
+          <Skeleton className="h-[400px] w-full rounded-2xl bg-slate-200 dark:bg-slate-700" />
+          <Skeleton className="h-[400px] w-full rounded-2xl bg-slate-200 dark:bg-slate-700" />
         </div>
       </div>
     );
@@ -446,9 +457,9 @@ export default function ProductivityQcPage() {
               )}
             </div>
           </div>
-          <div className="overflow-x-auto overflow-y-visible rounded-xl border border-slate-200/60 dark:border-slate-700/60">
+          <div className="max-h-[600px] overflow-auto rounded-xl border border-slate-200/60 dark:border-slate-700/60">
             <Table>
-              <TableHeader>
+              <TableHeader className="bg-slate-50/90 dark:bg-slate-900/90 sticky top-0 z-10 backdrop-blur-xl shadow-sm">
                 <TableRow>
                   {isSelectionMode && (
                     <TableHead className="w-[40px] px-2 text-center border-r-0 border-b-0" rowSpan={2}>
@@ -471,6 +482,7 @@ export default function ProductivityQcPage() {
                   <TableHead className="text-xs font-bold text-indigo-600 bg-indigo-50/50 dark:bg-indigo-900/10 text-center border-l border-b-0" colSpan={3}>Peak 2</TableHead>
                   <TableHead className="text-xs font-bold text-indigo-600 bg-indigo-50/50 dark:bg-indigo-900/10 text-center border-l border-b-0" colSpan={3}>Peak 3</TableHead>
                   <TableHead className="text-xs font-bold text-emerald-600 bg-emerald-50/50 dark:bg-emerald-900/10 text-center border-l border-b-0" colSpan={3}>Bulan Ini</TableHead>
+                  <TableHead className="text-xs font-bold text-amber-600 bg-amber-50/50 dark:bg-amber-900/10 text-center border-l border-b-0" colSpan={2}>SLA Kinerja</TableHead>
                 </TableRow>
                 <TableRow>
                   {/* Peak 1 */}
@@ -489,12 +501,23 @@ export default function ProductivityQcPage() {
                   <TableHead className="text-xs font-semibold text-slate-500 text-center bg-emerald-50/50 dark:bg-emerald-900/10 border-l border-t-0">Target</TableHead>
                   <TableHead className="text-xs font-semibold text-slate-500 text-center bg-emerald-50/50 dark:bg-emerald-900/10 border-t-0">Realisasi</TableHead>
                   <TableHead className="text-xs font-semibold text-slate-500 text-center bg-emerald-50/50 dark:bg-emerald-900/10 border-t-0">Sisa</TableHead>
+                  {/* SLA Kinerja */}
+                  <TableHead className="text-xs font-semibold text-slate-500 text-center bg-amber-50/50 dark:bg-amber-900/10 border-l border-t-0" title="Rata-rata waktu pengisian form QA">Avg Tapping</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 text-center bg-amber-50/50 dark:bg-amber-900/10 border-t-0" title="Rata-rata turnaround time rekonsiliasi (menit)">Avg Rekon</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {qcProductivity.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={isSelectionMode ? 16 : 15} className="h-[100px] text-center text-slate-400">Belum ada data produktivitas</TableCell>
+                    <TableCell colSpan={isSelectionMode ? 16 : 15} className="h-[300px] text-center">
+                      <div className="flex flex-col items-center justify-center text-slate-400 gap-3">
+                        <div className="w-16 h-16 rounded-full bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center mb-2">
+                          <Inbox className="w-8 h-8 text-slate-300 dark:text-slate-500" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300">Belum ada data</h3>
+                        <p className="text-sm">Tidak ada data produktivitas QC yang ditemukan untuk filter saat ini.</p>
+                      </div>
+                    </TableCell>
                   </TableRow>
                 ) : (
                   <>
@@ -504,7 +527,7 @@ export default function ProductivityQcPage() {
                       const p3sisa = qc.peak3Target - qc.peak3Realization;
                       const mSisa = qc.monthlyTarget - qc.monthlyRealization;
                       return (
-                        <TableRow key={i}>
+                        <TableRow key={i} className="transition-all duration-300 hover:bg-indigo-50/40 dark:hover:bg-indigo-900/20 hover:shadow-[inset_3px_0_0_0_rgba(99,102,241,0.8)] cursor-default">
                           {isSelectionMode && (
                             <TableCell className="text-center px-2">
                               <Checkbox
@@ -542,6 +565,22 @@ export default function ProductivityQcPage() {
                           <TableCell className="text-center font-medium text-slate-500 border-l bg-emerald-50/20 dark:bg-emerald-900/5">{qc.monthlyTarget}</TableCell>
                           <TableCell className="text-center font-bold text-emerald-600 bg-emerald-50/20 dark:bg-emerald-900/5">{qc.monthlyRealization}</TableCell>
                           <TableCell className={`text-center font-semibold bg-emerald-50/20 dark:bg-emerald-900/5 ${mSisa < 0 ? 'text-red-500' : 'text-emerald-500'}`}>{mSisa}</TableCell>
+                          
+                          {/* SLA Kinerja */}
+                          <TableCell className={`text-center font-bold border-l ${
+                            !qc.avgTappingDuration ? 'text-slate-400 bg-slate-50/50' : 
+                            qc.avgTappingDuration > 300 ? 'text-red-600 bg-red-50/50' : 
+                            qc.avgTappingDuration > 180 ? 'text-amber-600 bg-amber-50/50' : 'text-emerald-600 bg-emerald-50/50'
+                          }`}>
+                            {qc.avgTappingDuration ? `${Math.floor(qc.avgTappingDuration / 60)}m ${qc.avgTappingDuration % 60}s` : '-'}
+                          </TableCell>
+                          <TableCell className={`text-center font-bold ${
+                            !qc.avgRekonSla ? 'text-slate-400 bg-slate-50/50' : 
+                            qc.avgRekonSla > 1440 ? 'text-red-600 bg-red-50/50' : 
+                            qc.avgRekonSla > 60 ? 'text-amber-600 bg-amber-50/50' : 'text-emerald-600 bg-emerald-50/50'
+                          }`}>
+                            {qc.avgRekonSla ? (qc.avgRekonSla > 60 ? `${Math.floor(qc.avgRekonSla / 60)}j ${qc.avgRekonSla % 60}m` : `${qc.avgRekonSla}m`) : '-'}
+                          </TableCell>
                         </TableRow>
                       );
                     })}
@@ -564,6 +603,9 @@ export default function ProductivityQcPage() {
                       <TableCell className="text-center text-emerald-700 dark:text-emerald-300 border-l bg-emerald-100/50 dark:bg-emerald-900/30">{qcProductivity.reduce((acc:any, cur:any) => acc + cur.monthlyTarget, 0)}</TableCell>
                       <TableCell className="text-center text-emerald-700 dark:text-emerald-300 bg-emerald-100/50 dark:bg-emerald-900/30">{qcProductivity.reduce((acc:any, cur:any) => acc + cur.monthlyRealization, 0)}</TableCell>
                       <TableCell className="text-center text-emerald-700 dark:text-emerald-300 bg-emerald-100/50 dark:bg-emerald-900/30">{qcProductivity.reduce((acc:any, cur:any) => acc + (cur.monthlyTarget - cur.monthlyRealization), 0)}</TableCell>
+                      
+                      <TableCell className="text-center text-slate-500 bg-slate-100/50 border-l">-</TableCell>
+                      <TableCell className="text-center text-slate-500 bg-slate-100/50">-</TableCell>
                     </TableRow>
                   </>
                 )}
@@ -578,9 +620,9 @@ export default function ProductivityQcPage() {
             <Activity className="w-4 h-4 text-emerald-500" />
             REALTIME TAPPING ALL CHANNEL/KIP & EKSEKUTOR AGENT
           </h3>
-          <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+          <div className="max-h-[600px] overflow-auto rounded-xl border border-slate-200 dark:border-slate-800">
             <Table className="whitespace-nowrap">
-              <TableHeader className="bg-slate-50 dark:bg-slate-900/50">
+              <TableHeader className="bg-slate-50/90 dark:bg-slate-900/90 sticky top-0 z-10 backdrop-blur-xl">
                 <TableRow>
                   <TableHead className="text-xs font-semibold text-slate-500 bg-indigo-50/50 dark:bg-indigo-900/10 text-center border-r border-b-0" rowSpan={2}></TableHead>
                   <TableHead className="text-xs font-bold text-indigo-700 bg-indigo-50/50 dark:bg-indigo-900/10 text-center border-r border-b-0" colSpan={5}>REALTIME TAPPING ALL CHANNEL/KIP</TableHead>
@@ -693,9 +735,9 @@ export default function ProductivityQcPage() {
               </Button>
             </div>
           </div>
-          <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+          <div className="max-h-[600px] overflow-auto rounded-xl border border-slate-200 dark:border-slate-800">
             <Table className="whitespace-nowrap">
-              <TableHeader className="bg-slate-50 dark:bg-slate-900/50">
+              <TableHeader className="bg-slate-50/90 dark:bg-slate-900/90 sticky top-0 z-10 backdrop-blur-xl">
                 <TableRow>
                   {isSelectionMode && (
                     <TableHead className="w-[50px] text-center" rowSpan={2}>
@@ -734,7 +776,15 @@ export default function ProductivityQcPage() {
               <TableBody>
                 {agentPerformance.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={isSelectionMode ? 14 : 13} className="h-[100px] text-center text-slate-400">Belum ada data performance agent</TableCell>
+                    <TableCell colSpan={isSelectionMode ? 14 : 13} className="h-[300px] text-center">
+                      <div className="flex flex-col items-center justify-center text-slate-400 gap-3">
+                        <div className="w-16 h-16 rounded-full bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center mb-2">
+                          <User className="w-8 h-8 text-slate-300 dark:text-slate-500" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300">Belum ada agent</h3>
+                        <p className="text-sm">Tidak ada data performa agent yang ditemukan untuk filter saat ini.</p>
+                      </div>
+                    </TableCell>
                   </TableRow>
                 ) : (
                   (() => {
@@ -793,7 +843,7 @@ export default function ProductivityQcPage() {
                             const p2sisa = ag.peak2Target - ag.peak2Realization;
                             const p3sisa = ag.peak3Target - ag.peak3Realization;
                             return (
-                              <TableRow key={aIdx}>
+                              <TableRow key={aIdx} className="transition-all duration-300 hover:bg-emerald-50/40 dark:hover:bg-emerald-900/20 hover:shadow-[inset_3px_0_0_0_rgba(16,185,129,0.8)] cursor-default">
                                 {isSelectionMode && (
                                   <TableCell className="text-center" onClickCapture={(e) => {
                                     if (e.shiftKey && lastSelectedApAgent) {

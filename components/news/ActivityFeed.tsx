@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
 import { id as localeId } from "date-fns/locale";
 import { useActivity } from "@/hooks/use-activity";
+import { useAppNotifications } from "@/hooks/use-app-notifications";
 import {
   Bell,
   MessageCircle,
@@ -12,6 +13,7 @@ import {
   CheckCheck,
   X,
   Heart,
+  ClipboardCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -21,11 +23,28 @@ export function ActivityFeed() {
   const panelRef = useRef<HTMLDivElement>(null);
   const {
     activities,
-    isLoading,
-    unreadCount,
-    markAllAsRead,
-    markAsRead,
+    isLoading: isNewsLoading,
+    unreadCount: newsUnreadCount,
+    markAllAsRead: markAllNewsAsRead,
+    markAsRead: markNewsAsRead,
   } = useActivity();
+
+  const {
+    notifications: appNotifs,
+    isLoading: isAppNotifsLoading,
+    unreadCount: appUnreadCount,
+    markAllAsRead: markAllAppNotifsAsRead,
+    markAsRead: markAppNotifAsRead,
+  } = useAppNotifications();
+
+  const isLoading = isNewsLoading || isAppNotifsLoading;
+  const unreadCount = newsUnreadCount + appUnreadCount;
+
+  // Combine and sort both lists
+  const allActivities = [
+    ...activities.map(a => ({ ...a, source: 'news' as const })),
+    ...appNotifs.map(a => ({ ...a, source: 'app' as const }))
+  ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   // Close panel on outside click
   useEffect(() => {
@@ -41,20 +60,38 @@ export function ActivityFeed() {
   }, [isOpen]);
 
   const handleActivityClick = async (activity: any) => {
-    if (!activity.isRead) {
-      await markAsRead(activity.id);
-    }
-    setIsOpen(false);
-    
-    // Append comment hash to URL if it's related to a comment
-    const hash = ["COMMENT", "REPLY", "LIKE"].includes(activity.type) && activity.commentId 
-      ? `#comment-${activity.commentId}` 
-      : "#comments";
+    if (activity.source === 'news') {
+      if (!activity.isRead) {
+        await markNewsAsRead(activity.id);
+      }
+      setIsOpen(false);
       
-    router.push(`/news/${activity.news.id}${hash}`);
+      const hash = ["COMMENT", "REPLY", "LIKE"].includes(activity.type) && activity.commentId 
+        ? `#comment-${activity.commentId}` 
+        : "#comments";
+        
+      router.push(`/news/${activity.news.id}${hash}`);
+    } else {
+      if (!activity.isRead) {
+        await markAppNotifAsRead(activity.id);
+      }
+      setIsOpen(false);
+      if (activity.link) {
+        router.push(activity.link);
+      }
+    }
   };
 
-  const getActivityIcon = (type: string) => {
+  const handleMarkAllAsRead = async () => {
+    if (newsUnreadCount > 0) await markAllNewsAsRead();
+    if (appUnreadCount > 0) await markAllAppNotifsAsRead();
+  };
+
+  const getActivityIcon = (type: string, source: 'news'|'app') => {
+    if (source === 'app') {
+      if (type.startsWith('QA_')) return <ClipboardCheck className="h-4 w-4" />;
+      return <Bell className="h-4 w-4" />;
+    }
     switch (type) {
       case "COMMENT":
       case "REPLY":
@@ -67,6 +104,18 @@ export function ActivityFeed() {
   };
 
   const getActivityText = (activity: any) => {
+    if (activity.source === 'app') {
+      return (
+        <>
+          <span className="font-semibold text-slate-800 dark:text-slate-200">
+            {activity.title}
+          </span>
+          <br />
+          {activity.message}
+        </>
+      );
+    }
+
     const newsTitle = activity.news.title.length > 40
       ? activity.news.title.slice(0, 40) + "..."
       : activity.news.title;
@@ -155,7 +204,7 @@ export function ActivityFeed() {
             <div className="flex items-center gap-2">
               {unreadCount > 0 && (
                 <button
-                  onClick={() => markAllAsRead()}
+                  onClick={handleMarkAllAsRead}
                   className="flex items-center gap-1.5 text-xs font-semibold text-indigo-500 dark:text-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors cursor-pointer"
                 >
                   <CheckCheck className="h-3.5 w-3.5" />
@@ -185,7 +234,7 @@ export function ActivityFeed() {
                   </div>
                 ))}
               </div>
-            ) : activities.length === 0 ? (
+            ) : allActivities.length === 0 ? (
               <div className="p-10 text-center">
                 <Bell className="h-10 w-10 mx-auto text-slate-300 dark:text-slate-700 mb-3" />
                 <p className="text-sm text-slate-500 dark:text-slate-500">
@@ -194,7 +243,7 @@ export function ActivityFeed() {
               </div>
             ) : (
               <div className="py-1">
-                {activities.map((activity) => (
+                {allActivities.map((activity) => (
                   <button
                     key={activity.id}
                     onClick={() => handleActivityClick(activity)}
@@ -214,7 +263,7 @@ export function ActivityFeed() {
                           : "bg-indigo-100 dark:bg-indigo-500/20 text-indigo-500 dark:text-indigo-400"
                       )}
                     >
-                      {getActivityIcon(activity.type)}
+                      {getActivityIcon(activity.type, activity.source)}
                     </div>
 
                     {/* Content */}
