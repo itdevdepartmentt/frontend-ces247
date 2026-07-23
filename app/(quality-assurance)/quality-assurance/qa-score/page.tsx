@@ -298,86 +298,101 @@ export default function QaScorePage() {
 
       {/* Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-3xl p-6 shadow-sm relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl -mr-10 -mt-10 transition-transform group-hover:scale-150 duration-700" />
+        <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-2xl border border-slate-100/50 dark:border-slate-800/50 rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden group transition-all duration-500 hover:shadow-[0_8px_40px_rgb(99,102,241,0.12)] hover:-translate-y-1">
+          <div className="absolute top-0 right-0 w-40 h-40 bg-indigo-500/20 rounded-full blur-3xl -mr-10 -mt-10 transition-transform duration-700 group-hover:scale-150 group-hover:bg-indigo-500/30" />
           <div className="flex justify-between items-start relative z-10">
             <div>
               <p className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Total Sampling</p>
-              <h4 className="text-4xl font-black text-slate-800 dark:text-white tracking-tight">{totalSampling.toLocaleString()}</h4>
+              <h4 className="text-5xl font-black text-slate-800 dark:text-white tracking-tighter drop-shadow-sm">{totalSampling.toLocaleString()}</h4>
             </div>
-            <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center text-indigo-500">
-              <Users className="w-6 h-6" />
+            <div className="w-14 h-14 rounded-2xl bg-indigo-50/80 dark:bg-indigo-500/10 backdrop-blur-md border border-indigo-100/50 dark:border-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shadow-inner group-hover:rotate-6 transition-transform duration-300">
+              <Users className="w-7 h-7" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-3xl p-6 shadow-sm relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl -mr-10 -mt-10 transition-transform group-hover:scale-150 duration-700" />
+        <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-2xl border border-slate-100/50 dark:border-slate-800/50 rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden group transition-all duration-500 hover:shadow-[0_8px_40px_rgb(16,185,129,0.12)] hover:-translate-y-1">
+          <div className="absolute top-0 right-0 w-40 h-40 bg-emerald-500/20 rounded-full blur-3xl -mr-10 -mt-10 transition-transform duration-700 group-hover:scale-150 group-hover:bg-emerald-500/30" />
           <div className="flex justify-between items-start relative z-10">
             <div>
               <p className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Overall Score</p>
               <div className="flex items-baseline gap-2">
-                <h4 className="text-4xl font-black text-slate-800 dark:text-white tracking-tight">{overallAvg}</h4>
+                <h4 className="text-5xl font-black text-slate-800 dark:text-white tracking-tighter drop-shadow-sm">{overallAvg}</h4>
                 <span className="text-sm font-bold text-emerald-500">/ 100</span>
               </div>
             </div>
-            <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-500">
-              <Award className="w-6 h-6" />
+            <div className="w-14 h-14 rounded-2xl bg-emerald-50/80 dark:bg-emerald-500/10 backdrop-blur-md border border-emerald-100/50 dark:border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-inner group-hover:rotate-6 transition-transform duration-300">
+              <Award className="w-7 h-7" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-3xl p-6 shadow-sm relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/10 rounded-full blur-3xl -mr-10 -mt-10 transition-transform group-hover:scale-150 duration-700" />
+        <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-2xl border border-slate-100/50 dark:border-slate-800/50 rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden group transition-all duration-500 hover:shadow-[0_8px_40px_rgb(244,63,94,0.12)] hover:-translate-y-1">
+          <div className="absolute top-0 right-0 w-40 h-40 bg-rose-500/20 rounded-full blur-3xl -mr-10 -mt-10 transition-transform duration-700 group-hover:scale-150 group-hover:bg-rose-500/30" />
           <div className="flex justify-between items-start relative z-10">
             <div>
               <p className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Total NC</p>
-              <h4 className="text-4xl font-black text-rose-600 dark:text-rose-500 tracking-tight">{ncDetails.length}</h4>
+              <h4 className="text-5xl font-black text-rose-600 dark:text-rose-400 tracking-tighter drop-shadow-sm">{ncDetails.length}</h4>
             </div>
-            <div className="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-500/10 flex items-center justify-center text-rose-500">
-              <AlertTriangle className="w-6 h-6" />
+            <div className="w-14 h-14 rounded-2xl bg-rose-50/80 dark:bg-rose-500/10 backdrop-blur-md border border-rose-100/50 dark:border-rose-500/20 flex items-center justify-center text-rose-600 dark:text-rose-400 shadow-inner group-hover:-rotate-6 transition-transform duration-300">
+              <AlertTriangle className="w-7 h-7" />
             </div>
           </div>
         </div>
       </div>
 
       {/* QA Score Monthly Chart */}
-      <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm">
-        <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-widest mb-6 flex items-center gap-2">
-          <TrendingUp className="w-4 h-4 text-indigo-500" />
-          QA Score Monthly
-        </h3>
+      <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-2xl border border-slate-100/50 dark:border-slate-800/50 rounded-3xl p-6 md:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_40px_rgb(99,102,241,0.08)] transition-all duration-500">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h3 className="text-sm font-black text-slate-800 dark:text-slate-200 uppercase tracking-widest flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-indigo-500" />
+              QA Score Trend
+            </h3>
+            <p className="text-xs font-bold text-slate-400 mt-1 uppercase tracking-wider">Pergerakan Rata-Rata Nilai Bulanan</p>
+          </div>
+          <div className="px-3 py-1 bg-indigo-50 dark:bg-indigo-500/10 rounded-full border border-indigo-100 dark:border-indigo-500/20 text-xs font-bold text-indigo-600 dark:text-indigo-400 shadow-inner flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></div>
+            Live Update
+          </div>
+        </div>
         {monthlyScores.length > 0 ? (
-          <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={monthlyScores} margin={{ top: 20, right: 30, left: 0, bottom: 5 }} barCategoryGap="25%">
+          <ResponsiveContainer width="100%" height={320}>
+            <AreaChart data={monthlyScores} margin={{ top: 20, right: 10, left: -20, bottom: 5 }}>
               <defs>
-                <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor={COLORS.primary} stopOpacity={1}/>
-                  <stop offset="100%" stopColor={COLORS.primary} stopOpacity={0.6}/>
+                <linearGradient id="colorScoreArea" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#6366f1" stopOpacity={0.4}/>
+                  <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e4e4e7" opacity={0.5} />
-              <XAxis dataKey="month" tick={{ fontSize: 12, fill: "#71717a", fontWeight: 500 }} axisLine={false} tickLine={false} />
-              <YAxis domain={[0, 100]} tick={{ fontSize: 12, fill: "#71717a", fontWeight: 500 }} axisLine={false} tickLine={false} />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e4e4e7" strokeOpacity={0.4} />
+              <XAxis dataKey="month" tick={{ fontSize: 12, fill: "#71717a", fontWeight: 600 }} axisLine={false} tickLine={false} dy={10} />
+              <YAxis domain={[0, 100]} tick={{ fontSize: 12, fill: "#71717a", fontWeight: 600 }} axisLine={false} tickLine={false} dx={-10} />
               <Tooltip
-                cursor={{ fill: "rgba(99, 102, 241, 0.05)" }}
-                contentStyle={{ background: "rgba(255, 255, 255, 0.95)", backdropFilter: "blur(8px)", border: "none", borderRadius: "12px", boxShadow: "0 10px 30px rgba(0,0,0,0.12)" }}
-                itemStyle={{ color: "#18181b", fontWeight: "bold" }}
-                formatter={(value: any) => [`${Number(value).toFixed(2)}`, "Average QA Score"]}
+                cursor={{ stroke: 'rgba(99, 102, 241, 0.4)', strokeWidth: 2, strokeDasharray: '4 4' }}
+                contentStyle={{ background: "rgba(255, 255, 255, 0.95)", backdropFilter: "blur(12px)", border: "1px solid rgba(226, 232, 240, 0.8)", borderRadius: "16px", boxShadow: "0 20px 40px rgba(0,0,0,0.12)" }}
+                itemStyle={{ color: "#18181b", fontWeight: "900", fontSize: "16px" }}
+                labelStyle={{ color: "#71717a", fontWeight: "bold", fontSize: "12px", textTransform: "uppercase", marginBottom: "4px" }}
+                formatter={(value: any) => [`${Number(value).toFixed(2)}`, "AVG SCORE"]}
               />
-              <ReferenceLine y={TARGET_SCORE} stroke="#ef4444" strokeDasharray="4 4" strokeWidth={2} label={{ value: `Target ${TARGET_SCORE}`, position: "insideTopRight", fill: "#ef4444", fontSize: 12, fontWeight: 700 }} />
-              <Bar 
+              <ReferenceLine y={TARGET_SCORE} stroke="#ef4444" strokeDasharray="4 4" strokeWidth={2} label={{ value: `TARGET ${TARGET_SCORE}`, position: "insideTopRight", fill: "#ef4444", fontSize: 10, fontWeight: 800, backgroundColor: "#fff", padding: 4 }} />
+              <Area 
+                type="monotone" 
                 dataKey="avgScore" 
-                fill="url(#colorScore)" 
-                radius={[8, 8, 0, 0]} 
-                barSize={40}
+                stroke="#6366f1" 
+                strokeWidth={4}
+                fillOpacity={1} 
+                fill="url(#colorScoreArea)"
+                activeDot={{ r: 8, strokeWidth: 0, fill: "#4f46e5", style: { filter: "drop-shadow(0px 0px 8px rgba(79,70,229,0.6))" } }}
+                animationDuration={1500}
+                animationEasing="ease-in-out"
               />
-            </BarChart>
+            </AreaChart>
           </ResponsiveContainer>
         ) : (
-          <div className="flex flex-col items-center justify-center h-[280px] bg-slate-50/50 dark:bg-slate-800/20 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">
-            <TrendingUp className="w-8 h-8 text-slate-300 dark:text-slate-600 mb-3" />
-            <p className="text-slate-400 font-medium text-sm">No monthly data available</p>
+          <div className="flex flex-col items-center justify-center h-[320px] bg-slate-50/50 dark:bg-slate-800/20 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
+            <TrendingUp className="w-10 h-10 text-slate-300 dark:text-slate-600 mb-4" />
+            <p className="text-slate-400 font-bold text-sm tracking-widest uppercase">No Data Available</p>
           </div>
         )}
       </div>

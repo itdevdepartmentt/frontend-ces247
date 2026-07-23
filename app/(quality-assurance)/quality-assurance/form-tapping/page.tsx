@@ -283,60 +283,60 @@ export default function FormTappingPage() {
           
           <div className="flex-1 overflow-auto bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl rounded-2xl border border-white/40 dark:border-slate-800/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-1">
               <Table>
-                <TableHeader>
-                  <TableRow className="border-b border-slate-100 dark:border-slate-800 hover:bg-transparent">
-                    <TableHead className="w-[50px] font-semibold text-slate-500">#</TableHead>
-                    <SortableTableHead columnKey="createdAt" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">Created Date</SortableTableHead>
-                    <SortableTableHead columnKey="tapper" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">
+                <TableHeader className="sticky top-0 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-[0_4px_20px_rgb(0,0,0,0.03)] after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-slate-200/50 dark:after:bg-slate-800/50">
+                  <TableRow className="border-none hover:bg-transparent">
+                    <TableHead className="w-[50px] font-bold text-slate-500 uppercase tracking-wider text-xs">#</TableHead>
+                    <SortableTableHead columnKey="createdAt" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-bold text-slate-500 uppercase tracking-wider text-xs">Created Date</SortableTableHead>
+                    <SortableTableHead columnKey="tapper" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-bold text-slate-500 uppercase tracking-wider text-xs">
                       <div className="flex items-center">
                         Tapper
                         <ColumnFilterPopover columnKey="tapper" columnLabel="Tapper" columnFilters={ticketColumnFilters} setColumnFilters={setTicketColumnFilters} options={ticketFilterOptions?.tapper || []} />
                       </div>
                     </SortableTableHead>
-                    <SortableTableHead columnKey="idTiket" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">ID Tiket</SortableTableHead>
-                    <SortableTableHead columnKey="agent" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">
+                    <SortableTableHead columnKey="idTiket" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-bold text-slate-500 uppercase tracking-wider text-xs">ID Tiket</SortableTableHead>
+                    <SortableTableHead columnKey="agent" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-bold text-slate-500 uppercase tracking-wider text-xs">
                       <div className="flex items-center">
                         Agent
                         <ColumnFilterPopover columnKey="agent" columnLabel="Agent" columnFilters={ticketColumnFilters} setColumnFilters={setTicketColumnFilters} options={ticketFilterOptions?.agent || []} />
                       </div>
                     </SortableTableHead>
-                    <SortableTableHead columnKey="teamLeader" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">
+                    <SortableTableHead columnKey="teamLeader" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-bold text-slate-500 uppercase tracking-wider text-xs">
                       <div className="flex items-center">
                         Nama TL
                         <ColumnFilterPopover columnKey="teamLeader" columnLabel="Team Leader" columnFilters={ticketColumnFilters} setColumnFilters={setTicketColumnFilters} options={ticketFilterOptions?.teamLeader || []} />
                       </div>
                     </SortableTableHead>
-                    <SortableTableHead columnKey="channel" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">
+                    <SortableTableHead columnKey="channel" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-bold text-slate-500 uppercase tracking-wider text-xs">
                       <div className="flex items-center">
                         Channel
                         <ColumnFilterPopover columnKey="channel" columnLabel="Channel" columnFilters={ticketColumnFilters} setColumnFilters={setTicketColumnFilters} options={ticketFilterOptions?.channel || []} />
                       </div>
                     </SortableTableHead>
-                    <SortableTableHead columnKey="jenisInteraksi" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">
+                    <SortableTableHead columnKey="jenisInteraksi" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-bold text-slate-500 uppercase tracking-wider text-xs">
                       <div className="flex items-center">
                         Jenis Interaksi
                         <ColumnFilterPopover columnKey="jenisInteraksi" columnLabel="Jenis Interaksi" columnFilters={ticketColumnFilters} setColumnFilters={setTicketColumnFilters} options={ticketFilterOptions?.jenisInteraksi || []} />
                       </div>
                     </SortableTableHead>
-                    <SortableTableHead columnKey="kipLevel2" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">
+                    <SortableTableHead columnKey="kipLevel2" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-bold text-slate-500 uppercase tracking-wider text-xs">
                       <div className="flex items-center">
                         KIP Level 2
                         <ColumnFilterPopover columnKey="kipLevel2" columnLabel="KIP Level 2" columnFilters={ticketColumnFilters} setColumnFilters={setTicketColumnFilters} options={ticketFilterOptions?.kipLevel2 || []} />
                       </div>
                     </SortableTableHead>
-                    <SortableTableHead columnKey="kipLevel3" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">
+                    <SortableTableHead columnKey="kipLevel3" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-bold text-slate-500 uppercase tracking-wider text-xs">
                       <div className="flex items-center">
                         KIP Level 3
                         <ColumnFilterPopover columnKey="kipLevel3" columnLabel="KIP Level 3" columnFilters={ticketColumnFilters} setColumnFilters={setTicketColumnFilters} options={ticketFilterOptions?.kipLevel3 || []} />
                       </div>
                     </SortableTableHead>
-                    <SortableTableHead columnKey="inOutSla" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">
+                    <SortableTableHead columnKey="inOutSla" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-bold text-slate-500 uppercase tracking-wider text-xs">
                       <div className="flex items-center">
                         IN/OUT SLA
                         <ColumnFilterPopover columnKey="inOutSla" columnLabel="IN/OUT SLA" columnFilters={ticketColumnFilters} setColumnFilters={setTicketColumnFilters} options={ticketFilterOptions?.inOutSla || []} />
                       </div>
                     </SortableTableHead>
-                    <SortableTableHead columnKey="handlingTime" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">AHT</SortableTableHead>
+                    <SortableTableHead columnKey="handlingTime" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-bold text-slate-500 uppercase tracking-wider text-xs">AHT</SortableTableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody className={cn("transition-opacity duration-200", isFetchingTickets ? "opacity-50 pointer-events-none" : "opacity-100")}>
@@ -357,30 +357,30 @@ export default function FormTappingPage() {
                     </TableRow>
                   ) : (
                     tickets.map((t, i) => (
-                      <TableRow key={t.id} className="cursor-pointer hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors border-b border-slate-50 dark:border-slate-800/50" onClick={() => router.push(`/quality-assurance/form-tapping/${t.id}`)}>
-                        <TableCell className="text-slate-400 font-medium">{(ticketPage - 1) * itemsPerPage + i + 1}</TableCell>
-                        <TableCell className="text-slate-500 whitespace-nowrap">
+                      <TableRow key={t.id} className="cursor-pointer group relative transition-all duration-300 hover:bg-white dark:hover:bg-slate-800 hover:shadow-[0_4px_20px_rgb(0,0,0,0.06)] hover:z-10 hover:scale-[1.002] border-b border-slate-100 dark:border-slate-800/50" onClick={() => router.push(`/quality-assurance/form-tapping/${t.id}`)}>
+                        <TableCell className="text-slate-400 font-medium group-hover:text-indigo-500 transition-colors">{(ticketPage - 1) * itemsPerPage + i + 1}</TableCell>
+                        <TableCell className="text-slate-500 whitespace-nowrap group-hover:text-slate-800 dark:group-hover:text-slate-200 transition-colors">
                           {t.createdDate ? new Date(t.createdDate).toLocaleString("id-ID", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : t.createdAt ? new Date(t.createdAt).toLocaleString("id-ID", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : '-'}
                         </TableCell>
-                        <TableCell className="text-slate-700 dark:text-slate-300 font-medium uppercase">{t.tapper || '-'}</TableCell>
-                        <TableCell className="font-bold text-slate-900 dark:text-white uppercase">{t.idTiket || '-'}</TableCell>
-                        <TableCell className="text-slate-700 dark:text-slate-300 font-medium uppercase">{t.agent || '-'}</TableCell>
-                        <TableCell className="text-slate-700 dark:text-slate-300 font-medium uppercase">{t.teamLeader || '-'}</TableCell>
+                        <TableCell className="text-slate-700 dark:text-slate-300 font-medium uppercase group-hover:text-slate-900 dark:group-hover:text-white transition-colors">{t.tapper || '-'}</TableCell>
+                        <TableCell className="font-black text-slate-900 dark:text-white uppercase group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors drop-shadow-sm">{t.idTiket || '-'}</TableCell>
+                        <TableCell className="text-slate-700 dark:text-slate-300 font-medium uppercase group-hover:text-slate-900 dark:group-hover:text-white transition-colors">{t.agent || '-'}</TableCell>
+                        <TableCell className="text-slate-700 dark:text-slate-300 font-medium uppercase group-hover:text-slate-900 dark:group-hover:text-white transition-colors">{t.teamLeader || '-'}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            <span className="bg-slate-100 dark:bg-slate-800 w-6 h-6 flex items-center justify-center rounded-md text-xs font-bold text-slate-500">{t.channel ? t.channel.charAt(0) : '-'}</span>
-                            <span className="font-medium text-slate-700 dark:text-slate-300">{t.channel || '-'}</span>
+                            <span className="bg-slate-100 dark:bg-slate-800 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-500/10 w-7 h-7 flex items-center justify-center rounded-lg text-xs font-bold text-slate-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{t.channel ? t.channel.charAt(0) : '-'}</span>
+                            <span className="font-medium text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">{t.channel || '-'}</span>
                           </div>
                         </TableCell>
-                        <TableCell className="text-slate-700 dark:text-slate-300 font-medium max-w-[200px] truncate" title={t.jenisInteraksi || '-'}>{t.jenisInteraksi || '-'}</TableCell>
-                        <TableCell className="text-slate-500">{t.kipLevel2 || '-'}</TableCell>
-                        <TableCell className="text-slate-500">{t.kipLevel3 || '-'}</TableCell>
+                        <TableCell className="text-slate-700 dark:text-slate-300 font-medium max-w-[200px] truncate group-hover:text-slate-900 dark:group-hover:text-white transition-colors" title={t.jenisInteraksi || '-'}>{t.jenisInteraksi || '-'}</TableCell>
+                        <TableCell className="text-slate-500 group-hover:text-slate-800 dark:group-hover:text-slate-200 transition-colors">{t.kipLevel2 || '-'}</TableCell>
+                        <TableCell className="text-slate-500 group-hover:text-slate-800 dark:group-hover:text-slate-200 transition-colors">{t.kipLevel3 || '-'}</TableCell>
                         <TableCell>
-                          <span className={cn("px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase", t.inOutSla === "IN" ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600")}>
+                          <span className={cn("px-3 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase transition-all duration-300 border", t.inOutSla === "IN" ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.15)] group-hover:bg-emerald-500/20 group-hover:shadow-[0_0_20px_rgba(16,185,129,0.3)]" : "bg-rose-500/10 text-rose-600 border-rose-500/20 shadow-[0_0_15px_rgba(244,63,94,0.15)] group-hover:bg-rose-500/20 group-hover:shadow-[0_0_20px_rgba(244,63,94,0.3)]")}>
                             {t.inOutSla || '-'}
                           </span>
                         </TableCell>
-                        <TableCell className="text-slate-500 font-medium">{t.handlingTime || '-'}</TableCell>
+                        <TableCell className="text-slate-500 font-bold group-hover:text-slate-800 dark:group-hover:text-slate-200 transition-colors">{t.handlingTime || '-'}</TableCell>
                       </TableRow>
                     ))
                   )}

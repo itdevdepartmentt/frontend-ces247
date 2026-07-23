@@ -522,7 +522,31 @@ export default function EvaluateTicketPage() {
           {/* Right Column: Scoring */}
           <div className="w-full sm:w-1/2 flex flex-col overflow-y-auto relative bg-transparent">
             
-            <div className="p-6 sm:p-8 space-y-10">
+            {/* Floating Glassmorphism Score Card */}
+            <div className="sticky top-4 z-40 mx-6 sm:mx-8 mb-6 mt-4 p-5 rounded-2xl bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white/50 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.08)] flex items-center justify-between transition-all duration-300 hover:shadow-[0_8px_40px_rgb(0,0,0,0.12)]">
+              <div>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Total Score</p>
+                <div className="flex items-baseline gap-2">
+                  <h2 className="text-4xl font-black text-slate-900 dark:text-white leading-none">{totalScore}</h2>
+                  <span className="text-sm font-semibold text-slate-400">/ 100</span>
+                </div>
+              </div>
+              <div className="flex flex-col items-end">
+                <div className={cn(
+                  "px-4 py-1.5 rounded-full text-sm font-black tracking-widest uppercase shadow-sm",
+                  totalScore < 100 ? "bg-rose-100 text-rose-600 dark:bg-rose-900/40 dark:text-rose-400" : "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400"
+                )}>
+                  {totalScore < 100 ? "NON-COMPLIANT" : "COMPLIANT"}
+                </div>
+                {totalScore < 100 && (
+                  <p className="text-[10px] font-bold text-rose-500 mt-2 flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3" /> Agent will be notified
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="px-6 sm:px-8 pb-8 space-y-10">
               <section>
                 <h3 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-6">Evaluation Criteria</h3>
                 <div className="space-y-6">
@@ -533,8 +557,8 @@ export default function EvaluateTicketPage() {
                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">Max 30 pts</span>
                     </div>
                     <div className="flex gap-2 p-1.5 bg-slate-100/80 dark:bg-slate-800/80 rounded-xl border border-slate-200/50 dark:border-slate-700/50 shadow-inner">
-                      <button onClick={() => setScoreValiditas(30)} className={cn("flex-1 h-10 rounded-lg text-sm font-bold transition-all duration-200", scoreValiditas === 30 ? "bg-white dark:bg-slate-700 shadow text-emerald-600 dark:text-emerald-400" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200")}>Pass (30)</button>
-                      <button onClick={() => setScoreValiditas(0)} className={cn("flex-1 h-10 rounded-lg text-sm font-bold transition-all duration-200", scoreValiditas === 0 ? "bg-white dark:bg-slate-700 shadow text-rose-600 dark:text-rose-400" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200")}>Fail (0)</button>
+                      <button onClick={() => setScoreValiditas(30)} className={cn("flex-1 h-12 rounded-lg text-sm font-bold transition-all duration-300 active:scale-95", scoreValiditas === 30 ? "bg-emerald-500 shadow-md shadow-emerald-500/20 text-white" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-700/50")}>Pass (30)</button>
+                      <button onClick={() => setScoreValiditas(0)} className={cn("flex-1 h-12 rounded-lg text-sm font-bold transition-all duration-300 active:scale-95", scoreValiditas === 0 ? "bg-rose-500 shadow-md shadow-rose-500/20 text-white" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-700/50")}>Fail (0)</button>
                     </div>
                   </div>
 
@@ -544,8 +568,8 @@ export default function EvaluateTicketPage() {
                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">Max 30 pts</span>
                     </div>
                     <div className="flex gap-2 p-1.5 bg-slate-100/80 dark:bg-slate-800/80 rounded-xl border border-slate-200/50 dark:border-slate-700/50 shadow-inner">
-                      <button onClick={() => setScoreServiceLevel(30)} className={cn("flex-1 h-10 rounded-lg text-sm font-bold transition-all duration-200", scoreServiceLevel === 30 ? "bg-white dark:bg-slate-700 shadow text-emerald-600 dark:text-emerald-400" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200")}>Pass (30)</button>
-                      <button onClick={() => setScoreServiceLevel(0)} className={cn("flex-1 h-10 rounded-lg text-sm font-bold transition-all duration-200", scoreServiceLevel === 0 ? "bg-white dark:bg-slate-700 shadow text-rose-600 dark:text-rose-400" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200")}>Fail (0)</button>
+                      <button onClick={() => setScoreServiceLevel(30)} className={cn("flex-1 h-12 rounded-lg text-sm font-bold transition-all duration-300 active:scale-95", scoreServiceLevel === 30 ? "bg-emerald-500 shadow-md shadow-emerald-500/20 text-white" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-700/50")}>Pass (30)</button>
+                      <button onClick={() => setScoreServiceLevel(0)} className={cn("flex-1 h-12 rounded-lg text-sm font-bold transition-all duration-300 active:scale-95", scoreServiceLevel === 0 ? "bg-rose-500 shadow-md shadow-rose-500/20 text-white" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-700/50")}>Fail (0)</button>
                     </div>
                   </div>
 
@@ -555,8 +579,8 @@ export default function EvaluateTicketPage() {
                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">Max 10 pts</span>
                     </div>
                     <div className="flex gap-2 p-1.5 bg-slate-100/80 dark:bg-slate-800/80 rounded-xl border border-slate-200/50 dark:border-slate-700/50 shadow-inner">
-                      <button onClick={() => setScoreKalimat(10)} className={cn("flex-1 h-10 rounded-lg text-sm font-bold transition-all duration-200", scoreKalimat === 10 ? "bg-white dark:bg-slate-700 shadow text-emerald-600 dark:text-emerald-400" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200")}>Pass (10)</button>
-                      <button onClick={() => setScoreKalimat(0)} className={cn("flex-1 h-10 rounded-lg text-sm font-bold transition-all duration-200", scoreKalimat === 0 ? "bg-white dark:bg-slate-700 shadow text-rose-600 dark:text-rose-400" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200")}>Fail (0)</button>
+                      <button onClick={() => setScoreKalimat(10)} className={cn("flex-1 h-12 rounded-lg text-sm font-bold transition-all duration-300 active:scale-95", scoreKalimat === 10 ? "bg-emerald-500 shadow-md shadow-emerald-500/20 text-white" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-700/50")}>Pass (10)</button>
+                      <button onClick={() => setScoreKalimat(0)} className={cn("flex-1 h-12 rounded-lg text-sm font-bold transition-all duration-300 active:scale-95", scoreKalimat === 0 ? "bg-rose-500 shadow-md shadow-rose-500/20 text-white" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-700/50")}>Fail (0)</button>
                     </div>
                   </div>
 
@@ -566,8 +590,8 @@ export default function EvaluateTicketPage() {
                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">Max 15 pts</span>
                     </div>
                     <div className="flex gap-2 p-1.5 bg-slate-100/80 dark:bg-slate-800/80 rounded-xl border border-slate-200/50 dark:border-slate-700/50 shadow-inner">
-                      <button onClick={() => setScoreResponTime(15)} className={cn("flex-1 h-10 rounded-lg text-sm font-bold transition-all duration-200", scoreResponTime === 15 ? "bg-white dark:bg-slate-700 shadow text-emerald-600 dark:text-emerald-400" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200")}>Pass (15)</button>
-                      <button onClick={() => setScoreResponTime(0)} className={cn("flex-1 h-10 rounded-lg text-sm font-bold transition-all duration-200", scoreResponTime === 0 ? "bg-white dark:bg-slate-700 shadow text-rose-600 dark:text-rose-400" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200")}>Fail (0)</button>
+                      <button onClick={() => setScoreResponTime(15)} className={cn("flex-1 h-12 rounded-lg text-sm font-bold transition-all duration-300 active:scale-95", scoreResponTime === 15 ? "bg-emerald-500 shadow-md shadow-emerald-500/20 text-white" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-700/50")}>Pass (15)</button>
+                      <button onClick={() => setScoreResponTime(0)} className={cn("flex-1 h-12 rounded-lg text-sm font-bold transition-all duration-300 active:scale-95", scoreResponTime === 0 ? "bg-rose-500 shadow-md shadow-rose-500/20 text-white" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-700/50")}>Fail (0)</button>
                     </div>
                   </div>
 
@@ -577,8 +601,8 @@ export default function EvaluateTicketPage() {
                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">Max 15 pts</span>
                     </div>
                     <div className="flex gap-2 p-1.5 bg-slate-100/80 dark:bg-slate-800/80 rounded-xl border border-slate-200/50 dark:border-slate-700/50 shadow-inner">
-                      <button onClick={() => setScoreDokumentasi(15)} className={cn("flex-1 h-10 rounded-lg text-sm font-bold transition-all duration-200", scoreDokumentasi === 15 ? "bg-white dark:bg-slate-700 shadow text-emerald-600 dark:text-emerald-400" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200")}>Pass (15)</button>
-                      <button onClick={() => setScoreDokumentasi(0)} className={cn("flex-1 h-10 rounded-lg text-sm font-bold transition-all duration-200", scoreDokumentasi === 0 ? "bg-white dark:bg-slate-700 shadow text-rose-600 dark:text-rose-400" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200")}>Fail (0)</button>
+                      <button onClick={() => setScoreDokumentasi(15)} className={cn("flex-1 h-12 rounded-lg text-sm font-bold transition-all duration-300 active:scale-95", scoreDokumentasi === 15 ? "bg-emerald-500 shadow-md shadow-emerald-500/20 text-white" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-700/50")}>Pass (15)</button>
+                      <button onClick={() => setScoreDokumentasi(0)} className={cn("flex-1 h-12 rounded-lg text-sm font-bold transition-all duration-300 active:scale-95", scoreDokumentasi === 0 ? "bg-rose-500 shadow-md shadow-rose-500/20 text-white" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-700/50")}>Fail (0)</button>
                     </div>
                   </div>
 
@@ -592,7 +616,7 @@ export default function EvaluateTicketPage() {
                     <div className="flex flex-wrap gap-2 mt-1">
                       {["OK", "Proses & Sikap", "Kualitas Solusi Layanan"].map((opt) => (
                         <div key={opt} 
-                          className={cn("cursor-pointer px-4 py-2 rounded-xl border text-sm font-semibold transition-all select-none flex items-center gap-2", parameterPenilaian.includes(opt) ? "bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-900 dark:border-white shadow-md" : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-800 dark:hover:border-slate-700 shadow-sm")}
+                          className={cn("cursor-pointer px-4 py-2.5 rounded-xl border text-sm font-semibold transition-all duration-300 select-none flex items-center gap-2 active:scale-95", parameterPenilaian.includes(opt) ? "bg-indigo-500 text-white border-indigo-500 shadow-md shadow-indigo-500/20" : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-800 dark:hover:border-slate-700 shadow-sm hover:shadow-md")}
                           onClick={() => {
                             if (parameterPenilaian.includes(opt)) setParameterPenilaian(parameterPenilaian.filter(x => x !== opt));
                             else setParameterPenilaian([...parameterPenilaian, opt]);
@@ -609,7 +633,7 @@ export default function EvaluateTicketPage() {
                     <div className="flex flex-wrap gap-2 mt-1">
                       {["OK", "Validitas Closing Case", "Service Level Closing", "Penyampaian Kalimat", "Respon Time", "Dokumentasi"].map((opt) => (
                         <div key={opt} 
-                          className={cn("cursor-pointer px-4 py-2 rounded-xl border text-sm font-semibold transition-all select-none flex items-center gap-2", subParameterPenilaian.includes(opt) ? "bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-900 dark:border-white shadow-md" : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-800 dark:hover:border-slate-700 shadow-sm")}
+                          className={cn("cursor-pointer px-4 py-2.5 rounded-xl border text-sm font-semibold transition-all duration-300 select-none flex items-center gap-2 active:scale-95", subParameterPenilaian.includes(opt) ? "bg-indigo-500 text-white border-indigo-500 shadow-md shadow-indigo-500/20" : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-800 dark:hover:border-slate-700 shadow-sm hover:shadow-md")}
                           onClick={() => {
                             if (subParameterPenilaian.includes(opt)) setSubParameterPenilaian(subParameterPenilaian.filter(x => x !== opt));
                             else setSubParameterPenilaian([...subParameterPenilaian, opt]);
@@ -636,8 +660,8 @@ export default function EvaluateTicketPage() {
                       ].map((opt) => (
                         <div key={opt} 
                           className={cn(
-                            "cursor-pointer px-4 py-2 rounded-xl border text-sm font-semibold transition-all select-none flex items-center justify-center text-center", 
-                            solusi.includes(opt) ? "bg-slate-900 text-white border-slate-900 shadow-md dark:bg-white dark:text-slate-900 dark:border-white" : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-800 dark:hover:border-slate-700 shadow-sm"
+                            "cursor-pointer px-4 py-2.5 rounded-xl border text-sm font-semibold transition-all duration-300 select-none flex items-center justify-center text-center active:scale-95", 
+                            solusi.includes(opt) ? "bg-indigo-500 text-white border-indigo-500 shadow-md shadow-indigo-500/20" : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-800 dark:hover:border-slate-700 shadow-sm hover:shadow-md"
                           )}
                           onClick={() => {
                             if (solusi.includes(opt)) setSolusi(solusi.filter(x => x !== opt));
@@ -656,8 +680,8 @@ export default function EvaluateTicketPage() {
                     <div className="flex flex-col gap-3">
                       <Label className="font-bold text-slate-700 dark:text-slate-300">Final Status *</Label>
                       <div className="bg-slate-100/80 dark:bg-slate-800/80 p-1.5 rounded-xl flex gap-1 border border-slate-200/50 dark:border-slate-700/50 shadow-inner overflow-x-auto">
-                        <button onClick={() => setStatus("Sample")} className={cn("flex-1 h-10 px-4 rounded-lg text-sm font-bold transition-all duration-200", status === "Sample" ? "bg-white dark:bg-slate-700 shadow text-slate-900 dark:text-white" : "text-slate-500 hover:text-slate-900")}>Sample</button>
-                        <button onClick={() => setStatus("Cancel")} className={cn("flex-1 h-10 px-4 rounded-lg text-sm font-bold transition-all duration-200", status === "Cancel" ? "bg-white dark:bg-slate-700 shadow text-red-600" : "text-slate-500 hover:text-red-600")}>Cancel</button>
+                        <button onClick={() => setStatus("Sample")} className={cn("flex-1 h-12 px-4 rounded-lg text-sm font-bold transition-all duration-300", status === "Sample" ? "bg-white dark:bg-slate-700 shadow-md text-slate-900 dark:text-white" : "text-slate-500 hover:text-slate-900")}>Sample</button>
+                        <button onClick={() => setStatus("Cancel")} className={cn("flex-1 h-12 px-4 rounded-lg text-sm font-bold transition-all duration-300", status === "Cancel" ? "bg-white dark:bg-slate-700 shadow-md text-red-600" : "text-slate-500 hover:text-red-600")}>Cancel</button>
                       </div>
                     </div>
                   </div>
@@ -666,43 +690,34 @@ export default function EvaluateTicketPage() {
                     <div className="flex flex-col gap-3">
                       <Label className="font-bold text-slate-700 dark:text-slate-300">Peak *</Label>
                       <div className="flex items-center gap-2">
-                        <Button variant="outline" size="icon" onClick={() => setPeak(Math.max(1, peak - 1))} className="h-[52px] w-[52px] rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 text-slate-600 shrink-0 hover:bg-slate-100">
+                        <Button variant="outline" size="icon" onClick={() => setPeak(Math.max(1, peak - 1))} className="h-[56px] w-[56px] rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 text-slate-600 shrink-0 hover:bg-slate-100 hover:scale-105 transition-transform duration-200 shadow-sm">
                           <Minus className="w-5 h-5" />
                         </Button>
-                        <div className="h-[52px] flex-1 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex items-center justify-center font-bold text-xl text-slate-800 dark:text-slate-200">
+                        <div className="h-[56px] flex-1 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 flex items-center justify-center font-black text-2xl text-slate-800 dark:text-slate-200 shadow-inner">
                           {peak}
                         </div>
-                        <Button variant="outline" size="icon" onClick={() => setPeak(Math.min(3, peak + 1))} className="h-[52px] w-[52px] rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 text-slate-600 shrink-0 hover:bg-slate-100">
+                        <Button variant="outline" size="icon" onClick={() => setPeak(Math.min(3, peak + 1))} className="h-[56px] w-[56px] rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 text-slate-600 shrink-0 hover:bg-slate-100 hover:scale-105 transition-transform duration-200 shadow-sm">
                           <Plus className="w-5 h-5" />
                         </Button>
                       </div>
                     </div>
 
                     <div className="flex flex-col gap-3">
-                      <Label className="font-bold text-slate-700 dark:text-slate-300">Tagging *</Label>
-                      <Select value={tagging} onValueChange={setTagging}>
-                        <SelectTrigger className="h-[52px] rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 font-medium">
-                          <SelectValue placeholder="Pilih Tagging" />
-                        </SelectTrigger>
-                        <SelectContent className="rounded-xl border-slate-200 dark:border-slate-800">
-                          <SelectItem value="none">Tidak Ada</SelectItem>
-                          <SelectItem value="#ReqSPV">#ReqSPV</SelectItem>
-                          <SelectItem value="#ReqPRIME">#ReqPRIME</SelectItem>
-                          <SelectItem value="#Detractors">#Detractors</SelectItem>
-                          <SelectItem value="lainnya">Lainnya (Tulis Sendiri)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      
-                      {tagging === "lainnya" && (
-                        <Input 
-                          value={taggingCustom}
-                          onChange={(e) => setTaggingCustom(e.target.value)}
-                          placeholder="Masukkan tagging kustom..."
-                          className="h-10 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 font-medium"
-                        />
-                      )}
+                      <Label className="font-bold text-slate-700 dark:text-slate-300">Tagging Lanjutan *</Label>
+                      <div className="bg-slate-100/80 dark:bg-slate-800/80 p-1.5 rounded-xl flex gap-1 border border-slate-200/50 dark:border-slate-700/50 shadow-inner overflow-x-auto">
+                        {["none", "fatal", "lainnya"].map(opt => (
+                          <button key={opt} onClick={() => setTagging(opt)} className={cn("flex-1 h-12 px-3 rounded-lg text-sm font-bold transition-all duration-300 uppercase", tagging === opt ? "bg-white dark:bg-slate-700 shadow-md text-slate-900 dark:text-white" : "text-slate-500 hover:text-slate-900")}>{opt}</button>
+                        ))}
+                      </div>
                     </div>
                   </div>
+
+                  {tagging === "lainnya" && (
+                    <div className="flex flex-col gap-3 animate-in fade-in slide-in-from-top-4 duration-300">
+                      <Label className="font-bold text-slate-700 dark:text-slate-300">Detail Tagging Custom *</Label>
+                      <Input value={taggingCustom} onChange={(e) => setTaggingCustom(e.target.value)} placeholder="Tuliskan tagging spesifik..." className="h-12 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-xl shadow-sm text-sm" />
+                    </div>
+                  )}
 
                   <div className="flex flex-col gap-3 pt-2">
                     <Label className="font-bold text-slate-700 dark:text-slate-300">Notes QC</Label>
@@ -714,26 +729,27 @@ export default function EvaluateTicketPage() {
           </div>
         </div>
 
-        <div className="px-6 py-4 sm:px-8 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 flex flex-col sm:flex-row justify-between items-center gap-4 shrink-0 shadow-[0_-15px_40px_-15px_rgba(0,0,0,0.05)] z-30 relative">
+        <div className="px-6 py-5 sm:px-8 border-t border-slate-200/50 dark:border-slate-800/50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl flex flex-col sm:flex-row justify-between items-center gap-4 shrink-0 shadow-[0_-20px_40px_-15px_rgba(0,0,0,0.05)] z-30 relative">
           <div className="flex items-center gap-6 w-full sm:w-auto justify-between sm:justify-start">
             <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-900 flex items-center justify-center text-slate-500 shadow-inner">
+                <User className="w-6 h-6" />
+              </div>
               <div className="flex flex-col justify-center">
-                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mb-1.5">Total QA Score</span>
-                <div className="flex items-baseline gap-1">
-                  <span className={cn("text-4xl font-black leading-none tracking-tighter", totalScore >= 80 ? "text-emerald-500" : totalScore >= 50 ? "text-amber-500" : "text-rose-500")}>{totalScore}</span>
-                  <span className="text-sm font-bold text-slate-400">/100</span>
-                </div>
+                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mb-1.5">Reviewer</span>
+                <span className="text-sm font-black text-slate-800 dark:text-slate-200 leading-none">{user?.name || "QC Staff"}</span>
               </div>
             </div>
-            <div className="hidden sm:block h-12 w-px bg-slate-200 dark:bg-slate-800"></div>
-            <span className="text-xs font-semibold text-slate-500 hidden sm:flex items-center gap-2 max-w-[200px] leading-relaxed"><ListChecks className="w-4 h-4 shrink-0" /> Review all inputs carefully before saving.</span>
+            <div className="hidden sm:block h-12 w-px bg-slate-200/60 dark:bg-slate-800/60"></div>
+            <span className="text-xs font-semibold text-slate-500 hidden sm:flex items-center gap-2 max-w-[200px] leading-relaxed"><ListChecks className="w-4 h-4 shrink-0 text-indigo-500" /> Pastikan semua nilai sudah benar sebelum submit.</span>
           </div>
           
           <div className="flex gap-3 w-full sm:w-auto">
-            <Button variant="outline" className="flex-1 sm:flex-none h-12 px-6 rounded-xl border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" onClick={() => router.push("/quality-assurance/form-tapping")}>
-              Cancel
+            <Button variant="outline" className="flex-1 sm:flex-none h-14 px-8 rounded-xl border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition-all shadow-sm" onClick={() => router.push("/quality-assurance/form-tapping")}>
+              Batal
             </Button>
-            <Button className="flex-1 sm:flex-none h-12 px-8 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-lg shadow-indigo-600/20 transition-all hover:-translate-y-0.5" onClick={handleSubmitReview} disabled={submitMutation.isPending || !isTapping}>
+            <Button className="flex-1 sm:flex-none h-14 px-10 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black shadow-xl shadow-indigo-600/30 transition-all hover:-translate-y-0.5 active:scale-95 flex items-center gap-2" onClick={handleSubmitReview} disabled={submitMutation.isPending || !isTapping}>
+              {submitMutation.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Check className="w-5 h-5" />}
               {submitMutation.isPending ? "Submitting..." : "Submit Review"}
             </Button>
           </div>
