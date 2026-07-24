@@ -182,6 +182,7 @@ export default function QaReconciliationPage() {
                 <SortableTableHead columnKey="createdAt" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500 text-xs">Tgl Pengajuan</SortableTableHead>
                 <SortableTableHead columnKey="idTiket" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">ID Tiket</SortableTableHead>
                 <SortableTableHead columnKey="agentName" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">Nama Agent</SortableTableHead>
+                <SortableTableHead columnKey="peak" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500 text-center">Peak</SortableTableHead>
                 <SortableTableHead columnKey="tlName" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">TL / QC</SortableTableHead>
                 <SortableTableHead columnKey="tlReason" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500 max-w-[200px]">Alasan TL</SortableTableHead>
                 <SortableTableHead columnKey="proposedScoreValiditas" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500 text-center">Validitas</SortableTableHead>
@@ -218,6 +219,7 @@ export default function QaReconciliationPage() {
                     </TableCell>
                     <TableCell className="font-bold text-indigo-600 dark:text-indigo-400 text-xs">{row.idTiket}</TableCell>
                     <TableCell className="font-semibold text-slate-800 dark:text-slate-200 text-xs">{row.agentName}</TableCell>
+                    <TableCell className="font-bold text-slate-500 text-xs text-center">{row.peak || '-'}</TableCell>
                     <TableCell className="whitespace-nowrap">
                       <div className="font-bold text-sm text-slate-900 dark:text-white">{row.tlName}</div>
                       <div className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">

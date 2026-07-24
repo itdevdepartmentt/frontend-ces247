@@ -393,6 +393,8 @@ export default function DetailTappingPage() {
               <TableHead className="w-[50px] font-semibold text-slate-500">#</TableHead>
               <SortableTableHead columnKey="createdAt" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">Tanggal Tapping</SortableTableHead>
               <SortableTableHead columnKey="createdDate" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">Created Date</SortableTableHead>
+              <SortableTableHead columnKey="month" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">Bulan</SortableTableHead>
+              <SortableTableHead columnKey="peak" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">Peak</SortableTableHead>
               <SortableTableHead columnKey="agent" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">Nama Agent</SortableTableHead>
               <SortableTableHead columnKey="teamLeader" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">Nama TL</SortableTableHead>
               {canSeeTapper && (
@@ -449,6 +451,12 @@ export default function DetailTappingPage() {
                     </TableCell>
                     <TableCell className="text-slate-500 whitespace-nowrap">
                       {row.createdDate ? new Date(row.createdDate).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }) : "-"}
+                    </TableCell>
+                    <TableCell className="text-slate-500 whitespace-nowrap font-medium">
+                      {row.createdAt ? new Date(row.createdAt).toLocaleDateString("id-ID", { month: "long", year: "numeric" }) : "-"}
+                    </TableCell>
+                    <TableCell className="text-slate-500 whitespace-nowrap text-center font-bold">
+                      {row.peak || "-"}
                     </TableCell>
                     <TableCell className="font-semibold text-slate-900 dark:text-white whitespace-nowrap">{row.agent}</TableCell>
                     <TableCell className="text-slate-500 whitespace-nowrap">{row.teamLeader || "-"}</TableCell>
