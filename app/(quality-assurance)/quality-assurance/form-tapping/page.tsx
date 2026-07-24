@@ -294,16 +294,16 @@ export default function FormTappingPage() {
                       </div>
                     </SortableTableHead>
                     <SortableTableHead columnKey="idTiket" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-bold text-slate-500 uppercase tracking-wider text-xs">ID Tiket</SortableTableHead>
+                    <SortableTableHead columnKey="customerRequests" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-bold text-slate-500 uppercase tracking-wider text-xs">
+                      <div className="flex items-center">
+                        Subject Email
+                        <ColumnFilterPopover columnKey="customerRequests" columnLabel="Subject Email" columnFilters={ticketColumnFilters} setColumnFilters={setTicketColumnFilters} options={ticketFilterOptions?.customerRequests || []} />
+                      </div>
+                    </SortableTableHead>
                     <SortableTableHead columnKey="agent" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-bold text-slate-500 uppercase tracking-wider text-xs">
                       <div className="flex items-center">
                         Agent
                         <ColumnFilterPopover columnKey="agent" columnLabel="Agent" columnFilters={ticketColumnFilters} setColumnFilters={setTicketColumnFilters} options={ticketFilterOptions?.agent || []} />
-                      </div>
-                    </SortableTableHead>
-                    <SortableTableHead columnKey="teamLeader" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-bold text-slate-500 uppercase tracking-wider text-xs">
-                      <div className="flex items-center">
-                        Nama TL
-                        <ColumnFilterPopover columnKey="teamLeader" columnLabel="Team Leader" columnFilters={ticketColumnFilters} setColumnFilters={setTicketColumnFilters} options={ticketFilterOptions?.teamLeader || []} />
                       </div>
                     </SortableTableHead>
                     <SortableTableHead columnKey="channel" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-bold text-slate-500 uppercase tracking-wider text-xs">
@@ -364,8 +364,8 @@ export default function FormTappingPage() {
                         </TableCell>
                         <TableCell className="text-slate-700 dark:text-slate-300 font-medium uppercase group-hover:text-slate-900 dark:group-hover:text-white transition-colors">{t.tapper || '-'}</TableCell>
                         <TableCell className="font-black text-slate-900 dark:text-white uppercase group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors drop-shadow-sm">{t.idTiket || '-'}</TableCell>
+                        <TableCell className="text-slate-700 dark:text-slate-300 font-medium group-hover:text-slate-900 dark:group-hover:text-white transition-colors truncate max-w-[200px]" title={t.customerRequests}>{t.customerRequests || '-'}</TableCell>
                         <TableCell className="text-slate-700 dark:text-slate-300 font-medium uppercase group-hover:text-slate-900 dark:group-hover:text-white transition-colors">{t.agent || '-'}</TableCell>
-                        <TableCell className="text-slate-700 dark:text-slate-300 font-medium uppercase group-hover:text-slate-900 dark:group-hover:text-white transition-colors">{t.teamLeader || '-'}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <span className="bg-slate-100 dark:bg-slate-800 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-500/10 w-7 h-7 flex items-center justify-center rounded-lg text-xs font-bold text-slate-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{t.channel ? t.channel.charAt(0) : '-'}</span>
