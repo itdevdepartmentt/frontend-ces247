@@ -116,7 +116,7 @@ export default function ReviewHistoryTab({
     setIsDownloading(true);
     try {
       const res = await api.get("/qa/form-tapping/export", { responseType: "blob" });
-      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const url = window.URL.createObjectURL(new Blob([res.data], { type: res.headers['content-type'] }));
       const a = document.createElement("a");
       a.href = url;
       a.download = `review-history-${new Date().toISOString().slice(0, 10)}.xlsx`;

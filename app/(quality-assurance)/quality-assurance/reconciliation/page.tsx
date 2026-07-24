@@ -58,12 +58,38 @@ export default function QaReconciliationPage() {
     refetchInterval: 3000,
   });
 
+  const [isExporting, setIsExporting] = useState(false);
+  const [reviewOpen, setReviewOpen] = useState(false);
+
   const handleSort = (key: string, order: "asc" | "desc") => {
     setSortBy(key);
     setSortOrder(order);
   };
 
-  const [reviewOpen, setReviewOpen] = useState(false);
+  const handleExport = async () => {
+    setIsExporting(true);
+    try {
+      const params = new URLSearchParams();
+      if (search) params.set("search", search);
+      if (statusFilter && statusFilter !== "all") params.set("status", statusFilter);
+      if (sortBy) params.set("sortBy", sortBy);
+      if (sortOrder) params.set("sortOrder", sortOrder);
+
+      const res = await api.get(`/qa/reconciliation/export?${params.toString()}`, { responseType: "blob" });
+      const url = window.URL.createObjectURL(new Blob([res.data], { type: res.headers['content-type'] }));
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `reconciliation-${new Date().getTime()}.xlsx`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+      toast.success("Berhasil mengekspor data");
+    } catch (error) {
+      toast.error("Gagal mengekspor data");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const [selectedRekonId, setSelectedRekonId] = useState<string | null>(null);
   const [qcNotes, setQcNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -159,17 +185,32 @@ export default function QaReconciliationPage() {
               className="pl-9 h-10 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-xl"
             />
           </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full sm:w-[180px] h-10 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-xl">
-              <SelectValue placeholder="Semua Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Semua Status</SelectItem>
-              <SelectItem value="PENDING">Pending</SelectItem>
-              <SelectItem value="APPROVED">Approved</SelectItem>
-              <SelectItem value="REJECTED">Rejected</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex gap-2 w-full sm:w-auto">
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-full sm:w-[180px] h-10 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-xl">
+                <SelectValue placeholder="Semua Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Semua Status</SelectItem>
+                <SelectItem value="PENDING">Pending</SelectItem>
+                <SelectItem value="APPROVED">Approved</SelectItem>
+                <SelectItem value="REJECTED">Rejected</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button 
+              variant="outline" 
+              onClick={handleExport} 
+              disabled={isExporting}
+              className="h-10 px-4 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 shrink-0"
+            >
+              {isExporting ? (
+                <div className="w-4 h-4 border-2 border-slate-400 border-t-slate-700 rounded-full animate-spin mr-2" />
+              ) : (
+                <Download className="w-4 h-4 mr-2" />
+              )}
+              Export
+            </Button>
+          </div>
         </div>
       </div>
 
