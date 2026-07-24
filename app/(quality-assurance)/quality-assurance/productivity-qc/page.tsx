@@ -457,8 +457,8 @@ export default function ProductivityQcPage() {
               )}
             </div>
           </div>
-          <div className="max-h-[600px] overflow-auto rounded-xl border border-slate-200/60 dark:border-slate-700/60">
-            <Table>
+          <div className="rounded-xl border border-slate-200/60 dark:border-slate-700/60 overflow-hidden">
+            <Table containerClassName="max-h-[600px] overflow-auto">
               <TableHeader className="bg-slate-50/90 dark:bg-slate-900/90 sticky top-0 z-10 backdrop-blur-xl shadow-sm">
                 <TableRow>
                   {isSelectionMode && (
@@ -620,8 +620,8 @@ export default function ProductivityQcPage() {
             <Activity className="w-4 h-4 text-emerald-500" />
             REALTIME TAPPING ALL CHANNEL/KIP & EKSEKUTOR AGENT
           </h3>
-          <div className="max-h-[600px] overflow-auto rounded-xl border border-slate-200 dark:border-slate-800">
-            <Table className="whitespace-nowrap">
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+            <Table className="whitespace-nowrap" containerClassName="max-h-[600px] overflow-auto">
               <TableHeader className="bg-slate-50/90 dark:bg-slate-900/90 sticky top-0 z-10 backdrop-blur-xl">
                 <TableRow>
                   <TableHead className="text-xs font-semibold text-slate-500 bg-indigo-50/50 dark:bg-indigo-900/10 text-center border-r border-b-0" rowSpan={2}></TableHead>
@@ -735,8 +735,8 @@ export default function ProductivityQcPage() {
               </Button>
             </div>
           </div>
-          <div className="max-h-[600px] overflow-auto rounded-xl border border-slate-200 dark:border-slate-800">
-            <Table className="whitespace-nowrap">
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+            <Table className="whitespace-nowrap" containerClassName="max-h-[600px] overflow-auto">
               <TableHeader className="bg-slate-50/90 dark:bg-slate-900/90 sticky top-0 z-10 backdrop-blur-xl">
                 <TableRow>
                   {isSelectionMode && (
