@@ -188,16 +188,31 @@ export default function DetailTappingPage() {
       const params = new URLSearchParams();
       params.set("page", page.toString());
       params.set("limit", itemsPerPage.toString());
-      if (year) params.set("year", year);
-      if (month) params.set("month", month);
-      if (agent) params.set("agent", agent);
-      if (teamLeader) params.set("teamLeader", teamLeader);
-      if (peak) params.set("peak", peak);
+
+      const filterYear = debouncedColumnFilters["year"]?.[0] || year;
+      const filterMonth = debouncedColumnFilters["month"]?.[0] || month;
+      const filterAgent = debouncedColumnFilters["agent"]?.[0] || agent;
+      const filterTeamLeader = debouncedColumnFilters["teamLeader"]?.[0] || teamLeader;
+      const filterPeak = debouncedColumnFilters["peak"]?.[0] || peak;
+
+      if (filterYear) params.set("year", filterYear);
+      if (filterMonth) params.set("month", filterMonth);
+      if (filterAgent) params.set("agent", filterAgent);
+      if (filterTeamLeader) params.set("teamLeader", filterTeamLeader);
+      if (filterPeak) params.set("peak", filterPeak);
       if (debouncedSearch) params.set("search", debouncedSearch);
       if (sortBy) params.set("sortBy", sortBy);
       if (sortOrder) params.set("sortOrder", sortOrder);
-      if (Object.keys(debouncedColumnFilters).length > 0) {
-        params.set("filters", JSON.stringify(debouncedColumnFilters));
+
+      const dynamicFilters = { ...debouncedColumnFilters };
+      delete dynamicFilters["year"];
+      delete dynamicFilters["month"];
+      delete dynamicFilters["agent"];
+      delete dynamicFilters["teamLeader"];
+      delete dynamicFilters["peak"];
+
+      if (Object.keys(dynamicFilters).length > 0) {
+        params.set("filters", JSON.stringify(dynamicFilters));
       }
       const res = await api.get(`/qa/form-tapping/detail-tapping?${params.toString()}`);
       return res.data;
@@ -314,67 +329,8 @@ export default function DetailTappingPage() {
       </div>
 
       {/* Filter Bar */}
-      <div className="flex items-center gap-3 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl p-4 rounded-2xl border border-white/40 dark:border-slate-800/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex-wrap">
-        <Select value={agent || "all"} onValueChange={(v) => { setAgent(v === "all" ? "" : v); setPage(1); }}>
-          <SelectTrigger className="w-[200px] h-10 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-medium">
-            <SelectValue placeholder="All Agents" />
-          </SelectTrigger>
-          <SelectContent className="rounded-xl max-h-[300px]">
-            <SelectItem value="all">All Agents</SelectItem>
-            {(detailOptions?.agents || []).map((a: string) => (
-              <SelectItem key={a} value={a}>{a}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Select value={teamLeader || "all"} onValueChange={(v) => { setTeamLeader(v === "all" ? "" : v); setPage(1); }}>
-          <SelectTrigger className="w-[180px] h-10 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-medium">
-            <SelectValue placeholder="All Team Leader" />
-          </SelectTrigger>
-          <SelectContent className="rounded-xl max-h-[300px]">
-            <SelectItem value="all">All Team Leader</SelectItem>
-            {(detailOptions?.teamLeaders || []).map((a: string) => (
-              <SelectItem key={a} value={a}>{a}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Select value={year} onValueChange={(v) => { setYear(v); setPage(1); }}>
-          <SelectTrigger className="w-[120px] h-10 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-medium">
-            <SelectValue placeholder="Year" />
-          </SelectTrigger>
-          <SelectContent className="rounded-xl">
-            {(detailOptions?.years || [new Date().getFullYear()]).map((y: number) => (
-              <SelectItem key={y} value={y.toString()}>{y}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Select value={month || "all"} onValueChange={(v) => { setMonth(v === "all" ? "" : v); setPage(1); }}>
-          <SelectTrigger className="w-[140px] h-10 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-medium">
-            <SelectValue placeholder="All Months" />
-          </SelectTrigger>
-          <SelectContent className="rounded-xl">
-            <SelectItem value="all">All Months</SelectItem>
-            {["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].map((m, i) => (
-              <SelectItem key={i + 1} value={(i + 1).toString()}>{m}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Select value={peak || "all"} onValueChange={(v) => { setPeak(v === "all" ? "" : v); setPage(1); }}>
-          <SelectTrigger className="w-[120px] h-10 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-medium">
-            <SelectValue placeholder="All Peak" />
-          </SelectTrigger>
-          <SelectContent className="rounded-xl">
-            <SelectItem value="all">All Peak</SelectItem>
-            {(detailOptions?.peaks || []).map((p: number) => (
-              <SelectItem key={p} value={p.toString()}>Peak {p}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <div className="relative flex-1 min-w-[200px]">
+      <div className="flex items-center gap-3 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl p-4 rounded-2xl border border-white/40 dark:border-slate-800/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+        <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <Input 
             placeholder="Search Ticket, Agent, QC..." 
@@ -391,12 +347,37 @@ export default function DetailTappingPage() {
           <TableHeader>
             <TableRow className="border-b border-slate-100 dark:border-slate-800 hover:bg-transparent">
               <TableHead className="w-[50px] font-semibold text-slate-500">#</TableHead>
-              <SortableTableHead columnKey="createdAt" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">Tanggal Tapping</SortableTableHead>
+              <SortableTableHead columnKey="createdAt" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">
+                <div className="flex items-center">
+                  Tanggal Tapping
+                  <ColumnFilterPopover columnKey="year" columnLabel="Tahun" columnFilters={columnFilters} setColumnFilters={setColumnFilters} options={detailOptions?.years?.map((y: number) => y.toString()) || []} />
+                </div>
+              </SortableTableHead>
               <SortableTableHead columnKey="createdDate" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">Created Date</SortableTableHead>
-              <SortableTableHead columnKey="month" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">Bulan</SortableTableHead>
-              <SortableTableHead columnKey="peak" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">Peak</SortableTableHead>
-              <SortableTableHead columnKey="agent" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">Nama Agent</SortableTableHead>
-              <SortableTableHead columnKey="teamLeader" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">Nama TL</SortableTableHead>
+              <SortableTableHead columnKey="month" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">
+                <div className="flex items-center">
+                  Bulan
+                  <ColumnFilterPopover columnKey="month" columnLabel="Bulan" columnFilters={columnFilters} setColumnFilters={setColumnFilters} options={["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]} />
+                </div>
+              </SortableTableHead>
+              <SortableTableHead columnKey="peak" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">
+                <div className="flex items-center">
+                  Peak
+                  <ColumnFilterPopover columnKey="peak" columnLabel="Peak" columnFilters={columnFilters} setColumnFilters={setColumnFilters} options={["1", "2", "3"]} />
+                </div>
+              </SortableTableHead>
+              <SortableTableHead columnKey="agent" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">
+                <div className="flex items-center">
+                  Nama Agent
+                  <ColumnFilterPopover columnKey="agent" columnLabel="Agent" columnFilters={columnFilters} setColumnFilters={setColumnFilters} options={detailOptions?.agents || []} />
+                </div>
+              </SortableTableHead>
+              <SortableTableHead columnKey="teamLeader" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">
+                <div className="flex items-center">
+                  Nama TL
+                  <ColumnFilterPopover columnKey="teamLeader" columnLabel="TL" columnFilters={columnFilters} setColumnFilters={setColumnFilters} options={detailOptions?.teamLeaders || []} />
+                </div>
+              </SortableTableHead>
               {canSeeTapper && (
                 <TableHead className="font-semibold text-slate-500">
                   <div className="flex items-center">
