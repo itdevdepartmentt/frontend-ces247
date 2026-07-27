@@ -575,16 +575,16 @@ export default function ProductivityQcPage() {
                           
                           {/* SLA Kinerja */}
                           <TableCell className={`text-center font-bold border-l ${
-                            !qc.avgTappingDuration ? 'text-slate-400 bg-slate-50/50' : 
-                            qc.avgTappingDuration > 300 ? 'text-red-600 bg-red-50/50' : 
-                            qc.avgTappingDuration > 180 ? 'text-amber-600 bg-amber-50/50' : 'text-emerald-600 bg-emerald-50/50'
+                            !qc.avgTappingDuration ? 'text-slate-400 bg-slate-50/50 dark:bg-slate-800/50' : 
+                            qc.avgTappingDuration > 300 ? 'text-red-600 bg-red-50/50 dark:bg-red-900/20' : 
+                            qc.avgTappingDuration > 180 ? 'text-amber-600 bg-amber-50/50 dark:bg-amber-900/20' : 'text-emerald-600 bg-emerald-50/50 dark:bg-emerald-900/20'
                           }`}>
                             {qc.avgTappingDuration ? `${Math.floor(qc.avgTappingDuration / 60)}m ${qc.avgTappingDuration % 60}s` : '-'}
                           </TableCell>
                           <TableCell className={`text-center font-bold ${
-                            !qc.avgRekonSla ? 'text-slate-400 bg-slate-50/50' : 
-                            qc.avgRekonSla > 1440 ? 'text-red-600 bg-red-50/50' : 
-                            qc.avgRekonSla > 60 ? 'text-amber-600 bg-amber-50/50' : 'text-emerald-600 bg-emerald-50/50'
+                            !qc.avgRekonSla ? 'text-slate-400 bg-slate-50/50 dark:bg-slate-800/50' : 
+                            qc.avgRekonSla > 1440 ? 'text-red-600 bg-red-50/50 dark:bg-red-900/20' : 
+                            qc.avgRekonSla > 60 ? 'text-amber-600 bg-amber-50/50 dark:bg-amber-900/20' : 'text-emerald-600 bg-emerald-50/50 dark:bg-emerald-900/20'
                           }`}>
                             {qc.avgRekonSla ? (qc.avgRekonSla > 60 ? `${Math.floor(qc.avgRekonSla / 60)}j ${qc.avgRekonSla % 60}m` : `${qc.avgRekonSla}m`) : '-'}
                           </TableCell>
@@ -611,8 +611,8 @@ export default function ProductivityQcPage() {
                       <TableCell className="text-center text-emerald-700 dark:text-emerald-300 bg-emerald-100/50 dark:bg-emerald-900/30">{qcProductivity.reduce((acc:any, cur:any) => acc + cur.monthlyRealization, 0)}</TableCell>
                       <TableCell className="text-center text-emerald-700 dark:text-emerald-300 bg-emerald-100/50 dark:bg-emerald-900/30">{qcProductivity.reduce((acc:any, cur:any) => acc + (cur.monthlyTarget - cur.monthlyRealization), 0)}</TableCell>
                       
-                      <TableCell className="text-center text-slate-500 bg-slate-100/50 border-l">-</TableCell>
-                      <TableCell className="text-center text-slate-500 bg-slate-100/50">-</TableCell>
+                      <TableCell className="text-center text-slate-500 bg-slate-100/50 dark:bg-slate-800/50 border-l">-</TableCell>
+                      <TableCell className="text-center text-slate-500 bg-slate-100/50 dark:bg-slate-800/50">-</TableCell>
                     </TableRow>
                   </>
                 )}
