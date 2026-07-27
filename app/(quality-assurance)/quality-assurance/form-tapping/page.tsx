@@ -37,7 +37,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Play, StopCircle, Trash2, CloudUpload, Star, Clock, ListChecks, CheckCircle2, FolderOpen, ArrowRight, UploadCloud, FileText, ChevronLeft, ChevronRight, Loader2, ListFilter, X, Pencil, BarChart3, List } from "lucide-react";
+import { Search, Play, StopCircle, Trash2, CloudUpload, Star, Clock, ListChecks, CheckCircle2, FolderOpen, ArrowRight, UploadCloud, FileText, ChevronLeft, ChevronRight, Loader2, ListFilter, X, Pencil, BarChart3, List, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import api from "@/lib/api";
@@ -277,6 +277,9 @@ export default function FormTappingPage() {
                 Sync Today
               </Button>
               
+              <Button onClick={() => router.push("/quality-assurance/form-tapping/new")} className="h-11 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow-md transition-all flex items-center gap-2">
+                <Plus className="w-4 h-4" /> Tapping Kosong
+              </Button>
               <Button onClick={() => setIsImportModalOpen(true)} className="h-11 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-md transition-all">Import Data</Button>
             </div>
           </div>

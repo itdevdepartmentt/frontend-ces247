@@ -14,6 +14,7 @@ import {
   X,
   Heart,
   ClipboardCheck,
+  ArrowRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -59,6 +60,33 @@ export function ActivityFeed() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen]);
 
+  // Resolve the destination URL for an app notification (with type-based fallback)
+  const resolveAppNotifLink = (activity: any): string | null => {
+    if (activity.link) {
+      // Fix old-format links like /detail-tapping/<uuid> → /detail-tapping?id=<uuid>
+      // These were created before the query param format was adopted
+      const oldPathMatch = activity.link.match(
+        /^(\/quality-assurance\/detail-tapping)\/([a-f0-9-]{36})$/i
+      );
+      if (oldPathMatch) {
+        return `${oldPathMatch[1]}?id=${oldPathMatch[2]}`;
+      }
+      return activity.link;
+    }
+    // Fallback based on notification type for older notifications without link
+    if (activity.type === 'QA_TAPPING_AGENT' || activity.type === 'QA_TAPPING_TL') {
+      return '/quality-assurance/detail-tapping';
+    }
+    if (
+      activity.type === 'QA_REKON_QC' ||
+      activity.type === 'QA_REKON_TL_QC' ||
+      activity.type === 'QA_REKON_RESULT'
+    ) {
+      return '/quality-assurance/reconciliation';
+    }
+    return null;
+  };
+
   const handleActivityClick = async (activity: any) => {
     if (activity.source === 'news') {
       if (!activity.isRead) {
@@ -76,8 +104,9 @@ export function ActivityFeed() {
         await markAppNotifAsRead(activity.id);
       }
       setIsOpen(false);
-      if (activity.link) {
-        router.push(activity.link);
+      const destination = resolveAppNotifLink(activity);
+      if (destination) {
+        router.push(destination);
       }
     }
   };
@@ -271,9 +300,9 @@ export function ActivityFeed() {
                       <p className="text-sm text-slate-600 dark:text-slate-400 leading-snug">
                         {getActivityText(activity)}
                       </p>
-                      {activity.comment && (
+                      {'comment' in activity && activity.comment && (
                         <p className="text-xs text-slate-400 dark:text-slate-600 mt-1 truncate italic">
-                          &ldquo;{activity.comment.content}&rdquo;
+                          &ldquo;{(activity as any).comment.content}&rdquo;
                         </p>
                       )}
                       <p className="text-xs text-slate-400 dark:text-slate-600 mt-1.5">
@@ -284,12 +313,15 @@ export function ActivityFeed() {
                       </p>
                     </div>
 
-                    {/* Unread Dot */}
-                    {!activity.isRead && (
-                      <div className="flex-shrink-0 mt-2">
+                    {/* Unread Dot or Link Arrow */}
+                    <div className="flex-shrink-0 mt-1.5 flex flex-col items-center gap-1">
+                      {!activity.isRead && (
                         <div className="h-2.5 w-2.5 rounded-full bg-indigo-500 shadow-lg shadow-indigo-500/30" />
-                      </div>
-                    )}
+                      )}
+                      {activity.source === 'app' && resolveAppNotifLink(activity) && (
+                        <ArrowRight className="h-3.5 w-3.5 text-slate-400 dark:text-slate-600" />
+                      )}
+                    </div>
                   </button>
                 ))}
               </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -30,26 +30,60 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 
 
+import { ColumnFilterPopover } from "@/components/ui/column-filter-popover";
+
 export default function QaReconciliationPage() {
   const { user } = useAuth(true);
-
 
   const [sortBy, setSortBy] = useState<string | undefined>();
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [page, setPage] = useState(1);
+  
+  const [columnFilters, setColumnFilters] = useState<Record<string, string[]>>({});
+  const [debouncedColumnFilters, setDebouncedColumnFilters] = useState<Record<string, string[]>>({});
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      setDebouncedColumnFilters(columnFilters);
+      setPage(1);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [search, columnFilters]);
+
+  // Options for filters
+  const { data: detailOptions } = useQuery({
+    queryKey: ["qa-detail-tapping-options"],
+    queryFn: async () => {
+      const res = await api.get("/qa/form-tapping/detail-tapping/options");
+      return res.data;
+    },
+  });
+
+  const { data: historyOptions } = useQuery({
+    queryKey: ["qa-history-options"],
+    queryFn: async () => {
+      const res = await api.get("/qa/form-tapping/options");
+      return res.data;
+    },
+  });
 
   const { data: rekons, isLoading, refetch } = useQuery({
-    queryKey: ["qa-reconciliation", sortBy, sortOrder, search, statusFilter],
+    queryKey: ["qa-reconciliation", sortBy, sortOrder, debouncedSearch, debouncedColumnFilters],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (sortBy) {
         params.append('sortBy', sortBy);
         params.append('sortOrder', sortOrder);
       }
-      if (search) params.append('search', search);
-      if (statusFilter !== 'all') params.append('status', statusFilter);
+      if (debouncedSearch) params.append('search', debouncedSearch);
+      
+      if (Object.keys(debouncedColumnFilters).length > 0) {
+        params.append("filters", JSON.stringify(debouncedColumnFilters));
+      }
 
       const res = await api.get(`/qa/reconciliation?${params.toString()}`);
       return res.data;
@@ -71,9 +105,11 @@ export default function QaReconciliationPage() {
     try {
       const params = new URLSearchParams();
       if (search) params.set("search", search);
-      if (statusFilter && statusFilter !== "all") params.set("status", statusFilter);
       if (sortBy) params.set("sortBy", sortBy);
       if (sortOrder) params.set("sortOrder", sortOrder);
+      if (Object.keys(debouncedColumnFilters).length > 0) {
+        params.set("filters", JSON.stringify(debouncedColumnFilters));
+      }
 
       const res = await api.get(`/qa/reconciliation/export?${params.toString()}`, { responseType: "blob" });
       const url = window.URL.createObjectURL(new Blob([res.data], { type: res.headers['content-type'] }));
@@ -94,7 +130,6 @@ export default function QaReconciliationPage() {
   const [qcNotes, setQcNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const [page, setPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(50);
 
   const data = rekons || [];
@@ -186,17 +221,6 @@ export default function QaReconciliationPage() {
             />
           </div>
           <div className="flex gap-2 w-full sm:w-auto">
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-[180px] h-10 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-xl">
-                <SelectValue placeholder="Semua Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Semua Status</SelectItem>
-                <SelectItem value="PENDING">Pending</SelectItem>
-                <SelectItem value="APPROVED">Approved</SelectItem>
-                <SelectItem value="REJECTED">Rejected</SelectItem>
-              </SelectContent>
-            </Select>
             <Button 
               variant="outline" 
               onClick={handleExport} 
@@ -222,16 +246,36 @@ export default function QaReconciliationPage() {
                 <TableHead className="font-semibold text-slate-500 text-xs text-center">No</TableHead>
                 <SortableTableHead columnKey="createdAt" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500 text-xs">Tgl Pengajuan</SortableTableHead>
                 <SortableTableHead columnKey="idTiket" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">ID Tiket</SortableTableHead>
-                <SortableTableHead columnKey="agentName" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">Nama Agent</SortableTableHead>
-                <SortableTableHead columnKey="peak" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500 text-center">Peak</SortableTableHead>
-                <SortableTableHead columnKey="tlName" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">TL / QC</SortableTableHead>
+                <SortableTableHead columnKey="agentName" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">
+                  <div className="flex items-center">
+                    Nama Agent
+                    <ColumnFilterPopover columnKey="agentName" columnLabel="Agent" columnFilters={columnFilters} setColumnFilters={setColumnFilters} options={detailOptions?.agents || []} />
+                  </div>
+                </SortableTableHead>
+                <SortableTableHead columnKey="peak" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500 text-center">
+                  <div className="flex items-center justify-center">
+                    Peak
+                    <ColumnFilterPopover columnKey="peak" columnLabel="Peak" columnFilters={columnFilters} setColumnFilters={setColumnFilters} options={["1", "2", "3"]} />
+                  </div>
+                </SortableTableHead>
+                <SortableTableHead columnKey="tlName" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500">
+                  <div className="flex items-center">
+                    TL / QC
+                    <ColumnFilterPopover columnKey="tlName" columnLabel="TL" columnFilters={columnFilters} setColumnFilters={setColumnFilters} options={detailOptions?.teamLeaders || []} />
+                  </div>
+                </SortableTableHead>
                 <SortableTableHead columnKey="tlReason" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500 max-w-[200px]">Alasan TL</SortableTableHead>
                 <SortableTableHead columnKey="proposedScoreValiditas" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500 text-center">Validitas</SortableTableHead>
                 <SortableTableHead columnKey="proposedScoreServiceLevel" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500 text-center">Service Lvl</SortableTableHead>
                 <SortableTableHead columnKey="proposedScoreKalimat" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500 text-center">Kalimat</SortableTableHead>
                 <SortableTableHead columnKey="proposedScoreResponTime" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500 text-center">Respon</SortableTableHead>
                 <SortableTableHead columnKey="proposedScoreDokumentasi" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500 text-center">Dokumen</SortableTableHead>
-                <SortableTableHead columnKey="status" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500 text-center">Status</SortableTableHead>
+                <SortableTableHead columnKey="status" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500 text-center">
+                  <div className="flex items-center justify-center">
+                    Status
+                    <ColumnFilterPopover columnKey="status" columnLabel="Status" columnFilters={columnFilters} setColumnFilters={setColumnFilters} options={["PENDING", "APPROVED", "REJECTED"]} />
+                  </div>
+                </SortableTableHead>
                 <SortableTableHead columnKey="qcResponseNotes" currentSortBy={sortBy} currentSortOrder={sortOrder} onSort={handleSort} className="font-semibold text-slate-500 min-w-[300px]">Notes QC</SortableTableHead>
                 <TableHead className="font-semibold text-slate-500 text-center">Aksi</TableHead>
               </TableRow>

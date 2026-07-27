@@ -53,7 +53,10 @@ export default function DownloadPage() {
 
   const getFilenameFromDisposition = (contentDisposition?: string): string | undefined => {
     if (!contentDisposition) return undefined;
-    const fileNameMatch = contentDisposition.match(/filename="?([^\"]+)"?/i);
+    // Try filename* (RFC 5987 encoded) first, then filename with/without quotes
+    const encodedMatch = contentDisposition.match(/filename\*=(?:UTF-8'')?([^\s;]+)/i);
+    if (encodedMatch) return decodeURIComponent(encodedMatch[1]);
+    const fileNameMatch = contentDisposition.match(/filename="([^"]+)"/i) || contentDisposition.match(/filename=([^\s;]+)/i);
     return fileNameMatch?.[1];
   };
 
@@ -78,9 +81,14 @@ export default function DownloadPage() {
       });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
+      const now = new Date();
+      const pad = (n: number) => String(n).padStart(2, "0");
+      const jakartaOffset = 7 * 60;
+      const localDate = new Date(now.getTime() + jakartaOffset * 60 * 1000);
+      const ts = `${localDate.getUTCFullYear()}-${pad(localDate.getUTCMonth() + 1)}-${pad(localDate.getUTCDate())}-${pad(localDate.getUTCHours())}-${pad(localDate.getUTCMinutes())}-${pad(localDate.getUTCSeconds())}`;
       const filename =
         getFilenameFromDisposition(response.headers["content-disposition"]) ||
-        `${item.id}-export.xlsx`;
+        `raw-${item.id}-${ts}.xlsx`;
 
       a.href = url;
       a.download = filename;

@@ -150,7 +150,7 @@ export default function ProductivityQcPage() {
       
       const res = await api.post('/qa/productivity/settings/parse-excel', formData);
       
-      const { parsedAgents, parsedQcs } = res.data;
+      const { parsedAgents, parsedQcs, conflictWarnings } = res.data;
       
       // Update agentSettings - completely replace existing agents with data from Excel
       if (parsedAgents && parsedAgents.length > 0) {
@@ -182,7 +182,13 @@ export default function ProductivityQcPage() {
         );
       }
       
-      toast.success("File Excel berhasil diproses", { id: "upload-excel" });
+      // Show conflict warnings if any
+      if (conflictWarnings && conflictWarnings.length > 0) {
+        toast.warning(`File diproses dengan ${conflictWarnings.length} peringatan konflik peak. Baris konflik diabaikan.`, { id: "upload-excel", duration: 6000 });
+        conflictWarnings.forEach((w: string) => toast.error(w, { duration: 8000 }));
+      } else {
+        toast.success(`File Excel berhasil diproses. ${parsedAgents?.length || 0} agent dimuat.`, { id: "upload-excel" });
+      }
       if (fileInputRef.current) fileInputRef.current.value = ''; // Reset input
     } catch (error) {
       console.error(error);
@@ -191,6 +197,7 @@ export default function ProductivityQcPage() {
       setIsUploading(false);
     }
   };
+
 
   if (isLoading) {
     return (
@@ -1041,12 +1048,20 @@ export default function ProductivityQcPage() {
                 </TableHeader>
                 <TableBody>
                   {agentSettings.length === 0 && <TableRow><TableCell colSpan={8} className="text-center py-8 text-slate-500">Belum ada data Agent</TableCell></TableRow>}
-                  {agentSettings.map((ag, i) => (
-                    <TableRow key={i} className="border-b border-slate-100 dark:border-slate-800/60">
+                  {agentSettings.map((ag, i) => {
+                    // Check if this agent name appears more than once (multi-tapper)
+                    const isDuplicate = agentSettings.filter(a => a.name === ag.name).length > 1;
+                    return (
+                    <TableRow key={i} className={cn("border-b border-slate-100 dark:border-slate-800/60", isDuplicate && "bg-amber-50/40 dark:bg-amber-900/10")}>
                       <TableCell className="font-medium text-slate-900 dark:text-slate-100">
                         <div className="flex items-center gap-2">
                           {ag.name}
                           {getGroupBadge(ag.group)}
+                          {isDuplicate && (
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 border border-amber-200 dark:bg-amber-900/40 dark:text-amber-400 dark:border-amber-800">
+                              Split Tapper
+                            </span>
+                          )}
                         </div>
                       </TableCell>
                       <TableCell className="text-xs text-slate-500 dark:text-slate-400">{ag.group || '-'}</TableCell>
@@ -1081,7 +1096,8 @@ export default function ProductivityQcPage() {
                         }} />
                       </TableCell>
                     </TableRow>
-                  ))}
+                    );
+                  })}
                 </TableBody>
               </Table>
             </TabsContent>

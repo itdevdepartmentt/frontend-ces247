@@ -366,7 +366,7 @@ export default function QaScorePage() {
                 labelStyle={{ color: "#71717a", fontWeight: "bold", fontSize: "12px", textTransform: "uppercase", marginBottom: "4px" }}
                 formatter={(value: any) => [`${Number(value).toFixed(2)}`, "AVG SCORE"]}
               />
-              <ReferenceLine y={TARGET_SCORE} stroke="#ef4444" strokeDasharray="4 4" strokeWidth={2} label={{ value: `TARGET ${TARGET_SCORE}`, position: "insideTopRight", fill: "#ef4444", fontSize: 10, fontWeight: 800, backgroundColor: "#fff", padding: 4 }} />
+              <ReferenceLine y={TARGET_SCORE} stroke="#ef4444" strokeDasharray="4 4" strokeWidth={2} label={{ value: `TARGET ${TARGET_SCORE}`, position: "insideTopRight", fill: "#ef4444", fontSize: 10, fontWeight: 800 }} />
               <Area 
                 type="monotone" 
                 dataKey="avgScore" 

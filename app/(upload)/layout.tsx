@@ -16,7 +16,7 @@ export default function UploadLayout({
   if (isLoading) {
     return <LogoLoader fullscreen />;
   }
-  if (user?.role !== "ADMIN" && user?.role !== "QC" && user?.role !== "TL_QC")
+  if (user?.role !== "ADMIN" && user?.role !== "QC" && user?.role !== "TL_QC" && user?.role !== "TL")
     return (
       <div className="flex h-screen items-center justify-center bg-slate-950 p-4 dark:bg-black">
         <div className="text-white text-xl font-medium">Access Denied</div>

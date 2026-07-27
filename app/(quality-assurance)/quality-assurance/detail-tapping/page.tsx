@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { useQuery, keepPreviousData, useQueryClient } from "@tanstack/react-query";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -29,7 +30,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ColumnFilterPopover } from "@/components/ui/column-filter-popover";
 
-export default function DetailTappingPage() {
+function DetailTappingContent() {
+  const searchParams = useSearchParams();
+  const highlightId = searchParams.get("id");
+  const highlightedRowRef = useRef<HTMLTableRowElement | null>(null);
+
   const [year, setYear] = useState<string>(new Date().getFullYear().toString());
   const [month, setMonth] = useState<string>("");
   const [agent, setAgent] = useState<string>("");
@@ -234,6 +239,15 @@ export default function DetailTappingPage() {
     eksekutorPercentage: 0, totalEksekutorTappings: 0,
   };
 
+  // Auto-scroll to highlighted row (from notification redirect)
+  useEffect(() => {
+    if (highlightId && highlightedRowRef.current && !isLoading) {
+      setTimeout(() => {
+        highlightedRowRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 300);
+    }
+  }, [highlightId, isLoading, data]);
+
   const ncCards = [
     { label: "NC Validitas", value: stats.ncValiditas, icon: ShieldAlert, color: "text-rose-600 bg-rose-50 dark:bg-rose-900/30 border-rose-200 dark:border-rose-800/50" },
     { label: "NC Service Level", value: stats.ncServiceLevel, icon: Zap, color: "text-orange-600 bg-orange-50 dark:bg-orange-900/30 border-orange-200 dark:border-orange-800/50" },
@@ -425,7 +439,18 @@ export default function DetailTappingPage() {
                 const isNC = row.scoreValiditas < 30 || row.scoreServiceLevel < 30 ||
                   row.scoreKalimat < 10 || row.scoreResponTime < 15 || row.scoreDokumentasi < 15;
                 return (
-                  <TableRow key={row.id} className={cn("transition-colors border-b border-slate-50 dark:border-slate-800/50", isNC ? "bg-rose-50/30 dark:bg-rose-900/10" : "hover:bg-slate-50/80 dark:hover:bg-slate-800/50")}>
+                  <TableRow
+                    key={row.id}
+                    ref={row.id === highlightId ? highlightedRowRef : null}
+                    className={cn(
+                      "transition-colors border-b border-slate-50 dark:border-slate-800/50",
+                      row.id === highlightId
+                        ? "bg-indigo-50 dark:bg-indigo-500/10 ring-2 ring-inset ring-indigo-400 dark:ring-indigo-500"
+                        : isNC
+                        ? "bg-rose-50/30 dark:bg-rose-900/10"
+                        : "hover:bg-slate-50/80 dark:hover:bg-slate-800/50"
+                    )}
+                  >
                     <TableCell className="text-slate-400 font-medium">{(page - 1) * itemsPerPage + i + 1}</TableCell>
                     <TableCell className="text-slate-500 font-medium whitespace-nowrap">
                       {new Date(row.createdAt).toLocaleString("id-ID", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
@@ -565,11 +590,10 @@ export default function DetailTappingPage() {
           </TableBody>
         </Table>
 
-        {meta.totalPages > 1 && (
-          <div className="flex items-center justify-between mt-4 pb-4 px-4">
+        <div className="flex items-center justify-between mt-4 pb-4 px-4 border-t border-slate-100 dark:border-slate-800/50 pt-4">
           <div className="flex items-center gap-4">
             <div className="text-sm font-medium text-slate-500">
-              Showing <span className="font-bold text-slate-900 dark:text-white">{(page - 1) * itemsPerPage + 1}</span> to <span className="font-bold text-slate-900 dark:text-white">{Math.min(page * itemsPerPage, meta.total)}</span> of <span className="font-bold text-slate-900 dark:text-white">{meta.total}</span> records
+              Showing <span className="font-bold text-slate-900 dark:text-white">{data.length > 0 ? (page - 1) * itemsPerPage + 1 : 0}</span> to <span className="font-bold text-slate-900 dark:text-white">{Math.min(page * itemsPerPage, meta.total)}</span> of <span className="font-bold text-slate-900 dark:text-white">{meta.total}</span> records
             </div>
             <Select value={itemsPerPage.toString()} onValueChange={(v) => { setItemsPerPage(Number(v)); setPage(1); }}>
               <SelectTrigger className="w-[80px] h-9">
@@ -587,12 +611,11 @@ export default function DetailTappingPage() {
             <Button variant="outline" size="sm" disabled={page === 1} onClick={() => setPage(p => Math.max(1, p - 1))} className="h-9 w-9 p-0 rounded-xl">
               <ChevronLeft className="w-4 h-4" />
             </Button>
-            <Button variant="outline" size="sm" disabled={page >= meta.totalPages} onClick={() => setPage(p => Math.min(meta.totalPages, p + 1))} className="h-9 w-9 p-0 rounded-xl">
+            <Button variant="outline" size="sm" disabled={page >= meta.totalPages || meta.totalPages === 0} onClick={() => setPage(p => Math.min(meta.totalPages, p + 1))} className="h-9 w-9 p-0 rounded-xl">
               <ChevronRight className="w-4 h-4" />
             </Button>
           </div>
         </div>
-        )}
       </div>
       </div>
 
@@ -700,5 +723,20 @@ export default function DetailTappingPage() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+export default function DetailTappingPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-full min-h-[500px]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
+          <p className="text-slate-500 font-medium">Loading...</p>
+        </div>
+      </div>
+    }>
+      <DetailTappingContent />
+    </Suspense>
   );
 }

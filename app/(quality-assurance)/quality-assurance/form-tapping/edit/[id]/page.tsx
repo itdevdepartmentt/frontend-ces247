@@ -68,6 +68,22 @@ export default function EditHistoryPage() {
     enabled: !!ticketId,
   });
 
+  const { data: detailOptions } = useQuery({
+    queryKey: ["qa-detail-tapping-options"],
+    queryFn: async () => {
+      const res = await api.get("/qa/form-tapping/detail-tapping/options");
+      return res.data;
+    },
+  });
+
+  const { data: historyOptions } = useQuery({
+    queryKey: ["qa-history-options"],
+    queryFn: async () => {
+      const res = await api.get("/qa/form-tapping/options");
+      return res.data;
+    },
+  });
+
   // Review States
   const [formData, setFormData] = useState<Partial<Ticket>>({});
 
@@ -232,7 +248,7 @@ export default function EditHistoryPage() {
             </Button>
             <h1 className="text-xl font-bold flex items-center gap-3 text-slate-900 dark:text-white">
               Evaluate Ticket
-              <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-3 py-1 rounded-full text-xs font-semibold tracking-wider font-mono border border-slate-200 dark:border-slate-700">{currentTicket.idTiket}</span>
+              <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-3 py-1 rounded-full text-xs font-semibold tracking-wider font-mono border border-slate-200 dark:border-slate-700">{formData.idTiket || "-"}</span>
             </h1>
           </div>
           <div className="flex items-center gap-3 sm:gap-5 self-end sm:self-auto">
@@ -265,9 +281,26 @@ export default function EditHistoryPage() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-8">
                   <div className="flex flex-col gap-2.5">
+                    <Label className="text-[11px] text-slate-400 font-bold uppercase tracking-widest">ID Tiket</Label>
+                    {isEditingForm ? (
+                      <Input value={formData.idTiket || ""} onChange={(e) => handleInputChange("idTiket", e.target.value)} placeholder="Kosongkan jika tidak ada" className="h-11 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 font-medium text-slate-800 dark:text-slate-200" />
+                    ) : (
+                      <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">{formData.idTiket || "-"}</p>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-2.5">
                     <Label className="text-[11px] text-slate-400 font-bold uppercase tracking-widest">Tapper</Label>
                     {isEditingForm ? (
-                      <Input value={formData.tapper || ""} onChange={(e) => handleInputChange("tapper", e.target.value)} className="h-11 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 font-medium text-slate-800 dark:text-slate-200" />
+                      <Select value={formData.tapper || ""} onValueChange={(val) => handleInputChange("tapper", val)}>
+                        <SelectTrigger className="h-11 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 font-medium text-slate-800 dark:text-slate-200">
+                          <SelectValue placeholder="Pilih Tapper" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {historyOptions?.tapper?.map((t: string) => (
+                            <SelectItem key={t} value={t}>{t}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     ) : (
                       <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">{formData.tapper || "-"}</p>
                     )}
@@ -275,7 +308,16 @@ export default function EditHistoryPage() {
                   <div className="flex flex-col gap-2.5">
                     <Label className="text-[11px] text-slate-400 font-bold uppercase tracking-widest">Agent</Label>
                     {isEditingForm ? (
-                      <Input value={formData.agent || ""} onChange={(e) => handleInputChange("agent", e.target.value)} className="h-11 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 font-medium text-slate-800 dark:text-slate-200" />
+                      <Select value={formData.agent || ""} onValueChange={(val) => handleInputChange("agent", val)}>
+                        <SelectTrigger className="h-11 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 font-medium text-slate-800 dark:text-slate-200">
+                          <SelectValue placeholder="Pilih Agent" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {detailOptions?.agents?.map((a: string) => (
+                            <SelectItem key={a} value={a}>{a}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     ) : (
                       <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">{formData.agent || "-"}</p>
                     )}
