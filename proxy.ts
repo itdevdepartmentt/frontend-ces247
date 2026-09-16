@@ -48,14 +48,34 @@ export function proxy(request: NextRequest) {
     .replace(/\s{2,}/g, " ")
     .trim();
 
+  // CSP ketat di atas memblokir inline script HMR milik `next dev`, sehingga
+  // hot reload mati saat development. Produksi tetap memakai cspHeader asli.
+  const isDev = process.env.NODE_ENV !== "production";
+  const devCspHeader = `
+    default-src 'self';
+    script-src 'self' 'unsafe-inline' 'unsafe-eval';
+    style-src 'self' 'unsafe-inline';
+    img-src 'self' blob: data: ${apiOrigin};
+    font-src 'self' data:;
+    connect-src 'self' ws: wss: ${apiOrigin};
+    frame-src 'self' ${apiOrigin};
+    frame-ancestors 'self';
+    base-uri 'self';
+    form-action 'self';
+  `
+    .replace(/\s{2,}/g, " ")
+    .trim();
+
+  const activeCsp = isDev ? devCspHeader : cspHeader;
+
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-nonce", nonce);
-  requestHeaders.set("Content-Security-Policy", cspHeader);
+  requestHeaders.set("Content-Security-Policy", activeCsp);
 
   const response = NextResponse.next({
     request: { headers: requestHeaders },
   });
-  response.headers.set("Content-Security-Policy", cspHeader);
+  response.headers.set("Content-Security-Policy", activeCsp);
   response.headers.delete("X-Powered-By");
   return response;
 }
