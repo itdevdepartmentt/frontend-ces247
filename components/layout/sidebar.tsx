@@ -5,21 +5,22 @@ import { usePathname, useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Building2,
+  ChevronDown,
+  ChevronUp,
+  ClipboardList,
   DatabaseZap,
   Download,
   FileUp,
+  Layers,
   LayoutDashboard,
   LayoutPanelTop,
   LogOut,
   Menu,
   Newspaper,
+  ShieldCheck,
   ShoppingBasket,
   TicketPercent,
   UserRoundPlus,
-  ClipboardList,
-  ShieldCheck,
-  ChevronDown,
-  ChevronUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -147,6 +148,13 @@ export function Sidebar() {
       title: "Formulir",
       href: "/forms",
       icon: ClipboardList,
+      roles: ["USER", "ADMIN", "QC", "TL_QC", "TL"],
+    },
+
+    {
+      title: "Mass Process",
+      href: "/mass-process",
+      icon: Layers,
       roles: ["USER", "ADMIN", "QC", "TL_QC", "TL"],
     },
 
