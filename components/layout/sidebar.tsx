@@ -144,6 +144,13 @@ export function Sidebar() {
     },
 
     {
+      title: "Formulir",
+      href: "/forms",
+      icon: ClipboardList,
+      roles: ["USER", "ADMIN", "QC", "TL_QC", "TL"],
+    },
+
+    {
       title: "Quality Assurance",
       href: "#",
       icon: ShieldCheck,
