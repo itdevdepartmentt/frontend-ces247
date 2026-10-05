@@ -28,6 +28,7 @@ import {
   ProgressBar,
   StatusBadge,
 } from "@/components/mass-process/ticket-badges";
+import { UploadTicketsDialog } from "@/components/mass-process/upload-tickets-dialog";
 import { useMassDashboard, useMassTickets } from "@/hooks/use-mass-process";
 
 const ALL = "__all";
@@ -54,11 +55,14 @@ export default function MassProcessPage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
-      <header>
-        <h1 className="text-2xl font-semibold">Mass Process</h1>
-        <p className="text-sm text-muted-foreground">
-          Pelacakan tiket massal: validasi, profiling, dan langkah proses.
-        </p>
+      <header className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold">Mass Process</h1>
+          <p className="text-sm text-muted-foreground">
+            Pelacakan tiket massal: validasi, profiling, dan langkah proses.
+          </p>
+        </div>
+        <UploadTicketsDialog />
       </header>
 
       {dashboard.isLoading ? (

@@ -132,6 +132,33 @@ export function useUpdateAgent(ticketNumber: string) {
   });
 }
 
+export interface ExcelUploadResult {
+  created: number;
+  updated: number;
+  skipped: string[];
+  fileName: string;
+  totalRows: number;
+  unmappedColumns: string[];
+  skippedRows: { row: number; reason: string }[];
+}
+
+/** Berkas dikirim apa adanya; backend yang memetakan kolom dan memvalidasinya. */
+export function useUploadExcel() {
+  const invalidate = useInvalidateTicket();
+  return useMutation({
+    mutationFn: async (file: File) => {
+      const body = new FormData();
+      body.append("file", file);
+      const { data } = await api.post<ExcelUploadResult>(
+        "/mass-process/upload-excel",
+        body,
+      );
+      return data;
+    },
+    onSuccess: invalidate,
+  });
+}
+
 export function useUploadTickets() {
   const invalidate = useInvalidateTicket();
   return useMutation({
