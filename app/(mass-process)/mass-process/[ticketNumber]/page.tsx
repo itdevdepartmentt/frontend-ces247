@@ -8,6 +8,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -17,7 +24,11 @@ import {
   StatusBadge,
 } from "@/components/mass-process/ticket-badges";
 import { WorkflowEditor } from "@/components/mass-process/workflow-editor";
-import { useMassTicket, useUpdateAgent } from "@/hooks/use-mass-process";
+import {
+  useMassStaff,
+  useMassTicket,
+  useUpdateAgent,
+} from "@/hooks/use-mass-process";
 import type { MassTicketDetail } from "@/types/mass-process";
 
 export default function MassTicketDetailPage({
@@ -108,6 +119,16 @@ export default function MassTicketDetailPage({
 
       <AgentCard ticket={ticket} />
 
+      {(ticket.idKoordinasiSummary || ticket.todoSummary) && (
+        <div className="grid gap-4 lg:grid-cols-2">
+          <SummaryCard
+            title="ID Profiling & Koordinasi"
+            content={ticket.idKoordinasiSummary}
+          />
+          <SummaryCard title="To Do" content={ticket.todoSummary} />
+        </div>
+      )}
+
       <Tabs defaultValue="workflow">
         <TabsList>
           <TabsTrigger value="workflow">Alur Kerja</TabsTrigger>
@@ -145,18 +166,52 @@ function Fact({
   );
 }
 
+function SummaryCard({
+  title,
+  content,
+}: {
+  title: string;
+  content: string | null;
+}) {
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-base">{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {content?.trim() ? (
+          // Dihitung ulang backend tiap simpan, jadi ditampilkan apa adanya.
+          <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed">
+            {content}
+          </pre>
+        ) : (
+          <p className="text-sm text-muted-foreground">Belum ada.</p>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+const TANPA_TL = "__none";
+
 function AgentCard({ ticket }: { ticket: MassTicketDetail }) {
   const [agent, setAgent] = useState("");
-  const [teamLeader, setTeamLeader] = useState(ticket.teamLeader ?? "");
+  const [teamLeader, setTeamLeader] = useState(ticket.teamLeader?.trim() || TANPA_TL);
   const [reason, setReason] = useState("");
   const update = useUpdateAgent(ticket.ticketNumber);
+  const agents = useMassStaff("AGENT");
+  const leaders = useMassStaff("TEAM_LEADER");
 
   const handleAssign = () => {
     const trimmed = agent.trim();
-    if (!trimmed) return toast.error("Nama agent belum diisi.");
+    if (!trimmed) return toast.error("Agent belum dipilih.");
 
     update.mutate(
-      { newAgent: trimmed, newTeamLeader: teamLeader.trim() || undefined, reason: reason.trim() || undefined },
+      {
+        newAgent: trimmed,
+        newTeamLeader: teamLeader === TANPA_TL ? undefined : teamLeader,
+        reason: reason.trim() || undefined,
+      },
       {
         onSuccess: (updated) => {
           toast.success(`Tiket ditugaskan ke ${updated.agent}`);
@@ -198,19 +253,36 @@ function AgentCard({ ticket }: { ticket: MassTicketDetail }) {
         <div className="grid gap-2 sm:grid-cols-[1fr_1fr_1fr_auto] sm:items-end">
           <div className="space-y-1.5">
             <Label htmlFor="agent-new">Agent baru</Label>
-            <Input
-              id="agent-new"
-              value={agent}
-              onChange={(e) => setAgent(e.target.value)}
-            />
+            {/* Dipilih dari daftar baku, bukan diketik, supaya satu orang tidak
+                terpecah jadi beberapa nama saat diagregasi. */}
+            <Select value={agent} onValueChange={setAgent}>
+              <SelectTrigger id="agent-new" className="w-full">
+                <SelectValue placeholder="Pilih agent…" />
+              </SelectTrigger>
+              <SelectContent>
+                {agents.data?.map((s) => (
+                  <SelectItem key={s.id} value={s.name}>
+                    {s.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="agent-tl">Team Leader</Label>
-            <Input
-              id="agent-tl"
-              value={teamLeader}
-              onChange={(e) => setTeamLeader(e.target.value)}
-            />
+            <Select value={teamLeader} onValueChange={setTeamLeader}>
+              <SelectTrigger id="agent-tl" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={TANPA_TL}>— tanpa TL —</SelectItem>
+                {leaders.data?.map((s) => (
+                  <SelectItem key={s.id} value={s.name}>
+                    {s.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="agent-reason">Alasan</Label>

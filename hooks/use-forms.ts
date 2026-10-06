@@ -163,6 +163,33 @@ export function useRecordList(
   });
 }
 
+export interface CorporateMatch {
+  id: string;
+  refNumber: string | null;
+  corporateName: string | null;
+  projectId: string | null;
+  createdAt: string;
+}
+
+/**
+ * Riwayat pengajuan sebuah perusahaan. Dipakai sebelum membuat permintaan
+ * baru, untuk memeriksa apakah sudah pernah diajukan.
+ */
+export function useCorporateHistory(formKey: string, name: string) {
+  const keyword = name.trim();
+  return useQuery<CorporateMatch[]>({
+    queryKey: [RECORDS_KEY, formKey, "by-corporate", keyword],
+    enabled: keyword.length >= 3,
+    queryFn: async () => {
+      const { data } = await api.get<CorporateMatch[]>(
+        `/forms/${formKey}/records/by-corporate`,
+        { params: { name: keyword } },
+      );
+      return data;
+    },
+  });
+}
+
 export function useRecord(id: string | undefined) {
   return useQuery<FormRecordDetail>({
     queryKey: [RECORDS_KEY, "detail", id],

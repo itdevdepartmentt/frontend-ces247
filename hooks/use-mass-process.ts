@@ -7,6 +7,7 @@ import type {
   MassDailyActivity,
   MassDashboard,
   MassProcessStep,
+  MassStaff,
   MassTicket,
   MassTicketDetail,
   SaveRecapPayload,
@@ -60,6 +61,32 @@ export function useMassTicket(ticketNumber: string | undefined) {
         `/mass-process/tickets/${encodeURIComponent(ticketNumber!)}`,
       );
       return data;
+    },
+  });
+}
+
+/** Daftar nama baku; dipakai sebagai pilihan agar penulisan nama konsisten. */
+export function useMassStaff(role?: "AGENT" | "TEAM_LEADER") {
+  return useQuery<MassStaff[]>({
+    queryKey: [KEY, "staff", role ?? "all"],
+    queryFn: async () => {
+      const { data } = await api.get<MassStaff[]>("/mass-process/staff", {
+        params: role ? { role } : undefined,
+      });
+      return data;
+    },
+  });
+}
+
+export function useCreateStaff() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: { name: string; role: "AGENT" | "TEAM_LEADER" }) => {
+      const { data } = await api.post<MassStaff>("/mass-process/staff", input);
+      return data;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: [KEY, "staff"] });
     },
   });
 }

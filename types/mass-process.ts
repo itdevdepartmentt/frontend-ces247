@@ -52,6 +52,8 @@ export interface MassTicket {
   ageingBucket: string | null;
   bottleneck: string | null;
   bottleneckSince: string | null;
+  idKoordinasiSummary: string | null;
+  todoSummary: string | null;
   lastAction: string | null;
   lastActionBy: string | null;
   completionDate: string | null;
@@ -111,6 +113,20 @@ export interface MassDailyActivity {
   notes: string | null;
 }
 
+export interface MassStaff {
+  id: string;
+  name: string;
+  role: "AGENT" | "TEAM_LEADER";
+  isActive: boolean;
+}
+
+export interface LastStatusSummary {
+  total: number;
+  open: number;
+  closed: number;
+  statuses: { label: string; count: number }[];
+}
+
 export interface CountBucket {
   label: string;
   count: number;
@@ -125,6 +141,7 @@ export interface MassDashboard {
   byAgeing: CountBucket[];
   byBottleneck: CountBucket[];
   byProcess: CountBucket[];
+  lastStatusSummary: LastStatusSummary;
 }
 
 export interface SaveRecapPayload {

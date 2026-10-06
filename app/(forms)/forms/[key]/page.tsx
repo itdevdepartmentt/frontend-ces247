@@ -21,10 +21,13 @@ import { DynamicForm } from "@/components/forms/dynamic-form";
 import { FieldManager } from "@/components/forms/field-manager";
 import {
   downloadRecordXlsx,
+  useCorporateHistory,
   useForm,
   useRecordList,
   useSubmitRecord,
 } from "@/hooks/use-forms";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/use-auth";
 import type { FormValues } from "@/types/forms";
 
@@ -107,7 +110,8 @@ export default function FormDetailPage({
           />
         </TabsContent>
 
-        <TabsContent value="rekap" className="mt-4">
+        <TabsContent value="rekap" className="mt-4 space-y-4">
+          <CorporateHistory formKey={key} />
           <RecordTable formKey={key} />
         </TabsContent>
 
@@ -118,6 +122,54 @@ export default function FormDetailPage({
         )}
       </Tabs>
     </div>
+  );
+}
+
+/** Cek apakah sebuah perusahaan sudah pernah mengajukan sebelumnya. */
+function CorporateHistory({ formKey }: { formKey: string }) {
+  const [name, setName] = useState("");
+  const { data, isFetching } = useCorporateHistory(formKey, name);
+  const cukup = name.trim().length >= 3;
+
+  return (
+    <Card>
+      <CardContent className="space-y-3 pt-6">
+        <div className="space-y-1.5">
+          <Label htmlFor="cari-korporat">Cari riwayat per nama perusahaan</Label>
+          <Input
+            id="cari-korporat"
+            placeholder="Ketik minimal 3 huruf, mis. Maju"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+        </div>
+
+        {cukup && isFetching && (
+          <p className="text-sm text-muted-foreground">Mencari…</p>
+        )}
+
+        {cukup && !isFetching && data?.length === 0 && (
+          <p className="text-sm text-muted-foreground">
+            Belum ada pengajuan untuk nama itu.
+          </p>
+        )}
+
+        {data && data.length > 0 && (
+          <ul className="divide-y rounded-md border text-sm">
+            {data.map((m) => (
+              <li key={m.id} className="flex flex-wrap justify-between gap-2 px-3 py-2">
+                <span className="font-medium">{m.corporateName}</span>
+                <span className="text-muted-foreground">
+                  {m.refNumber ?? "—"}
+                  {m.projectId && ` · ${m.projectId}`} ·{" "}
+                  {new Date(m.createdAt).toLocaleDateString("id-ID")}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 
