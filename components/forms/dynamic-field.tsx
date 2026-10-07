@@ -250,7 +250,9 @@ function FileControl({
   onChange: (value: unknown) => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const zoneRef = useRef<HTMLDivElement>(null);
   const [dragging, setDragging] = useState(false);
+  const [fokus, setFokus] = useState(false);
   const [pesan, setPesan] = useState<string | null>(null);
   const files = Array.isArray(value) ? value.map(String) : [];
 
@@ -269,7 +271,11 @@ function FileControl({
       diterima.push(await readAsDataUrl(file));
     }
 
-    if (diterima.length) onChange([...files, ...diterima]);
+    if (diterima.length) {
+      onChange([...files, ...diterima]);
+      // Dipertahankan fokusnya supaya bisa langsung menempel berikutnya.
+      zoneRef.current?.focus();
+    }
 
     setPesan(
       ditolak.length
@@ -312,39 +318,63 @@ function FileControl({
         }}
       />
 
-      {/* Area ini perlu bisa difokuskan agar event tempel sampai ke sini. */}
+      {/*
+        Area ini adalah sasaran tempel, jadi mengkliknya hanya memberi fokus —
+        bukan membuka pemilih berkas. Versi sebelumnya membuka dialog saat
+        diklik, sehingga fokus berpindah ke dialog dan Ctrl+V tidak pernah
+        sampai ke sini. Menjelajah berkas dipindahkan ke tombolnya sendiri.
+      */}
       <div
-        role="button"
+        ref={zoneRef}
         tabIndex={disabled ? -1 : 0}
-        aria-label="Tempel, seret, atau klik untuk menambah lampiran"
+        aria-label="Area tempel lampiran"
         onPaste={handlePaste}
+        onFocus={() => setFokus(true)}
+        onBlur={() => setFokus(false)}
         onDrop={handleDrop}
         onDragOver={(e) => {
           e.preventDefault();
           if (!disabled) setDragging(true);
         }}
         onDragLeave={() => setDragging(false)}
-        onClick={() => !disabled && inputRef.current?.click()}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            inputRef.current?.click();
-          }
-        }}
         className={cn(
-          "flex flex-col items-center gap-1 rounded-md border border-dashed px-4 py-5 text-center transition-colors",
+          "flex flex-col items-center gap-2 rounded-md border border-dashed px-4 py-5 text-center outline-none transition-colors",
           dragging
             ? "border-primary bg-primary/5"
-            : "border-input hover:border-primary/60 hover:bg-accent/40",
+            : fokus
+              ? "border-primary bg-primary/5 ring-2 ring-primary/30"
+              : "border-input hover:border-primary/60",
           disabled && "cursor-not-allowed opacity-60",
         )}
       >
         <Upload className="size-5 text-muted-foreground" />
-        <p className="text-sm font-medium">
-          Tempel tangkapan layar, seret berkas, atau klik di sini
-        </p>
+
+        {fokus ? (
+          <p className="text-sm font-medium text-primary">
+            Siap — tekan Ctrl+V untuk menempel
+          </p>
+        ) : (
+          <p className="text-sm font-medium">
+            Klik di sini lalu tekan Ctrl+V, atau seret berkas ke area ini
+          </p>
+        )}
+
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={disabled}
+          // Jangan sampai klik tombol ikut memfokuskan area lalu membingungkan.
+          onClick={(e) => {
+            e.stopPropagation();
+            inputRef.current?.click();
+          }}
+        >
+          Pilih berkas dari komputer
+        </Button>
+
         <p className="text-xs text-muted-foreground">
-          Klik area ini lalu tekan Ctrl+V · maksimal 2 MB per berkas
+          Maksimal 2 MB per berkas
         </p>
       </div>
 
