@@ -175,15 +175,19 @@ export interface CorporateMatch {
  * Riwayat pengajuan sebuah perusahaan. Dipakai sebelum membuat permintaan
  * baru, untuk memeriksa apakah sudah pernah diajukan.
  */
-export function useCorporateHistory(formKey: string, name: string) {
+export function useCorporateHistory(
+  formKey: string,
+  name: string,
+  source?: string,
+) {
   const keyword = name.trim();
   return useQuery<CorporateMatch[]>({
-    queryKey: [RECORDS_KEY, formKey, "by-corporate", keyword],
+    queryKey: [RECORDS_KEY, formKey, "by-corporate", source ?? formKey, keyword],
     enabled: keyword.length >= 3,
     queryFn: async () => {
       const { data } = await api.get<CorporateMatch[]>(
         `/forms/${formKey}/records/by-corporate`,
-        { params: { name: keyword } },
+        { params: { name: keyword, ...(source ? { source } : {}) } },
       );
       return data;
     },

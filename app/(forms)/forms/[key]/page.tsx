@@ -18,6 +18,10 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DynamicForm } from "@/components/forms/dynamic-form";
+import {
+  CorporateHistory,
+  SUMBER_KORPORAT,
+} from "@/components/forms/corporate-history";
 import { FieldManager } from "@/components/forms/field-manager";
 import {
   downloadRecordXlsx,
@@ -107,11 +111,16 @@ export default function FormDetailPage({
             submitting={submit.isPending}
             submitLabel="Kirim"
             onSubmit={handleSubmit}
+            renderAfterField={(field, value) =>
+              field.key === "corporateName" ? (
+                <CorporateHistory formKey={key} name={value} />
+              ) : null
+            }
           />
         </TabsContent>
 
         <TabsContent value="rekap" className="mt-4 space-y-4">
-          <CorporateHistory formKey={key} />
+          <CorporateLookup formKey={key} />
           <RecordTable formKey={key} />
         </TabsContent>
 
@@ -126,16 +135,20 @@ export default function FormDetailPage({
 }
 
 /** Cek apakah sebuah perusahaan sudah pernah mengajukan sebelumnya. */
-function CorporateHistory({ formKey }: { formKey: string }) {
+function CorporateLookup({ formKey }: { formKey: string }) {
   const [name, setName] = useState("");
-  const { data, isFetching } = useCorporateHistory(formKey, name);
+  const { data, isFetching } = useCorporateHistory(
+    formKey,
+    name,
+    SUMBER_KORPORAT,
+  );
   const cukup = name.trim().length >= 3;
 
   return (
     <Card>
       <CardContent className="space-y-3 pt-6">
         <div className="space-y-1.5">
-          <Label htmlFor="cari-korporat">Cari riwayat per nama perusahaan</Label>
+          <Label htmlFor="cari-korporat">Cari riwayat PSB per nama perusahaan</Label>
           <Input
             id="cari-korporat"
             placeholder="Ketik minimal 3 huruf, mis. Maju"

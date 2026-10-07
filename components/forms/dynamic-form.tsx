@@ -14,6 +14,12 @@ interface Props {
   submitLabel?: string;
   disabled?: boolean;
   onSubmit: (values: FormValues) => void;
+  /**
+   * Disisipkan tepat di bawah field tertentu. Dipakai menampilkan riwayat
+   * korporat di bawah Corporate Name, tanpa membuat perender form tahu soal
+   * field bisnis apa pun.
+   */
+  renderAfterField?: (field: FormField, value: unknown) => React.ReactNode;
 }
 
 export function DynamicForm({
@@ -23,6 +29,7 @@ export function DynamicForm({
   submitLabel = "Simpan",
   disabled,
   onSubmit,
+  renderAfterField,
 }: Props) {
   const [values, setValues] = useState<FormValues>(
     () => initialValues ?? defaultsFor(form.fields),
@@ -83,6 +90,7 @@ export function DynamicForm({
                   disabled={disabled || submitting}
                   onChange={(next) => setValue(field.key, next)}
                 />
+                {renderAfterField?.(field, values[field.key])}
               </div>
             ))}
           </CardContent>
