@@ -23,7 +23,7 @@ import {
   SUMBER_KORPORAT,
 } from "@/components/forms/corporate-history";
 import { CorporateSelect } from "@/components/forms/corporate-select";
-import { FieldManager } from "@/components/forms/field-manager";
+import { FieldEditor } from "@/components/forms/field-editor";
 import {
   downloadRecordXlsx,
   useCorporateHistory,
@@ -148,7 +148,7 @@ export default function FormDetailPage({
 
         {isAdmin && (
           <TabsContent value="fields" className="mt-4">
-            <FieldManager form={form} />
+            <FieldEditor form={form} />
           </TabsContent>
         )}
       </Tabs>
