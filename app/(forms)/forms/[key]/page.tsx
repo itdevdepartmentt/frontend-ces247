@@ -22,6 +22,7 @@ import {
   CorporateHistory,
   SUMBER_KORPORAT,
 } from "@/components/forms/corporate-history";
+import { CorporateSelect } from "@/components/forms/corporate-select";
 import { FieldManager } from "@/components/forms/field-manager";
 import {
   downloadRecordXlsx,
@@ -34,6 +35,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/use-auth";
 import type { FormValues } from "@/types/forms";
+
+/**
+ * Tidak ikut disalin dari PSB: tiap pengajuan aktivasi punya nomor tiket
+ * interaksinya sendiri, dan menyalinnya akan menimpa nomor yang benar.
+ */
+const SKIP_SALIN = ["ticketId"];
 
 export default function FormDetailPage({
   params,
@@ -111,8 +118,23 @@ export default function FormDetailPage({
             submitting={submit.isPending}
             submitLabel="Kirim"
             onSubmit={handleSubmit}
+            // Di form Aktivasi korporat dipilih dari PSB, bukan diketik.
+            // Di PSB sendiri korporat justru sedang didaftarkan, jadi tetap
+            // bebas diketik dan hanya diberi riwayat agar tidak terdaftar ganda.
+            overrideField={({ field, value, setValue, patchValues }) =>
+              field.key === "corporateName" && key !== SUMBER_KORPORAT ? (
+                <CorporateSelect
+                  field={field}
+                  value={value}
+                  targetFields={form.fields}
+                  skipKeys={SKIP_SALIN}
+                  onChange={setValue}
+                  onPatch={patchValues}
+                />
+              ) : null
+            }
             renderAfterField={(field, value) =>
-              field.key === "corporateName" ? (
+              field.key === "corporateName" && key === SUMBER_KORPORAT ? (
                 <CorporateHistory formKey={key} name={value} />
               ) : null
             }

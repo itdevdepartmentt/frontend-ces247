@@ -20,6 +20,17 @@ interface Props {
    * field bisnis apa pun.
    */
   renderAfterField?: (field: FormField, value: unknown) => React.ReactNode;
+  /**
+   * Mengganti kontrol bawaan sebuah field. Mengembalikan null berarti pakai
+   * kontrol biasa. patchValues dipakai kontrol yang mengisi beberapa field
+   * sekaligus, mis. memilih korporat lalu menyalin datanya.
+   */
+  overrideField?: (ctx: {
+    field: FormField;
+    value: unknown;
+    setValue: (next: unknown) => void;
+    patchValues: (patch: FormValues) => void;
+  }) => React.ReactNode | null;
 }
 
 export function DynamicForm({
@@ -30,6 +41,7 @@ export function DynamicForm({
   disabled,
   onSubmit,
   renderAfterField,
+  overrideField,
 }: Props) {
   const [values, setValues] = useState<FormValues>(
     () => initialValues ?? defaultsFor(form.fields),
@@ -44,6 +56,16 @@ export function DynamicForm({
       if (!prev[key]) return prev;
       const copy = { ...prev };
       delete copy[key];
+      return copy;
+    });
+  };
+
+  /** Mengisi beberapa field sekaligus dalam satu pembaruan. */
+  const patchValues = (patch: FormValues) => {
+    setValues((prev) => ({ ...prev, ...patch }));
+    setErrors((prev) => {
+      const copy = { ...prev };
+      for (const key of Object.keys(patch)) delete copy[key];
       return copy;
     });
   };
@@ -83,13 +105,20 @@ export function DynamicForm({
                     : undefined
                 }
               >
-                <DynamicField
-                  field={field}
-                  value={values[field.key]}
-                  error={errors[field.key]}
-                  disabled={disabled || submitting}
-                  onChange={(next) => setValue(field.key, next)}
-                />
+                {overrideField?.({
+                  field,
+                  value: values[field.key],
+                  setValue: (next) => setValue(field.key, next),
+                  patchValues,
+                }) ?? (
+                  <DynamicField
+                    field={field}
+                    value={values[field.key]}
+                    error={errors[field.key]}
+                    disabled={disabled || submitting}
+                    onChange={(next) => setValue(field.key, next)}
+                  />
+                )}
                 {renderAfterField?.(field, values[field.key])}
               </div>
             ))}
