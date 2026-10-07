@@ -8,8 +8,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { useCorporateHistory } from "@/hooks/use-forms";
-import { SUMBER_KORPORAT } from "@/components/forms/corporate-history";
 import type { FormField, FormRecordDetail, FormValues } from "@/types/forms";
+
+/** Form pendaftaran awal; dari sinilah daftar korporat berasal. */
+export const SUMBER_KORPORAT = "ebo-psb";
 
 interface Props {
   field: FormField;
@@ -18,11 +20,8 @@ interface Props {
   error?: string;
   /** Field-field pada form yang sedang diisi; penentu apa yang bisa disalin. */
   targetFields: FormField[];
-  /**
-   * Key yang tidak boleh ikut tersalin walau ada di kedua form. ticketId
-   * masuk sini karena pengajuan aktivasi punya nomor tiketnya sendiri.
-   */
-  skipKeys?: string[];
+  /** Pesan saat tidak ada korporat yang cocok; beda antara PSB dan Aktivasi. */
+  pesanKosong: string;
   onChange: (next: unknown) => void;
   onPatch: (patch: FormValues) => void;
 }
@@ -40,7 +39,7 @@ export function CorporateSelect({
   disabled,
   error,
   targetFields,
-  skipKeys = [],
+  pesanKosong,
   onChange,
   onPatch,
 }: Props) {
@@ -76,11 +75,11 @@ export function CorporateSelect({
       const sumber = (record.values ?? {}) as FormValues;
       const patch: FormValues = {};
 
-      // Hanya field yang ada di kedua form yang disalin. Lampiran dan tabel
-      // dilewati: bukti harus dilampirkan ulang untuk pengajuan ini.
+      // Semua field yang ada di kedua form disalin, lampiran termasuk. Tabel
+      // dilewati karena barisnya khas tiap pengajuan — daftar MSISDN aktivasi
+      // tidak ada padanannya di PSB.
       for (const target of targetFields) {
-        if (skipKeys.includes(target.key)) continue;
-        if (target.type === "FILE" || target.type === "TABLE") continue;
+        if (target.type === "TABLE") continue;
         const nilai = sumber[target.key];
         if (nilai === undefined || nilai === null || nilai === "") continue;
         patch[target.key] = nilai;
@@ -150,8 +149,7 @@ export function CorporateSelect({
 
             {!isFetching && data?.length === 0 && (
               <p className="px-2 py-2 text-xs text-muted-foreground">
-                Tidak ada korporat dengan nama itu di data PSB. Daftarkan dulu
-                lewat Form PSB.
+                {pesanKosong}
               </p>
             )}
 
@@ -187,7 +185,7 @@ export function CorporateSelect({
         <p className="text-xs text-destructive">{error}</p>
       ) : (
         <p className="text-xs text-muted-foreground">
-          Dipilih dari pengajuan PSB. Memilih akan mengisi field lain yang sama.
+          Pilih dari pengajuan PSB untuk mengisi otomatis field yang sama.
         </p>
       )}
     </div>
