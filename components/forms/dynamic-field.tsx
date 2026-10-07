@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Plus, Trash2, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -250,25 +250,51 @@ function FileControl({
   onChange: (value: unknown) => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [dragging, setDragging] = useState(false);
+  const [pesan, setPesan] = useState<string | null>(null);
   const files = Array.isArray(value) ? value.map(String) : [];
 
-  const handlePick = async (fileList: FileList | null) => {
-    if (!fileList?.length) return;
-    const next = [...files];
+  /** Satu jalur untuk tiga cara menambah: pilih berkas, tempel, dan seret. */
+  const tambah = async (daftar: File[]) => {
+    if (disabled || daftar.length === 0) return;
 
-    for (const file of Array.from(fileList)) {
+    const diterima: string[] = [];
+    const ditolak: string[] = [];
+
+    for (const file of daftar) {
       if (file.size > MAX_FILE_BYTES) {
-        // Dibiarkan di sini, bukan dilempar, supaya file lain tetap terproses.
-        window.alert(
-          `"${file.name}" berukuran lebih dari 2 MB dan tidak ikut dilampirkan.`,
-        );
+        ditolak.push(file.name || "gambar tempel");
         continue;
       }
-      next.push(await readAsDataUrl(file));
+      diterima.push(await readAsDataUrl(file));
     }
 
-    onChange(next);
-    if (inputRef.current) inputRef.current.value = "";
+    if (diterima.length) onChange([...files, ...diterima]);
+
+    setPesan(
+      ditolak.length
+        ? `${ditolak.join(", ")} lebih dari 2 MB dan tidak dilampirkan.`
+        : null,
+    );
+  };
+
+  const handlePaste = (event: React.ClipboardEvent) => {
+    const gambar = Array.from(event.clipboardData.items)
+      .filter((item) => item.kind === "file" && item.type.startsWith("image/"))
+      .map((item) => item.getAsFile())
+      .filter((f): f is File => Boolean(f));
+
+    if (!gambar.length) return;
+    // Baru dicegah setelah ada gambar, supaya menempel teks di tempat lain
+    // tidak ikut tertahan.
+    event.preventDefault();
+    void tambah(gambar);
+  };
+
+  const handleDrop = (event: React.DragEvent) => {
+    event.preventDefault();
+    setDragging(false);
+    void tambah(Array.from(event.dataTransfer.files));
   };
 
   return (
@@ -280,51 +306,96 @@ function FileControl({
         accept="image/*,.pdf"
         className="hidden"
         disabled={disabled}
-        onChange={(e) => void handlePick(e.target.files)}
+        onChange={(e) => {
+          void tambah(Array.from(e.target.files ?? []));
+          if (inputRef.current) inputRef.current.value = "";
+        }}
       />
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        disabled={disabled}
-        onClick={() => inputRef.current?.click()}
+
+      {/* Area ini perlu bisa difokuskan agar event tempel sampai ke sini. */}
+      <div
+        role="button"
+        tabIndex={disabled ? -1 : 0}
+        aria-label="Tempel, seret, atau klik untuk menambah lampiran"
+        onPaste={handlePaste}
+        onDrop={handleDrop}
+        onDragOver={(e) => {
+          e.preventDefault();
+          if (!disabled) setDragging(true);
+        }}
+        onDragLeave={() => setDragging(false)}
+        onClick={() => !disabled && inputRef.current?.click()}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            inputRef.current?.click();
+          }
+        }}
+        className={cn(
+          "flex flex-col items-center gap-1 rounded-md border border-dashed px-4 py-5 text-center transition-colors",
+          dragging
+            ? "border-primary bg-primary/5"
+            : "border-input hover:border-primary/60 hover:bg-accent/40",
+          disabled && "cursor-not-allowed opacity-60",
+        )}
       >
-        <Upload className="mr-2 size-4" />
-        Tambah lampiran
-      </Button>
+        <Upload className="size-5 text-muted-foreground" />
+        <p className="text-sm font-medium">
+          Tempel tangkapan layar, seret berkas, atau klik di sini
+        </p>
+        <p className="text-xs text-muted-foreground">
+          Klik area ini lalu tekan Ctrl+V · maksimal 2 MB per berkas
+        </p>
+      </div>
+
+      {pesan && <p className="text-xs text-destructive">{pesan}</p>}
 
       {files.length > 0 && (
-        <ul className="space-y-1">
-          {files.map((file, index) => (
-            <li
-              key={index}
-              className="flex items-center justify-between rounded border bg-muted/40 px-2 py-1 text-xs"
-            >
-              <span className="truncate">Lampiran {index + 1}</span>
-              <div className="flex items-center gap-1">
-                <a
-                  href={file}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-primary hover:underline"
-                >
-                  lihat
-                </a>
-                {!disabled && (
-                  <button
-                    type="button"
-                    aria-label={`Hapus lampiran ${index + 1}`}
-                    onClick={() =>
-                      onChange(files.filter((_, i) => i !== index))
-                    }
-                    className="text-muted-foreground hover:text-destructive"
-                  >
-                    <X className="size-3.5" />
-                  </button>
+        <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          {files.map((file, index) => {
+            const gambar = file.startsWith("data:image/");
+            return (
+              <li
+                key={index}
+                className="group relative overflow-hidden rounded border bg-muted/40"
+              >
+                {gambar ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={file}
+                    alt={`Lampiran ${index + 1}`}
+                    className="h-24 w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-24 items-center justify-center text-xs text-muted-foreground">
+                    Berkas {index + 1}
+                  </div>
                 )}
-              </div>
-            </li>
-          ))}
+
+                <div className="flex items-center justify-between px-2 py-1 text-xs">
+                  <a
+                    href={file}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-primary hover:underline"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    lihat
+                  </a>
+                  {!disabled && (
+                    <button
+                      type="button"
+                      aria-label={`Hapus lampiran ${index + 1}`}
+                      onClick={() => onChange(files.filter((_, i) => i !== index))}
+                      className="text-muted-foreground hover:text-destructive"
+                    >
+                      <X className="size-3.5" />
+                    </button>
+                  )}
+                </div>
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>
