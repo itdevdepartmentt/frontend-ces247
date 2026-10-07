@@ -22,6 +22,8 @@ const LABEL_BARU = "Pertanyaan tanpa judul";
 export function FieldEditor({ form }: Props) {
   const [aktif, setAktif] = useState<string | null>(null);
   const [draft, setDraft] = useState<Draft | null>(null);
+  const [seretDari, setSeretDari] = useState<number | null>(null);
+  const [seretKe, setSeretKe] = useState<number | null>(null);
 
   const createField = useCreateField(form.key);
   const updateField = useUpdateField(form.key);
@@ -159,12 +161,32 @@ export function FieldEditor({ form }: Props) {
     );
   };
 
+  /** Mengurutkan ulang berdasarkan posisi jatuh, lalu mengirim seluruh urutan. */
+  const jatuhkan = () => {
+    const dari = seretDari;
+    const ke = seretKe;
+    setSeretDari(null);
+    setSeretKe(null);
+
+    if (dari === null || ke === null || dari === ke) return;
+
+    const urut = [...fields];
+    const [dipindah] = urut.splice(dari, 1);
+    urut.splice(ke, 0, dipindah);
+
+    reorder.mutate(
+      urut.map((f, i) => ({ id: f.id, order: i })),
+      { onError: (e) => toast.error(jelaskan(e)) },
+    );
+  };
+
   return (
     <div className="mx-auto max-w-3xl space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
           {fields.filter((f) => f.isActive).length} pertanyaan aktif dari{" "}
-          {fields.length}. Klik kartu untuk menyuntingnya.
+          {fields.length}. Klik kartu untuk menyunting, seret gagang di atasnya
+          untuk memindahkan.
         </p>
         <Button onClick={tambah} disabled={createField.isPending}>
           <Plus className="mr-2 size-4" />
@@ -196,6 +218,15 @@ export function FieldEditor({ form }: Props) {
           onHapus={() => hapus(field)}
           onToggleAktif={() => toggleAktif(field)}
           onPindah={(arah) => pindah(index, arah)}
+          sedangDiseret={seretDari === index}
+          sasaranJatuh={seretKe === index && seretDari !== index}
+          onSeretMulai={() => setSeretDari(index)}
+          onSeretLewat={() => setSeretKe(index)}
+          onSeretSelesai={() => {
+            setSeretDari(null);
+            setSeretKe(null);
+          }}
+          onJatuh={jatuhkan}
         />
       ))}
 

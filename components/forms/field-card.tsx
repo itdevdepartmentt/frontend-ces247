@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import { Copy, Eye, EyeOff, GripVertical, Plus, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -52,6 +54,14 @@ interface Props {
   onHapus: () => void;
   onToggleAktif: () => void;
   onPindah: (arah: -1 | 1) => void;
+  /** Kartu ini sedang diseret. */
+  sedangDiseret?: boolean;
+  /** Kartu ini sasaran jatuh saat ini. */
+  sasaranJatuh?: boolean;
+  onSeretMulai: () => void;
+  onSeretLewat: () => void;
+  onSeretSelesai: () => void;
+  onJatuh: () => void;
 }
 
 const TANPA_SECTION = "__none";
@@ -72,21 +82,60 @@ export function FieldCard({
   onHapus,
   onToggleAktif,
   onPindah,
+  sedangDiseret,
+  sasaranJatuh,
+  onSeretMulai,
+  onSeretLewat,
+  onSeretSelesai,
+  onJatuh,
 }: Props) {
+  // Hanya gagang yang mengaktifkan seret, supaya mengklik badan kartu tetap
+  // berarti menyunting dan bukan tidak sengaja memindahkan.
+  const [siapSeret, setSiapSeret] = useState(false);
   const perluOpsi = draft.type === "SELECT" || draft.type === "MULTISELECT";
   const perluKolom = draft.type === "TABLE";
 
   return (
     <div
+      draggable={siapSeret}
       onClick={() => !aktif && onAktifkan()}
+      onDragStart={(e) => {
+        e.dataTransfer.effectAllowed = "move";
+        // Firefox tidak memulai seret tanpa data apa pun.
+        e.dataTransfer.setData("text/plain", field.id);
+        onSeretMulai();
+      }}
+      onDragOver={(e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
+        onSeretLewat();
+      }}
+      onDrop={(e) => {
+        e.preventDefault();
+        onJatuh();
+      }}
+      onDragEnd={() => {
+        setSiapSeret(false);
+        onSeretSelesai();
+      }}
       className={cn(
         "rounded-lg border bg-card transition-shadow",
         aktif ? "border-l-4 border-l-primary shadow-md" : "cursor-pointer hover:shadow-sm",
         !field.isActive && "opacity-60",
+        sedangDiseret && "opacity-40",
+        sasaranJatuh && "ring-2 ring-primary ring-offset-2",
       )}
     >
-      <div className="flex items-center justify-center py-1 text-muted-foreground">
-        <GripVertical className="size-4 rotate-90 opacity-40" />
+      <div
+        role="button"
+        tabIndex={-1}
+        aria-label={`Seret untuk memindahkan ${field.label}`}
+        onMouseDown={() => setSiapSeret(true)}
+        onMouseUp={() => setSiapSeret(false)}
+        onClick={(e) => e.stopPropagation()}
+        className="flex cursor-grab items-center justify-center py-1 text-muted-foreground active:cursor-grabbing"
+      >
+        <GripVertical className="size-4 rotate-90 opacity-40 hover:opacity-100" />
       </div>
 
       <div className="space-y-4 px-5 pb-4">
