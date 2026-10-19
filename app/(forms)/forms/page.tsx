@@ -1,88 +1,141 @@
 "use client";
 
 import Link from "next/link";
-import { FileText, Settings2 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  AlertCircle,
+  ArrowRight,
+  ClipboardList,
+  Settings2,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useFormList } from "@/hooks/use-forms";
+import { useAuth } from "@/hooks/use-auth";
+import { formDescription } from "@/lib/form-description";
 
 export default function FormListPage() {
-  const { data: forms, isLoading, isError } = useFormList();
+  const { data, isLoading, isError } = useFormList();
+  const formOrder: Record<string, number> = { "ebo-psb": 0, "ebo-aktivasi": 1 };
+  const forms = data
+    ?.filter((form) => form.key !== "mass-ticket")
+    .sort((a, b) => (formOrder[a.key] ?? 2) - (formOrder[b.key] ?? 2));
+  const { user } = useAuth();
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
-      <header>
-        <h1 className="text-2xl font-semibold">Formulir</h1>
-        <p className="text-sm text-muted-foreground">
-          Formulir dengan field yang bisa diatur sendiri — menambah atau mengubah
-          field tidak perlu menunggu rilis aplikasi.
-        </p>
+    <div className="operations-page operations-detail">
+      <header className="operations-heading">
+        <div>
+          <h1>Formulir</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Pilih formulir untuk membuat pengajuan.
+          </p>
+        </div>
+        {forms && (
+          <div className="flex items-center gap-4">
+            <Button asChild variant="outline">
+              <Link href="/forms/rekap">
+                <ClipboardList className="size-4" aria-hidden="true" /> Rekap
+                Submission
+              </Link>
+            </Button>
+          </div>
+        )}
       </header>
-
       {isLoading && (
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-3">
           {[0, 1, 2].map((i) => (
-            <Skeleton key={i} className="h-36 w-full" />
+            <Skeleton key={i} className="h-24 w-full" />
           ))}
         </div>
       )}
-
       {isError && (
-        <p className="rounded-md border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">
-          Gagal memuat daftar formulir. Coba muat ulang halaman.
+        <p
+          role="alert"
+          className="flex items-center gap-2 text-sm text-destructive"
+        >
+          <AlertCircle className="size-4" aria-hidden="true" />
+          Daftar formulir gagal dimuat. Coba muat ulang halaman.
         </p>
       )}
-
-      {forms && forms.length === 0 && (
-        <p className="rounded-md border border-dashed p-8 text-center text-sm text-muted-foreground">
+      {forms?.length === 0 && (
+        <p className="py-8 text-sm text-muted-foreground">
           Belum ada formulir.
         </p>
       )}
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        {forms?.map((form) => (
-          <Card key={form.id} className="flex flex-col">
-            <CardHeader>
-              <CardTitle className="flex items-start justify-between gap-2 text-base">
-                <span>{form.name}</span>
-                {!form.isActive && <Badge variant="secondary">nonaktif</Badge>}
-              </CardTitle>
-              {form.description && (
-                <CardDescription>{form.description}</CardDescription>
-              )}
-            </CardHeader>
-
-            <CardContent className="mt-auto space-y-3">
-              <p className="text-xs text-muted-foreground">
-                {form._count?.fields ?? 0} field · {form._count?.records ?? 0} data
-                tersimpan
-              </p>
-              <div className="flex gap-2">
-                <Button asChild size="sm" className="flex-1">
-                  <Link href={`/forms/${form.key}`}>
-                    <FileText className="mr-2 size-4" />
-                    Buka
+      {forms && forms.length > 0 && (
+        <ul className="operations-form-list">
+          {forms.map((form) => (
+            <li key={form.id} className="operations-form-row">
+              <div className="min-w-0">
+                {(form.key === "ebo-psb" || form.key === "ebo-aktivasi") && (
+                  <p className="operations-form-kind">
+                    {form.key === "ebo-psb" ? "PSB" : "Aktivasi"}
+                  </p>
+                )}
+                <h2 className="text-base font-semibold">
+                  <Link
+                    className="operations-form-title underline-offset-4 hover:underline"
+                    href={`/forms/${form.key}`}
+                  >
+                    {form.key === "ebo-psb"
+                      ? "Pasang baru kartu korporat"
+                      : form.key === "ebo-aktivasi"
+                        ? "Aktivasi kartu baru"
+                        : form.name}
                   </Link>
-                </Button>
-                <Button asChild size="sm" variant="outline">
-                  <Link href={`/forms/${form.key}?tab=fields`}>
-                    <Settings2 className="size-4" />
-                    <span className="sr-only">Atur field</span>
+                </h2>
+                {formDescription(form.description) && (
+                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                    {formDescription(form.description)}
+                  </p>
+                )}
+                {!form.isActive && (
+                  <p className="mt-2 text-xs text-muted-foreground">Nonaktif</p>
+                )}
+              </div>
+              <Link
+                className="operations-form-number"
+                href={`/forms/${form.key}?tab=rekap`}
+                aria-label={`Riwayat ${form.name}, ${form._count?.records ?? 0} pengajuan`}
+              >
+                <strong>
+                  {(form._count?.records ?? 0).toLocaleString("id-ID")}
+                  <span className="ml-1 text-xs font-normal text-muted-foreground">
+                    pengajuan
+                  </span>
+                </strong>
+                <small>Lihat riwayat</small>
+              </Link>
+              <div className="operations-form-actions">
+                {user?.role === "ADMIN" && (
+                  <Button
+                    asChild
+                    size="icon"
+                    variant="ghost"
+                    className="size-11"
+                  >
+                    <Link
+                      href={`/forms/${form.key}?tab=fields`}
+                      aria-label={`Pengaturan ${form.name}`}
+                    >
+                      <Settings2 className="size-4" aria-hidden="true" />
+                    </Link>
+                  </Button>
+                )}
+                <Button asChild size="sm">
+                  <Link
+                    href={`/forms/${form.key}`}
+                    aria-label={`Buka ${form.name}`}
+                  >
+                    Isi formulir{" "}
+                    <ArrowRight className="size-4" aria-hidden="true" />
                   </Link>
                 </Button>
               </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

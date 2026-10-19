@@ -60,7 +60,7 @@ export default function MassTicketDetailPage({
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
+    <div className="operations-page operations-detail">
       <div className="space-y-2">
         <Button asChild variant="ghost" size="sm" className="-ml-2">
           <Link href="/mass-process">
@@ -69,7 +69,7 @@ export default function MassTicketDetailPage({
           </Link>
         </Button>
 
-        <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="operations-heading">
           <div>
             <h1 className="text-2xl font-semibold">{ticket.ticketNumber}</h1>
             <p className="text-sm text-muted-foreground">
@@ -85,7 +85,7 @@ export default function MassTicketDetailPage({
       </div>
 
       <Card>
-        <CardContent className="grid gap-4 py-5 sm:grid-cols-2 lg:grid-cols-4">
+        <CardContent className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           <Fact label="Proses saat ini" value={ticket.currentProcess ?? "—"} />
           <div>
             <p className="text-xs text-muted-foreground">Progres</p>
@@ -160,7 +160,7 @@ function Fact({
   return (
     <div>
       <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="text-sm font-medium">{value}</p>
+      <p className="mt-1 break-words text-sm font-medium">{value}</p>
       {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
     </div>
   );
@@ -181,7 +181,7 @@ function SummaryCard({
       <CardContent>
         {content?.trim() ? (
           // Dihitung ulang backend tiap simpan, jadi ditampilkan apa adanya.
-          <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed">
+          <pre className="whitespace-pre-wrap break-words font-sans text-sm leading-relaxed">
             {content}
           </pre>
         ) : (
@@ -250,7 +250,7 @@ function AgentCard({ ticket }: { ticket: MassTicketDetail }) {
           )}
         </p>
 
-        <div className="grid gap-2 sm:grid-cols-[1fr_1fr_1fr_auto] sm:items-end">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-[1fr_1fr_1fr_auto] xl:items-end">
           <div className="space-y-1.5">
             <Label htmlFor="agent-new">Agent baru</Label>
             {/* Dipilih dari daftar baku, bukan diketik, supaya satu orang tidak

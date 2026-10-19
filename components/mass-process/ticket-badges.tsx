@@ -1,6 +1,5 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 /** Warna status dipusatkan di sini supaya tabel dan halaman detail konsisten. */
@@ -8,12 +7,16 @@ export function StatusBadge({ status }: { status: string | null }) {
   const value = status ?? "—";
   const tone =
     value === "Completed"
-      ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
+      ? "text-emerald-700 dark:text-emerald-300"
       : value === "In Progress"
-        ? "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
-        : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300";
+        ? "text-amber-800 dark:text-amber-300"
+        : "text-slate-600 dark:text-slate-300";
 
-  return <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", tone)}>{value}</span>;
+  return (
+    <span className={cn("text-xs font-medium whitespace-nowrap", tone)}>
+      {value}
+    </span>
+  );
 }
 
 /**
@@ -25,23 +28,21 @@ export function AgeingBadge({ bucket }: { bucket: string | null }) {
 
   const tone =
     bucket === ">14 Days"
-      ? "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300"
+      ? "text-red-700 dark:text-red-300"
       : bucket === "8-14 Days"
-        ? "bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300"
+        ? "text-orange-700 dark:text-orange-300"
         : bucket === "4-7 Days"
-          ? "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
-          : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300";
+          ? "text-amber-800 dark:text-amber-300"
+          : "text-slate-600 dark:text-slate-300";
 
-  return <span className={cn("rounded px-1.5 py-0.5 text-xs", tone)}>{bucket}</span>;
+  return (
+    <span className={cn("text-xs whitespace-nowrap", tone)}>{bucket}</span>
+  );
 }
 
 export function BottleneckBadge({ value }: { value: string | null }) {
   if (!value) return <span className="text-xs text-muted-foreground">—</span>;
-  return (
-    <Badge variant="destructive" className="font-normal">
-      {value}
-    </Badge>
-  );
+  return <span className="text-xs font-medium text-destructive">{value}</span>;
 }
 
 export function ProgressBar({ value }: { value: number }) {

@@ -4,7 +4,15 @@ import { useState } from "react";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FieldCard, type Draft } from "@/components/forms/field-card";
+import {
+  fieldSpanClass,
+  flattenGroups,
+  GRID_KELOMPOK,
+  groupFields,
+  sectionIdOf,
+} from "@/lib/form-layout";
 import {
   useCreateField,
   useDeleteField,
@@ -15,23 +23,44 @@ import type { FormDefinition, FormField } from "@/types/forms";
 
 interface Props {
   form: FormDefinition;
+  /**
+   * Pratinjau pengganti untuk field tertentu. Dipakai field yang di form
+   * aslinya memakai kontrol khusus; pemanggil yang tahu field mana, bukan
+   * penyunting ini.
+   */
+  previewField?: (field: FormField) => React.ReactNode | null;
 }
 
 const LABEL_BARU = "Pertanyaan tanpa judul";
 
-export function FieldEditor({ form }: Props) {
+/** Posisi jatuh sebuah seretan, lengkap dengan kelompok tujuannya. */
+interface Sasaran {
+  index: number;
+  sectionId: string | null;
+}
+
+export function FieldEditor({ form, previewField }: Props) {
   const [aktif, setAktif] = useState<string | null>(null);
   const [draft, setDraft] = useState<Draft | null>(null);
   const [seretDari, setSeretDari] = useState<number | null>(null);
-  const [seretKe, setSeretKe] = useState<number | null>(null);
+  const [seretKe, setSeretKe] = useState<Sasaran | null>(null);
 
   const createField = useCreateField(form.key);
   const updateField = useUpdateField(form.key);
   const deleteField = useDeleteField(form.key);
   const reorder = useReorderFields(form.key);
 
-  const fields = [...form.fields].sort((a, b) => a.order - b.order);
-  const keyTerpakai = new Set(fields.map((f) => f.key));
+  // Pengelompokan dan urutannya memakai fungsi yang sama dengan form
+  // pengisian, jadi susunan di layar ini tidak bisa menyimpang darinya.
+  const groups = groupFields(form);
+  const tampil = flattenGroups(groups);
+  const posisi = new Map(tampil.map((field, i) => [field.id, i]));
+  const keyTerpakai = new Set(tampil.map((f) => f.key));
+
+  // Pertanyaan baru menyusul di kelompok terakhir supaya muncul di ujung
+  // daftar; tanpa ini ia jadi field tanpa kelompok dan melompat ke paling atas.
+  const kelompokTerakhir = groups[groups.length - 1];
+  const sectionBaru = kelompokTerakhir ? sectionIdOf(kelompokTerakhir) : null;
 
   const bukaKartu = (field: FormField) => {
     setAktif(field.id);
@@ -57,7 +86,9 @@ export function FieldEditor({ form }: Props) {
         type: draft.type,
         helpText: draft.helpText.trim() || undefined,
         required: draft.required,
-        sectionId: draft.sectionId ?? undefined,
+        // null dikirim apa adanya: itulah cara memindahkan field keluar dari
+        // kelompoknya lewat pilihan "Tanpa kelompok".
+        sectionId: draft.sectionId,
         options:
           draft.type === "SELECT" || draft.type === "MULTISELECT"
             ? draft.options
@@ -94,6 +125,7 @@ export function FieldEditor({ form }: Props) {
         key: buatKey(LABEL_BARU, keyTerpakai),
         label: LABEL_BARU,
         type: "TEXT",
+        sectionId: sectionBaru ?? undefined,
       },
       {
         onSuccess: (baru: FormField) => bukaKartu(baru),
@@ -148,45 +180,66 @@ export function FieldEditor({ form }: Props) {
       { onError: (e) => toast.error(jelaskan(e)) },
     );
 
-  const pindah = (index: number, arah: -1 | 1) => {
-    const tujuan = index + arah;
-    if (tujuan < 0 || tujuan >= fields.length) return;
+  /**
+   * Memindahkan kartu ke posisi tampil lain lalu mengirim seluruh urutan.
+   *
+   * Bila tujuannya ada di kelompok lain, sectionId-nya ikut diubah lebih dulu.
+   * Tanpa itu kartunya melompat balik ke kelompok asal begitu daftar
+   * dikelompokkan ulang, karena kelompok yang menentukan posisi tampil.
+   */
+  const pindahKe = (dari: number, ke: Sasaran) => {
+    if (dari === ke.index) return;
 
-    const urut = [...fields];
-    [urut[index], urut[tujuan]] = [urut[tujuan], urut[index]];
+    const urut = [...tampil];
+    const [dipindah] = urut.splice(dari, 1);
+    urut.splice(ke.index, 0, dipindah);
 
-    reorder.mutate(
-      urut.map((f, i) => ({ id: f.id, order: i })),
-      { onError: (e) => toast.error(jelaskan(e)) },
-    );
+    const items = urut.map((f, i) => ({ id: f.id, order: i }));
+    const kirimUrutan = () =>
+      reorder.mutate(items, { onError: (e) => toast.error(jelaskan(e)) });
+
+    if (dipindah.sectionId !== ke.sectionId) {
+      // Kalau kartunya sedang dibuka, draft-nya ikut disesuaikan. Tanpa ini
+      // menekan Simpan sesudah memindahkan akan menariknya balik ke kelompok
+      // lama, karena draft masih memegang sectionId saat kartu dibuka.
+      if (aktif === dipindah.id) {
+        setDraft((d) => (d ? { ...d, sectionId: ke.sectionId } : d));
+      }
+
+      updateField.mutate(
+        { fieldId: dipindah.id, sectionId: ke.sectionId },
+        { onSuccess: kirimUrutan, onError: (e) => toast.error(jelaskan(e)) },
+      );
+      return;
+    }
+
+    kirimUrutan();
   };
 
-  /** Mengurutkan ulang berdasarkan posisi jatuh, lalu mengirim seluruh urutan. */
+  const pindah = (index: number, arah: -1 | 1) => {
+    const tujuan = index + arah;
+    if (tujuan < 0 || tujuan >= tampil.length) return;
+    pindahKe(index, { index: tujuan, sectionId: tampil[tujuan].sectionId });
+  };
+
   const jatuhkan = () => {
     const dari = seretDari;
     const ke = seretKe;
     setSeretDari(null);
     setSeretKe(null);
 
-    if (dari === null || ke === null || dari === ke) return;
-
-    const urut = [...fields];
-    const [dipindah] = urut.splice(dari, 1);
-    urut.splice(ke, 0, dipindah);
-
-    reorder.mutate(
-      urut.map((f, i) => ({ id: f.id, order: i })),
-      { onError: (e) => toast.error(jelaskan(e)) },
-    );
+    if (dari === null || ke === null) return;
+    pindahKe(dari, ke);
   };
 
   return (
-    <div className="mx-auto max-w-3xl space-y-4">
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
-          {fields.filter((f) => f.isActive).length} pertanyaan aktif dari{" "}
-          {fields.length}. Klik kartu untuk menyunting, seret gagang di atasnya
-          untuk memindahkan.
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">
+          {tampil.filter((f) => f.isActive).length} pertanyaan aktif dari{" "}
+          {tampil.length}. Susunannya sama persis dengan tab Isi Formulir. Klik
+          kartu untuk menyunting, seret gagangnya untuk memindahkan — termasuk
+          ke kelompok lain.
         </p>
         <Button onClick={tambah} disabled={createField.isPending}>
           <Plus className="mr-2 size-4" />
@@ -194,43 +247,76 @@ export function FieldEditor({ form }: Props) {
         </Button>
       </div>
 
-      {fields.length === 0 && (
+      {tampil.length === 0 && (
         <p className="rounded-lg border border-dashed p-10 text-center text-sm text-muted-foreground">
           Belum ada pertanyaan. Mulai dengan menambahkan satu.
         </p>
       )}
 
-      {fields.map((field, index) => (
-        <FieldCard
-          key={field.id}
-          field={field}
-          draft={aktif === field.id && draft ? draft : draftDari(field)}
-          aktif={aktif === field.id}
-          menyimpan={updateField.isPending}
-          sections={form.sections}
-          bisaNaik={index > 0}
-          bisaTurun={index < fields.length - 1}
-          onAktifkan={() => bukaKartu(field)}
-          onUbah={(patch) => setDraft((d) => (d ? { ...d, ...patch } : d))}
-          onSimpan={() => simpan(field)}
-          onBatal={tutupKartu}
-          onGandakan={() => gandakan(field)}
-          onHapus={() => hapus(field)}
-          onToggleAktif={() => toggleAktif(field)}
-          onPindah={(arah) => pindah(index, arah)}
-          sedangDiseret={seretDari === index}
-          sasaranJatuh={seretKe === index && seretDari !== index}
-          onSeretMulai={() => setSeretDari(index)}
-          onSeretLewat={() => setSeretKe(index)}
-          onSeretSelesai={() => {
-            setSeretDari(null);
-            setSeretKe(null);
-          }}
-          onJatuh={jatuhkan}
-        />
+      {groups.map((group) => (
+        <Card key={group.id}>
+          {group.label && (
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">{group.label}</CardTitle>
+            </CardHeader>
+          )}
+          <CardContent className={GRID_KELOMPOK}>
+            {group.fields.map((field) => {
+              const index = posisi.get(field.id) ?? 0;
+              const sedangDisunting = aktif === field.id;
+
+              return (
+                <div
+                  key={field.id}
+                  // Kartu yang sedang disunting melebar penuh karena isinya
+                  // tidak muat satu kolom; selebihnya persis seperti form asli.
+                  className={
+                    sedangDisunting
+                      ? "min-w-0 md:col-span-2"
+                      : fieldSpanClass(field)
+                  }
+                >
+                  <FieldCard
+                    field={field}
+                    draft={sedangDisunting && draft ? draft : draftDari(field)}
+                    aktif={sedangDisunting}
+                    menyimpan={updateField.isPending}
+                    sections={form.sections}
+                    bisaNaik={index > 0}
+                    bisaTurun={index < tampil.length - 1}
+                    onAktifkan={() => bukaKartu(field)}
+                    onUbah={(patch) =>
+                      setDraft((d) => (d ? { ...d, ...patch } : d))
+                    }
+                    onSimpan={() => simpan(field)}
+                    onBatal={tutupKartu}
+                    onGandakan={() => gandakan(field)}
+                    onHapus={() => hapus(field)}
+                    onToggleAktif={() => toggleAktif(field)}
+                    onPindah={(arah) => pindah(index, arah)}
+                    sedangDiseret={seretDari === index}
+                    sasaranJatuh={
+                      seretKe?.index === index && seretDari !== index
+                    }
+                    onSeretMulai={() => setSeretDari(index)}
+                    onSeretLewat={() =>
+                      setSeretKe({ index, sectionId: field.sectionId })
+                    }
+                    onSeretSelesai={() => {
+                      setSeretDari(null);
+                      setSeretKe(null);
+                    }}
+                    onJatuh={jatuhkan}
+                    pratinjau={previewField?.(field) ?? undefined}
+                  />
+                </div>
+              );
+            })}
+          </CardContent>
+        </Card>
       ))}
 
-      {fields.length > 0 && (
+      {tampil.length > 0 && (
         <Button
           variant="outline"
           className="w-full border-dashed"
@@ -281,8 +367,8 @@ function buatKey(label: string, dipakai: Set<string>): string {
 }
 
 function jelaskan(error: unknown): string {
-  const pesan = (error as { response?: { data?: { message?: unknown } } })?.response
-    ?.data?.message;
+  const pesan = (error as { response?: { data?: { message?: unknown } } })
+    ?.response?.data?.message;
   if (Array.isArray(pesan)) return pesan.join(" ");
   if (typeof pesan === "string") return pesan;
   return "Terjadi kesalahan. Coba lagi.";

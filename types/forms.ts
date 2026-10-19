@@ -91,12 +91,28 @@ export interface FormRecord {
   status: string;
   refNumber: string | null;
   createdBy: string | null;
+  lastEditedById: string | null;
+  lastEditedByName: string | null;
+  lastEditedByEmail: string | null;
+  lastEditedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface FormRecordDetail extends FormRecord {
   form: FormDefinition;
+}
+
+export interface FormSubmission {
+  id: string;
+  formKey: string;
+  formName: string;
+  createdAt: string;
+  status: string;
+  ticketId: string | null;
+  corporateName: string | null;
+  projectId: string | null;
+  quantity: string | null;
 }
 
 export interface Paginated<T> {
@@ -118,6 +134,10 @@ export interface CreateFieldInput {
   defaultValue?: string;
 }
 
-export type UpdateFieldInput = Partial<Omit<CreateFieldInput, "key">> & {
+export type UpdateFieldInput = Partial<
+  Omit<CreateFieldInput, "key" | "sectionId">
+> & {
+  /** null memindahkan field keluar dari kelompok mana pun. */
+  sectionId?: string | null;
   isActive?: boolean;
 };

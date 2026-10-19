@@ -46,12 +46,12 @@ export function UploadTicketsDialog() {
   return (
     <>
       <Button onClick={() => setOpen(true)}>
-        <Upload className="mr-2 size-4" />
+        <Upload className="size-4" aria-hidden="true" />
         Upload tiket
       </Button>
 
       <Dialog open={open} onOpenChange={(next) => (next ? setOpen(true) : close())}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="max-h-[85dvh] overflow-y-auto rounded-xl sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Upload Tiket dari Excel</DialogTitle>
             <DialogDescription>
@@ -72,7 +72,7 @@ export function UploadTicketsDialog() {
 
             <Button
               variant="outline"
-              className="w-full"
+              className="min-h-24 w-full gap-3 rounded-xl border-dashed bg-muted/30 text-sm"
               disabled={upload.isPending}
               onClick={() => inputRef.current?.click()}
             >

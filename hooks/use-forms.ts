@@ -8,6 +8,7 @@ import type {
   FormRecord,
   FormRecordDetail,
   FormSummaryItem,
+  FormSubmission,
   FormValues,
   Paginated,
   UpdateFieldInput,
@@ -143,6 +144,9 @@ export function useSubmitRecord(formKey: string) {
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: [RECORDS_KEY, formKey] });
+      void queryClient.invalidateQueries({
+        queryKey: [RECORDS_KEY, "submissions"],
+      });
     },
   });
 }
@@ -156,6 +160,24 @@ export function useRecordList(
     queryFn: async () => {
       const { data } = await api.get<Paginated<FormRecord>>(
         `/forms/${formKey}/records`,
+        { params },
+      );
+      return data;
+    },
+  });
+}
+
+export function useSubmissionList(params: {
+  formKey?: string;
+  page?: number;
+  limit?: number;
+  search?: string;
+}) {
+  return useQuery<Paginated<FormSubmission>>({
+    queryKey: [RECORDS_KEY, "submissions", params],
+    queryFn: async () => {
+      const { data } = await api.get<Paginated<FormSubmission>>(
+        "/form-records",
         { params },
       );
       return data;
@@ -182,7 +204,13 @@ export function useCorporateHistory(
 ) {
   const keyword = name.trim();
   return useQuery<CorporateMatch[]>({
-    queryKey: [RECORDS_KEY, formKey, "by-corporate", source ?? formKey, keyword],
+    queryKey: [
+      RECORDS_KEY,
+      formKey,
+      "by-corporate",
+      source ?? formKey,
+      keyword,
+    ],
     enabled: keyword.length >= 3,
     queryFn: async () => {
       const { data } = await api.get<CorporateMatch[]>(
@@ -205,18 +233,35 @@ export function useRecord(id: string | undefined) {
   });
 }
 
+export function useUpdateRecord(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (values: FormValues) => {
+      const { data } = await api.patch<FormRecord>(`/form-records/${id}`, {
+        values,
+      });
+      return data;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: [RECORDS_KEY] });
+    },
+  });
+}
+
 /**
  * Unduhan XLSX lewat blob, bukan membuka tab baru, supaya cookie auth ikut
  * terkirim dan nama file dari header tetap terpakai.
  */
 export async function downloadRecordXlsx(id: string, fallbackName: string) {
-  const response = await api.get(`/form-records/${id}/export`, {
+  const response = await api.post(`/form-records/${id}/export`, undefined, {
     responseType: "blob",
   });
 
   const disposition = String(response.headers["content-disposition"] ?? "");
   const match = disposition.match(/filename="?([^"]+)"?/);
-  const fileName = match ? decodeURIComponent(match[1]) : `${fallbackName}.xlsx`;
+  const fileName = match
+    ? decodeURIComponent(match[1])
+    : `${fallbackName}.xlsx`;
 
   const url = URL.createObjectURL(
     new Blob([response.data as BlobPart], {
@@ -230,4 +275,67 @@ export async function downloadRecordXlsx(id: string, fallbackName: string) {
   link.click();
   link.remove();
   URL.revokeObjectURL(url);
+}
+
+/* ───────────────────────── rekap gabungan (format lama) ──────────────────── */
+
+/** Form yang punya padanan sheet di berkas "Rekap Submit Form EBO.xlsx". */
+export const FORM_REKAP_EBO: Record<string, string> = {
+  "ebo-psb": "PSB",
+  "ebo-aktivasi": "Aktivasi PSB",
+};
+
+export interface HasilImporRekap {
+  sheet: string;
+  totalBaris: number;
+  dibuat: number;
+  dilewati: { baris: number; pesan: string }[];
+  peringatan: { baris: number; pesan: string }[];
+  kolomTakDikenal: string[];
+}
+
+/** Mengunduh seluruh submission sebuah form dalam tata kolom rekap lama. */
+export async function downloadRekapXlsx(formKey: string) {
+  const response = await api.get(`/forms/${formKey}/records/rekap`, {
+    responseType: "blob",
+  });
+
+  const disposition = String(response.headers["content-disposition"] ?? "");
+  const match = disposition.match(/filename="?([^"]+)"?/);
+  const fileName = match
+    ? decodeURIComponent(match[1])
+    : `Rekap ${FORM_REKAP_EBO[formKey] ?? formKey}.xlsx`;
+
+  const url = URL.createObjectURL(
+    new Blob([response.data as BlobPart], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    }),
+  );
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+/** Berkas dikirim apa adanya; backend yang memetakan kolom dan melaporkannya. */
+export function useImportRekap(formKey: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (file: File) => {
+      const body = new FormData();
+      body.append("file", file);
+      const { data } = await api.post<HasilImporRekap>(
+        `/forms/${formKey}/records/rekap`,
+        body,
+      );
+      return data;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: [RECORDS_KEY] });
+      void queryClient.invalidateQueries({ queryKey: [FORMS_KEY] });
+    },
+  });
 }

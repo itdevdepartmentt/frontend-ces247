@@ -102,14 +102,16 @@ export function WorkflowEditor({ ticket }: Props) {
               ["NODIN", "validationNodinStatus", "validationNodinNotes"],
             ] as const
           ).map(([label, statusKey, notesKey]) => (
-            <div key={label} className="grid gap-2 sm:grid-cols-[120px_160px_1fr]">
+            <div key={label} className="operations-workflow-row grid gap-3 sm:grid-cols-[100px_160px_minmax(0,1fr)] sm:items-center">
               <Label className="pt-2">{label}</Label>
               <StatusSelect
+                ariaLabel={`Status validasi ${label}`}
                 value={draft[statusKey] ?? ""}
                 options={["OK", "NOK"]}
                 onChange={(v) => set(statusKey, v)}
               />
               <Input
+                aria-label={`Catatan validasi ${label}`}
                 placeholder="Catatan"
                 value={draft[notesKey] ?? ""}
                 onChange={(e) => set(notesKey, e.target.value)}
@@ -123,10 +125,11 @@ export function WorkflowEditor({ ticket }: Props) {
         <CardHeader className="pb-3">
           <CardTitle className="text-base">Tahap 2 — Profiling Preparation</CardTitle>
         </CardHeader>
-        <CardContent className="grid gap-3 sm:grid-cols-3">
+        <CardContent className="grid gap-4 md:grid-cols-3">
           <div className="space-y-1.5">
             <Label>Status</Label>
             <StatusSelect
+              ariaLabel="Status profiling"
               value={draft.profilingStatus ?? ""}
               options={["In Progress", "Done"]}
               onChange={(v) => set("profilingStatus", v)}
@@ -135,6 +138,7 @@ export function WorkflowEditor({ ticket }: Props) {
           <div className="space-y-1.5">
             <Label>Order ID</Label>
             <Input
+              aria-label="Order ID profiling"
               value={draft.profilingOrderId ?? ""}
               onChange={(e) => set("profilingOrderId", e.target.value)}
             />
@@ -142,6 +146,7 @@ export function WorkflowEditor({ ticket }: Props) {
           <div className="space-y-1.5">
             <Label>Catatan</Label>
             <Input
+              aria-label="Catatan profiling"
               value={draft.profilingNotes ?? ""}
               onChange={(e) => set("profilingNotes", e.target.value)}
             />
@@ -161,7 +166,7 @@ export function WorkflowEditor({ ticket }: Props) {
           {CONFIRMATIONS.map((conf) => (
             <div
               key={conf.key}
-              className="grid gap-2 sm:grid-cols-[1fr_160px_1fr] sm:items-center"
+              className="operations-workflow-row grid gap-3 md:grid-cols-[minmax(0,1fr)_160px_minmax(0,1fr)] md:items-center"
             >
               <Label className="font-normal">
                 {conf.label}
@@ -170,11 +175,13 @@ export function WorkflowEditor({ ticket }: Props) {
                 </span>
               </Label>
               <StatusSelect
+                ariaLabel={`Status ${conf.label} ${conf.stage}`}
                 value={draft.confirmations?.[conf.key]?.status ?? ""}
                 options={["In Progress", "Done"]}
                 onChange={(v) => setConfirmation(conf.key, { status: v })}
               />
               <Input
+                aria-label={`Catatan ${conf.label} ${conf.stage}`}
                 placeholder="Catatan"
                 value={draft.confirmations?.[conf.key]?.notes ?? ""}
                 onChange={(e) => setConfirmation(conf.key, { notes: e.target.value })}
@@ -199,10 +206,11 @@ export function WorkflowEditor({ ticket }: Props) {
           {steps.map((step, index) => (
             <div
               key={step.name}
-              className="grid gap-2 sm:grid-cols-[1fr_160px_1fr_auto] sm:items-center"
+              className="operations-workflow-row grid gap-3 md:grid-cols-[minmax(0,1fr)_160px_minmax(0,1fr)_auto] md:items-center"
             >
               <span className="text-sm">{step.name}</span>
               <StatusSelect
+                ariaLabel={`Status langkah ${step.name}`}
                 value={step.status ?? ""}
                 options={["In Progress", "Done"]}
                 onChange={(v) =>
@@ -212,6 +220,7 @@ export function WorkflowEditor({ ticket }: Props) {
                 }
               />
               <Input
+                aria-label={`Catatan langkah ${step.name}`}
                 placeholder="Catatan"
                 value={step.notes ?? ""}
                 onChange={(e) =>
@@ -226,7 +235,7 @@ export function WorkflowEditor({ ticket }: Props) {
                 type="button"
                 aria-label={`Hapus langkah ${step.name}`}
                 onClick={() => setSteps(steps.filter((_, i) => i !== index))}
-                className="text-muted-foreground hover:text-destructive"
+                className="flex size-11 items-center justify-center rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive focus-visible:outline-2 focus-visible:outline-ring"
               >
                 <Trash2 className="size-4" />
               </button>
@@ -279,10 +288,12 @@ export function WorkflowEditor({ ticket }: Props) {
  * diisi" dipetakan ke sentinel dan dikembalikan lagi saat dikirim.
  */
 function StatusSelect({
+  ariaLabel,
   value,
   options,
   onChange,
 }: {
+  ariaLabel: string;
   value: string;
   options: string[];
   onChange: (value: string) => void;
@@ -292,7 +303,7 @@ function StatusSelect({
       value={value === "" ? EMPTY : value}
       onValueChange={(next) => onChange(next === EMPTY ? "" : next)}
     >
-      <SelectTrigger className="w-full">
+      <SelectTrigger aria-label={ariaLabel} className="w-full">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>

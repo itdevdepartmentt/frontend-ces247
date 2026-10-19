@@ -13,6 +13,82 @@ import type { FormField, FormRecordDetail, FormValues } from "@/types/forms";
 /** Form pendaftaran awal; dari sinilah daftar korporat berasal. */
 export const SUMBER_KORPORAT = "ebo-psb";
 
+const PLACEHOLDER = "Ketik minimal 3 huruf untuk mencari korporat…";
+const KETERANGAN = "Pilih dari pengajuan PSB untuk mengisi otomatis field yang sama.";
+
+/**
+ * Bagian yang terlihat saat kontrol sedang diam: label, kotak isian, panah,
+ * dan keterangan di bawahnya.
+ *
+ * Dipakai bersama oleh kontrol aslinya dan pratinjaunya di layar pengaturan
+ * field, supaya rupa keduanya tidak bisa berbeda.
+ */
+function RangkaKorporat({
+  field,
+  error,
+  wrapRef,
+  input,
+  children,
+}: {
+  field: FormField;
+  error?: string;
+  wrapRef?: React.Ref<HTMLDivElement>;
+  /** Kotak isiannya sendiri; pemanggil yang menentukan perilakunya. */
+  input: React.ReactNode;
+  /** Daftar hasil pencarian, hanya ada pada kontrol aslinya. */
+  children?: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-1.5" ref={wrapRef}>
+      <Label htmlFor={`field-${field.key}`} className="flex items-start gap-1">
+        <span>{field.label}</span>
+        {field.required && (
+          <span className="text-destructive" aria-hidden>
+            *
+          </span>
+        )}
+      </Label>
+
+      <div className="relative">
+        {input}
+        <ChevronsUpDown className="pointer-events-none absolute right-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        {children}
+      </div>
+
+      {error ? (
+        <p className="text-xs text-destructive">{error}</p>
+      ) : (
+        <p className="text-xs text-muted-foreground">{KETERANGAN}</p>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Rupa kontrol tanpa perilakunya, untuk layar pengaturan field.
+ *
+ * Yang dibutuhkan di sana hanya tampilan: tidak ada state, tidak ada pendengar
+ * klik di dokumen, dan tidak ada pencarian ke API — pratinjau tidak perlu bisa
+ * mencari korporat.
+ */
+export function CorporateSelectPreview({ field }: { field: FormField }) {
+  return (
+    <RangkaKorporat
+      field={field}
+      input={
+        <Input
+          readOnly
+          tabIndex={-1}
+          aria-hidden
+          placeholder={PLACEHOLDER}
+          className="pr-8"
+          value=""
+        />
+      }
+    />
+  );
+}
+
 interface Props {
   field: FormField;
   value: unknown;
@@ -108,22 +184,16 @@ export function CorporateSelect({
   const cukup = keyword.trim().length >= 3;
 
   return (
-    <div className="space-y-1.5" ref={wrapRef}>
-      <Label htmlFor={`field-${field.key}`} className="flex items-start gap-1">
-        <span>{field.label}</span>
-        {field.required && (
-          <span className="text-destructive" aria-hidden>
-            *
-          </span>
-        )}
-      </Label>
-
-      <div className="relative">
+    <RangkaKorporat
+      field={field}
+      error={error}
+      wrapRef={wrapRef}
+      input={
         <Input
           id={`field-${field.key}`}
           autoComplete="off"
           disabled={disabled}
-          placeholder="Ketik minimal 3 huruf untuk mencari korporat…"
+          placeholder={PLACEHOLDER}
           className={cn("pr-8", error && "border-destructive")}
           value={keyword}
           onChange={(e) => {
@@ -136,58 +206,49 @@ export function CorporateSelect({
           }}
           onFocus={() => setTerbuka(true)}
         />
-        <ChevronsUpDown className="pointer-events-none absolute right-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+      }
+    >
+      {terbuka && cukup && (
+        <div className="absolute z-20 mt-1 max-h-64 w-full overflow-y-auto rounded-md border bg-popover p-1 shadow-md">
+          {isFetching && (
+            <p className="flex items-center gap-1.5 px-2 py-2 text-xs text-muted-foreground">
+              <Loader2 className="size-3 animate-spin" />
+              Mencari…
+            </p>
+          )}
 
-        {terbuka && cukup && (
-          <div className="absolute z-20 mt-1 max-h-64 w-full overflow-y-auto rounded-md border bg-popover p-1 shadow-md">
-            {isFetching && (
-              <p className="flex items-center gap-1.5 px-2 py-2 text-xs text-muted-foreground">
-                <Loader2 className="size-3 animate-spin" />
-                Mencari…
-              </p>
-            )}
+          {!isFetching && data?.length === 0 && (
+            <p className="px-2 py-2 text-xs text-muted-foreground">
+              {pesanKosong}
+            </p>
+          )}
 
-            {!isFetching && data?.length === 0 && (
-              <p className="px-2 py-2 text-xs text-muted-foreground">
-                {pesanKosong}
-              </p>
-            )}
-
-            {!isFetching &&
-              data?.map((m) => (
-                <button
-                  key={m.id}
-                  type="button"
-                  disabled={Boolean(memuat)}
-                  onClick={() => void pilih(m.id, m.corporateName ?? "")}
-                  className="flex w-full items-center justify-between gap-3 rounded px-2 py-1.5 text-left text-sm hover:bg-accent"
-                >
-                  <span>
-                    <span className="font-medium">{m.corporateName}</span>
-                    <span className="block text-xs text-muted-foreground">
-                      {m.refNumber ?? "tanpa nomor"}
-                      {m.projectId && ` · ${m.projectId}`} ·{" "}
-                      {new Date(m.createdAt).toLocaleDateString("id-ID")}
-                    </span>
+          {!isFetching &&
+            data?.map((m) => (
+              <button
+                key={m.id}
+                type="button"
+                disabled={Boolean(memuat)}
+                onClick={() => void pilih(m.id, m.corporateName ?? "")}
+                className="flex w-full items-center justify-between gap-3 rounded px-2 py-1.5 text-left text-sm hover:bg-accent"
+              >
+                <span>
+                  <span className="font-medium">{m.corporateName}</span>
+                  <span className="block text-xs text-muted-foreground">
+                    {m.refNumber ?? "tanpa nomor"}
+                    {m.projectId && ` · ${m.projectId}`} ·{" "}
+                    {new Date(m.createdAt).toLocaleDateString("id-ID")}
                   </span>
-                  {memuat === m.id ? (
-                    <Loader2 className="size-4 shrink-0 animate-spin" />
-                  ) : terpilih === m.id ? (
-                    <Check className="size-4 shrink-0 text-primary" />
-                  ) : null}
-                </button>
-              ))}
-          </div>
-        )}
-      </div>
-
-      {error ? (
-        <p className="text-xs text-destructive">{error}</p>
-      ) : (
-        <p className="text-xs text-muted-foreground">
-          Pilih dari pengajuan PSB untuk mengisi otomatis field yang sama.
-        </p>
+                </span>
+                {memuat === m.id ? (
+                  <Loader2 className="size-4 shrink-0 animate-spin" />
+                ) : terpilih === m.id ? (
+                  <Check className="size-4 shrink-0 text-primary" />
+                ) : null}
+              </button>
+            ))}
+        </div>
       )}
-    </div>
+    </RangkaKorporat>
   );
 }

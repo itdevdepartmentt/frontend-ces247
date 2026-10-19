@@ -1,7 +1,23 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Plus, Trash2, Upload, X } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  Upload,
+  X,
+  FileText,
+  Image as ImageIcon,
+  Maximize2,
+} from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -28,7 +44,13 @@ interface Props {
   onChange: (value: unknown) => void;
 }
 
-export function DynamicField({ field, value, error, disabled, onChange }: Props) {
+export function DynamicField({
+  field,
+  value,
+  error,
+  disabled,
+  onChange,
+}: Props) {
   const inputId = `field-${field.key}`;
 
   return (
@@ -79,7 +101,9 @@ function FieldControl({
   invalid: boolean;
   onChange: (value: unknown) => void;
 }) {
-  const ring = invalid ? "border-destructive focus-visible:ring-destructive" : "";
+  const ring = invalid
+    ? "border-destructive focus-visible:ring-destructive"
+    : "";
 
   switch (field.type) {
     case "TEXTAREA":
@@ -129,7 +153,10 @@ function FieldControl({
             checked={value === true}
             onCheckedChange={(checked) => onChange(checked === true)}
           />
-          <Label htmlFor={inputId} className="font-normal text-muted-foreground">
+          <Label
+            htmlFor={inputId}
+            className="font-normal text-muted-foreground"
+          >
             Ya
           </Label>
         </div>
@@ -324,111 +351,191 @@ function FileControl({
         diklik, sehingga fokus berpindah ke dialog dan Ctrl+V tidak pernah
         sampai ke sini. Menjelajah berkas dipindahkan ke tombolnya sendiri.
       */}
-      <div
-        ref={zoneRef}
-        tabIndex={disabled ? -1 : 0}
-        aria-label="Area tempel lampiran"
-        onPaste={handlePaste}
-        onFocus={() => setFokus(true)}
-        onBlur={() => setFokus(false)}
-        onDrop={handleDrop}
-        onDragOver={(e) => {
-          e.preventDefault();
-          if (!disabled) setDragging(true);
-        }}
-        onDragLeave={() => setDragging(false)}
-        className={cn(
-          "flex flex-col items-center gap-2 rounded-md border border-dashed px-4 py-5 text-center outline-none transition-colors",
-          dragging
-            ? "border-primary bg-primary/5"
-            : fokus
-              ? "border-primary bg-primary/5 ring-2 ring-primary/30"
-              : "border-input hover:border-primary/60",
-          disabled && "cursor-not-allowed opacity-60",
-        )}
-      >
-        <Upload className="size-5 text-muted-foreground" />
-
-        {fokus ? (
-          <p className="text-sm font-medium text-primary">
-            Siap — tekan Ctrl+V untuk menempel
-          </p>
-        ) : (
-          <p className="text-sm font-medium">
-            Klik di sini lalu tekan Ctrl+V, atau seret berkas ke area ini
-          </p>
-        )}
-
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={disabled}
-          // Jangan sampai klik tombol ikut memfokuskan area lalu membingungkan.
-          onClick={(e) => {
-            e.stopPropagation();
-            inputRef.current?.click();
+      {!disabled && (
+        <div
+          ref={zoneRef}
+          tabIndex={disabled ? -1 : 0}
+          aria-label="Area tempel lampiran"
+          onPaste={handlePaste}
+          onFocus={() => setFokus(true)}
+          onBlur={() => setFokus(false)}
+          onDrop={handleDrop}
+          onDragOver={(e) => {
+            e.preventDefault();
+            if (!disabled) setDragging(true);
           }}
+          onDragLeave={() => setDragging(false)}
+          className={cn(
+            "flex flex-col items-center gap-2 rounded-md border border-dashed px-4 py-5 text-center outline-none transition-colors",
+            dragging
+              ? "border-primary bg-primary/5"
+              : fokus
+                ? "border-primary bg-primary/5 ring-2 ring-primary/30"
+                : "border-input hover:border-primary/60",
+            disabled && "cursor-not-allowed opacity-60",
+          )}
         >
-          Pilih berkas dari komputer
-        </Button>
+          <Upload className="size-5 text-muted-foreground" />
 
-        <p className="text-xs text-muted-foreground">
-          Maksimal 2 MB per berkas
-        </p>
-      </div>
+          {fokus ? (
+            <p className="text-sm font-medium text-primary">
+              Siap — tekan Ctrl+V untuk menempel
+            </p>
+          ) : (
+            <p className="text-sm font-medium">
+              Klik di sini lalu tekan Ctrl+V, atau seret berkas ke area ini
+            </p>
+          )}
+
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={disabled}
+            // Jangan sampai klik tombol ikut memfokuskan area lalu membingungkan.
+            onClick={(e) => {
+              e.stopPropagation();
+              inputRef.current?.click();
+            }}
+          >
+            Pilih berkas dari komputer
+          </Button>
+
+          <p className="text-xs text-muted-foreground">
+            Maksimal 2 MB per berkas
+          </p>
+        </div>
+      )}
+
+      {disabled && files.length === 0 && (
+        <p className="text-sm text-muted-foreground">Tidak ada lampiran.</p>
+      )}
 
       {pesan && <p className="text-xs text-destructive">{pesan}</p>}
 
       {files.length > 0 && (
-        <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+        <ul
+          className={cn(
+            "grid gap-3",
+            files.length === 1
+              ? "max-w-sm grid-cols-1"
+              : "grid-cols-1 sm:grid-cols-2",
+          )}
+        >
           {files.map((file, index) => {
             const gambar = file.startsWith("data:image/");
             return (
               <li
                 key={index}
-                className="group relative overflow-hidden rounded border bg-muted/40"
+                className="overflow-hidden rounded-md border bg-background"
               >
                 {gambar ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={file}
-                    alt={`Lampiran ${index + 1}`}
-                    className="h-24 w-full object-cover"
-                  />
+                  <AttachmentImage file={file} index={index} />
                 ) : (
-                  <div className="flex h-24 items-center justify-center text-xs text-muted-foreground">
-                    Berkas {index + 1}
+                  <div className="flex min-h-36 flex-col items-center justify-center gap-2 bg-muted/30 p-4 text-sm text-muted-foreground">
+                    <FileText className="size-8" aria-hidden="true" />
+                    {file.startsWith("data:application/pdf")
+                      ? "Dokumen PDF"
+                      : "Dokumen"}
                   </div>
                 )}
 
-                <div className="flex items-center justify-between px-2 py-1 text-xs">
-                  <a
-                    href={file}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-primary hover:underline"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    lihat
-                  </a>
-                  {!disabled && (
-                    <button
-                      type="button"
-                      aria-label={`Hapus lampiran ${index + 1}`}
-                      onClick={() => onChange(files.filter((_, i) => i !== index))}
-                      className="text-muted-foreground hover:text-destructive"
-                    >
-                      <X className="size-3.5" />
-                    </button>
-                  )}
-                </div>
+                {(!gambar || !disabled) && (
+                  <div className="flex items-center justify-between gap-2 border-t px-3 py-2 text-sm">
+                    <span className="font-medium">Lampiran {index + 1}</span>
+                    {!gambar && (
+                      <a
+                        href={file}
+                        target="_blank"
+                        rel="noreferrer"
+                        download={
+                          file.startsWith("data:")
+                            ? `lampiran-${index + 1}${file.startsWith("data:application/pdf") ? ".pdf" : ""}`
+                            : undefined
+                        }
+                        className="inline-flex min-h-11 items-center text-primary hover:underline"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Unduh berkas
+                      </a>
+                    )}
+                    {!disabled && (
+                      <button
+                        type="button"
+                        aria-label={`Hapus lampiran ${index + 1}`}
+                        onClick={() =>
+                          onChange(files.filter((_, i) => i !== index))
+                        }
+                        className="inline-flex size-11 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-destructive focus-visible:outline-2 focus-visible:outline-ring"
+                      >
+                        <X className="size-3.5" />
+                      </button>
+                    )}
+                  </div>
+                )}
               </li>
             );
           })}
         </ul>
       )}
     </div>
+  );
+}
+
+function AttachmentImage({ file, index }: { file: string; index: number }) {
+  const [failed, setFailed] = useState(false);
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <button
+          type="button"
+          className="block w-full text-left focus-visible:outline-2 focus-visible:outline-ring"
+          aria-label={`Lihat lampiran ${index + 1}`}
+        >
+          <div className="flex aspect-[16/10] items-center justify-center overflow-hidden bg-muted/30 p-3">
+            {failed ? (
+              <div className="flex flex-col items-center gap-2 text-sm text-muted-foreground">
+                <ImageIcon className="size-8" aria-hidden="true" /> Preview
+                tidak tersedia
+              </div>
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={file}
+                alt={`Preview lampiran ${index + 1}`}
+                className="h-full w-full object-contain"
+                onError={() => setFailed(true)}
+              />
+            )}
+          </div>
+          <span className="flex min-h-11 items-center justify-between gap-2 border-t px-3 text-sm font-medium">
+            <span>Lampiran {index + 1}</span>
+            <span className="inline-flex items-center gap-2 text-muted-foreground">
+              Lihat lampiran <Maximize2 className="size-4" aria-hidden="true" />
+            </span>
+          </span>
+        </button>
+      </DialogTrigger>
+      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-4xl">
+        <DialogHeader>
+          <DialogTitle>Lampiran {index + 1}</DialogTitle>
+          <DialogDescription>Preview gambar</DialogDescription>
+        </DialogHeader>
+        {failed ? (
+          <p className="py-8 text-center text-sm text-muted-foreground">
+            Gambar tidak dapat dimuat.
+          </p>
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={file}
+            alt={`Lampiran ${index + 1}`}
+            className="mx-auto max-h-[65dvh] max-w-full object-contain"
+            onError={() => setFailed(true)}
+          />
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -496,7 +603,9 @@ function TableControl({
                       className="h-8"
                       disabled={disabled}
                       value={String(row[col.key] ?? "")}
-                      onChange={(e) => update(rowIndex, col.key, e.target.value)}
+                      onChange={(e) =>
+                        update(rowIndex, col.key, e.target.value)
+                      }
                     />
                   </td>
                 ))}

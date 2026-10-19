@@ -31,8 +31,8 @@ export default function StakeholderPage() {
   const tickets = useMassTickets({ limit: 100 });
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
-      <header className="flex items-start gap-3">
+    <div className="operations-page">
+      <header className="operations-heading">
         <Eye className="mt-1 size-5 text-muted-foreground" />
         <div>
           <h1 className="text-2xl font-semibold">Mass Process — Ringkasan</h1>
@@ -47,7 +47,7 @@ export default function StakeholderPage() {
       ) : (
         dashboard.data && (
           <>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
               <Stat label="Total tiket" value={dashboard.data.total} />
               <Stat
                 label="Open"
@@ -84,7 +84,7 @@ export default function StakeholderPage() {
       {tickets.isLoading ? (
         <Skeleton className="h-80 w-full" />
       ) : (
-        <div className="overflow-x-auto rounded-md border">
+        <div className="operations-table">
           <Table>
             <TableHeader>
               <TableRow>
@@ -142,7 +142,7 @@ function Stat({
 }) {
   return (
     <Card>
-      <CardContent className="py-5">
+      <CardContent className="py-0">
         <p className="text-xs text-muted-foreground">{label}</p>
         <p className={`text-2xl font-semibold tabular-nums ${tone ?? ""}`}>
           {value.toLocaleString("id-ID")}

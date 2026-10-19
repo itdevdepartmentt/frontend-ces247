@@ -5,6 +5,11 @@ import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DynamicField } from "@/components/forms/dynamic-field";
+import {
+  fieldSpanClass,
+  GRID_KELOMPOK,
+  groupFields,
+} from "@/lib/form-layout";
 import type { FormDefinition, FormField, FormValues } from "@/types/forms";
 
 interface Props {
@@ -13,6 +18,7 @@ interface Props {
   submitting?: boolean;
   submitLabel?: string;
   disabled?: boolean;
+  hideSubmit?: boolean;
   onSubmit: (values: FormValues) => void;
   /**
    * Disisipkan tepat di bawah field tertentu. Dipakai menampilkan riwayat
@@ -39,6 +45,7 @@ export function DynamicForm({
   submitting,
   submitLabel = "Simpan",
   disabled,
+  hideSubmit,
   onSubmit,
   renderAfterField,
   overrideField,
@@ -79,7 +86,13 @@ export function DynamicForm({
     setErrors(found);
     if (Object.keys(found).length > 0) {
       const first = document.getElementById(`field-${Object.keys(found)[0]}`);
-      first?.scrollIntoView({ behavior: "smooth", block: "center" });
+      first?.scrollIntoView({
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? "auto"
+          : "smooth",
+        block: "center",
+      });
+      first?.focus();
       return;
     }
 
@@ -95,15 +108,11 @@ export function DynamicForm({
               <CardTitle className="text-base">{group.label}</CardTitle>
             </CardHeader>
           )}
-          <CardContent className="grid gap-4 md:grid-cols-2">
+          <CardContent className={GRID_KELOMPOK}>
             {group.fields.map((field) => (
               <div
                 key={field.id}
-                className={
-                  field.type === "TABLE" || field.type === "TEXTAREA"
-                    ? "md:col-span-2"
-                    : undefined
-                }
+                className={fieldSpanClass(field)}
               >
                 {overrideField?.({
                   field,
@@ -132,36 +141,27 @@ export function DynamicForm({
         </p>
       )}
 
-      <div className="flex justify-end gap-2">
-        <Button type="submit" disabled={disabled || submitting || !form.fields.length}>
-          {submitting && <Loader2 className="mr-2 size-4 animate-spin" />}
-          {submitLabel}
-        </Button>
-      </div>
+      {!hideSubmit && (
+        <div className="operations-save">
+          <Button
+            type="submit"
+            disabled={disabled || submitting || !form.fields.length}
+          >
+            {submitting && <Loader2 className="mr-2 size-4 animate-spin" />}
+            {submitLabel}
+          </Button>
+        </div>
+      )}
     </form>
   );
-}
-
-function groupFields(form: FormDefinition) {
-  const groups: { id: string; label: string | null; fields: FormField[] }[] = [];
-
-  const loose = form.fields.filter((f) => !f.sectionId);
-  if (loose.length) groups.push({ id: "__loose", label: null, fields: loose });
-
-  for (const section of form.sections) {
-    const owned = form.fields.filter((f) => f.sectionId === section.id);
-    if (owned.length) {
-      groups.push({ id: section.id, label: section.label, fields: owned });
-    }
-  }
-  return groups;
 }
 
 function defaultsFor(fields: FormField[]): FormValues {
   const values: FormValues = {};
   for (const field of fields) {
     if (field.type === "TABLE") values[field.key] = [];
-    else if (field.type === "MULTISELECT" || field.type === "FILE") values[field.key] = [];
+    else if (field.type === "MULTISELECT" || field.type === "FILE")
+      values[field.key] = [];
     else if (field.type === "BOOLEAN") values[field.key] = false;
     else if (field.defaultValue != null) values[field.key] = field.defaultValue;
   }

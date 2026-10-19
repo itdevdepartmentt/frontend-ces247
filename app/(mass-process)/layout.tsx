@@ -2,6 +2,7 @@
 
 import { useAuth } from "@/hooks/use-auth";
 import { Sidebar } from "@/components/layout/sidebar";
+import "@/components/layout/operations.css";
 import { LogoLoader } from "@/components/ui/logo-loader";
 
 export default function MassProcessLayout({
@@ -22,9 +23,9 @@ export default function MassProcessLayout({
   }
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="operations-shell">
       <Sidebar />
-      <main className="flex-1 overflow-y-auto p-4 dark:bg-slate-950">
+      <main className="operations-workspace flex-1 overflow-y-auto px-4 pb-8 pt-24 md:px-6 md:pt-16 xl:px-8">
         {children}
       </main>
     </div>
