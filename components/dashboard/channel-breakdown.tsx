@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { keteranganJadwal } from "@/lib/channel-schedule";
 import { DataTable } from "./data-table";
 import { TopItem } from "@/types/dashboard";
 import { Lightbulb, Network } from "lucide-react";
@@ -63,14 +64,23 @@ export function ChannelBreakdown({
   pctPareto,
   pctNotPareto,
 }: ChannelColumnProps) {
+  const jadwal = keteranganJadwal(title);
+
   return (
     <div className="flex flex-col">
       <Card className="dark:bg-slate-800 dark:border-slate-700">
         <CardHeader className="flex flex-row items-center space-y-0 pb-0 -mt-2">
           {icon}
-          <CardTitle className="text-md font-bold ml-2 leading-none">
-            {title}
-          </CardTitle>
+          <div className="ml-2 flex min-w-0 flex-col gap-1">
+            <CardTitle className="text-md font-bold leading-none">
+              {title}
+            </CardTitle>
+            {jadwal && (
+              <span className="text-[9px] font-semibold leading-none tracking-tight text-slate-400 dark:text-slate-500">
+                {jadwal}
+              </span>
+            )}
+          </div>
         </CardHeader>
         <CardContent className="text-center px-4 pt-0 -mt-2 -mb-2">
           <div className="flex justify-between pb-4">

@@ -290,6 +290,7 @@ export function DashboardPageContent({
               topCorporateData={channel.topCorporate}
               topKipData={channel.topKip}
               isLoading={isLoading}
+              lastSyncWib={lastSyncDate}
             />
           ))}
         </div>

@@ -1,5 +1,6 @@
 import { TopItem } from "@/types/dashboard";
 import { cn } from "@/lib/utils";
+import { keteranganJadwal } from "@/lib/channel-schedule";
 
 interface ChannelColumnProps {
   icon: React.ReactNode;
@@ -10,6 +11,8 @@ interface ChannelColumnProps {
   topCorporateData: TopItem[];
   topKipData: TopItem[];
   isLoading?: boolean;
+  /** Waktu sync terakhir dari /schedule/last-sync, dipakai channel sumber API. */
+  lastSyncWib?: string;
 }
 
 const corporateColumns: { key: keyof TopItem; label: string }[] = [
@@ -145,6 +148,7 @@ export function ChannelColumn({
   topCorporateData,
   topKipData,
   isLoading = false,
+  lastSyncWib,
 }: ChannelColumnProps) {
   // ─── SKELETON ───
   if (isLoading) {
@@ -157,6 +161,8 @@ export function ChannelColumn({
       </div>
     );
   }
+
+  const jadwal = keteranganJadwal(title, lastSyncWib);
 
   const slaNum = parseFloat(sla);
   const isRed = slaNum < 75;
@@ -201,9 +207,16 @@ export function ChannelColumn({
         </div>
 
         {/* Title */}
-        <span className="relative z-10 text-sm font-black tracking-tight text-slate-800 dark:text-white leading-none">
-          {title}
-        </span>
+        <div className="relative z-10 flex min-w-0 flex-col gap-1">
+          <span className="text-sm font-black tracking-tight text-slate-800 dark:text-white leading-none">
+            {title}
+          </span>
+          {jadwal && (
+            <span className="text-[8.5px] font-semibold tracking-tight text-slate-400 dark:text-slate-500 leading-none">
+              {jadwal}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* ╔══ METRICS BAR ══╗ */}
