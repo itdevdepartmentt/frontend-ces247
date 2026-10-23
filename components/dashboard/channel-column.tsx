@@ -212,8 +212,11 @@ export function ChannelColumn({
             {title}
           </span>
           {jadwal && (
-            <span className="text-[8.5px] font-semibold tracking-tight text-slate-400 dark:text-slate-500 leading-none">
-              {jadwal}
+            <span className="text-[8.5px] tracking-tight text-slate-400 dark:text-slate-500 leading-snug">
+              {/* Aturannya tebal, keadaan saat ini biasa — supaya terbaca
+                  sebagai dua hal yang berbeda, bukan satu kalimat. */}
+              <strong className="font-bold">{jadwal.aturan}</strong>
+              {jadwal.waktu && <> · {jadwal.waktu}</>}
             </span>
           )}
         </div>

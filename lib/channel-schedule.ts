@@ -1,16 +1,17 @@
 /**
  * Jadwal pembaruan data tiap channel, untuk ditampilkan di kolom dashboard.
  *
- * Labelnya punya dua bagian yang sengaja dipisah:
+ * Keterangannya punya dua bagian yang sengaja dipisah:
  *
- * - `target` — kesepakatan operasional, ditulis manual di sini. Untuk channel
- *   yang datanya diunggah manual, hanya ini yang bisa ditampilkan.
+ * - `aturan` — kesepakatan operasional, ditulis manual di sini dan ditampilkan
+ *   tebal. Untuk channel yang datanya diunggah manual, hanya ini yang ada.
  * - waktu sync terakhir — dibaca dari `/schedule/last-sync`, hanya untuk
- *   channel yang memang ditarik otomatis dari API OCA.
+ *   channel yang memang ditarik otomatis dari API OCA, dan ditampilkan dengan
+ *   ketebalan biasa supaya jelas bahwa itu keadaan saat ini, bukan aturannya.
  *
  * Pemisahan ini penting. Cron OCA berjalan tiap 15 menit, tapi `get-list`
  * sedang mengembalikan 503 dari gateway Telkom, sehingga data hanya masuk
- * lewat jalur fallback CSV yang dibatasi sejam sekali. Target dan kenyataan
+ * lewat jalur fallback CSV yang dibatasi sejam sekali. Aturan dan kenyataan
  * bisa berbeda jauh, dan dashboard harus menunjukkan keduanya daripada
  * menjanjikan angka yang tidak ditepati.
  */
@@ -20,7 +21,7 @@ export interface JadwalChannel {
   /** Potongan nama channel, dicocokkan tanpa peduli huruf besar-kecil. */
   cocok: string[];
   /** Kesepakatan operasional, bukan hasil pembacaan penjadwal. */
-  target: string;
+  aturan: string;
   /**
    * "api" berarti ditarik cron dari OCA, sehingga waktu sync terakhir
    * bermakna untuk channel ini. "unggah" berarti datanya masuk lewat berkas,
@@ -34,19 +35,20 @@ export interface JadwalChannel {
  * lebih dulu, supaya "Call Center 188" tidak keburu tertangkap pola "chat".
  */
 export const JADWAL_CHANNEL: JadwalChannel[] = [
-  { cocok: ["email"], target: "Target 15 menit", sumber: "api" },
-  { cocok: ["whatsapp"], target: "Di-update per 1 jam", sumber: "unggah" },
+  { cocok: ["email"], aturan: "Auto sync 15 Minute", sumber: "api" },
+  { cocok: ["whatsapp"], aturan: "Manual Update hourly", sumber: "unggah" },
   {
     cocok: ["social", "socmed", "instagram"],
-    target: "Di-update per 1 jam",
+    aturan: "Manual Update hourly",
     sumber: "unggah",
   },
   {
     cocok: ["call", "188"],
-    target: "Target tiket 15 menit · Call H+1",
+    aturan:
+      "Auto sync 15 Minute (Tickets) / Manual Update Daily (Call Traffic)",
     sumber: "api",
   },
-  { cocok: ["chat"], target: "Target 15 menit", sumber: "api" },
+  { cocok: ["chat"], aturan: "Auto sync 15 Minute", sumber: "api" },
 ];
 
 export function jadwalUntukChannel(nama: string): JadwalChannel | null {
@@ -70,20 +72,27 @@ export function jamSync(lastSyncWib: string | undefined): string | null {
   return cocok?.[1] ?? null;
 }
 
+export interface KeteranganJadwal {
+  /** Ditampilkan tebal. */
+  aturan: string;
+  /** Ditampilkan biasa; null bila channel ini tidak ditarik dari API. */
+  waktu: string | null;
+}
+
 /**
- * Baris keterangan di bawah nama channel. Waktu sync hanya ditempelkan pada
- * channel yang memang ditarik dari API — menempelkannya pada channel hasil
- * unggahan akan menyiratkan kesegaran yang tidak ada dasarnya.
+ * Keterangan di bawah nama channel. Waktu sync hanya ditempelkan pada channel
+ * yang memang ditarik dari API — menempelkannya pada channel hasil unggahan
+ * akan menyiratkan kesegaran yang tidak ada dasarnya.
  */
 export function keteranganJadwal(
   nama: string,
   lastSyncWib?: string,
-): string | null {
+): KeteranganJadwal | null {
   const jadwal = jadwalUntukChannel(nama);
   if (!jadwal) return null;
 
-  if (jadwal.sumber !== "api") return jadwal.target;
+  if (jadwal.sumber !== "api") return { aturan: jadwal.aturan, waktu: null };
 
   const jam = jamSync(lastSyncWib);
-  return jam ? `${jadwal.target} · data per ${jam}` : jadwal.target;
+  return { aturan: jadwal.aturan, waktu: jam ? `data per ${jam}` : null };
 }

@@ -76,8 +76,8 @@ export function ChannelBreakdown({
               {title}
             </CardTitle>
             {jadwal && (
-              <span className="text-[9px] font-semibold leading-none tracking-tight text-slate-400 dark:text-slate-500">
-                {jadwal}
+              <span className="text-[9px] leading-snug tracking-tight text-slate-400 dark:text-slate-500">
+                <strong className="font-bold">{jadwal.aturan}</strong>
               </span>
             )}
           </div>
