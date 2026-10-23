@@ -18,6 +18,8 @@
 export type SumberChannel = "api" | "unggah";
 
 export interface JadwalChannel {
+  /** Nama tampil, dipakai kartu rekap di kolom kiri dashboard. */
+  nama: string;
   /** Potongan nama channel, dicocokkan tanpa peduli huruf besar-kecil. */
   cocok: string[];
   /** Kesepakatan operasional, bukan hasil pembacaan penjadwal. */
@@ -35,20 +37,37 @@ export interface JadwalChannel {
  * lebih dulu, supaya "Call Center 188" tidak keburu tertangkap pola "chat".
  */
 export const JADWAL_CHANNEL: JadwalChannel[] = [
-  { cocok: ["email"], aturan: "Auto sync 15 Minute", sumber: "api" },
-  { cocok: ["whatsapp"], aturan: "Manual Update hourly", sumber: "unggah" },
   {
+    nama: "Email",
+    cocok: ["email"],
+    aturan: "Auto sync 15 Minute",
+    sumber: "api",
+  },
+  {
+    nama: "WhatsApp",
+    cocok: ["whatsapp"],
+    aturan: "Manual Update hourly",
+    sumber: "unggah",
+  },
+  {
+    nama: "Socmed",
     cocok: ["social", "socmed", "instagram"],
     aturan: "Manual Update hourly",
     sumber: "unggah",
   },
   {
+    nama: "Call Center 188",
     cocok: ["call", "188"],
     aturan:
       "Auto sync 15 Minute (Tickets) / Manual Update Daily (Call Traffic)",
     sumber: "api",
   },
-  { cocok: ["chat"], aturan: "Auto sync 15 Minute", sumber: "api" },
+  {
+    nama: "Livechat",
+    cocok: ["chat"],
+    aturan: "Auto sync 15 Minute",
+    sumber: "api",
+  },
 ];
 
 export function jadwalUntukChannel(nama: string): JadwalChannel | null {

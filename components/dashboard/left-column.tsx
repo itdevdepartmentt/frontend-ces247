@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { DashboardSummary, PriorityType } from "@/types/dashboard";
 import { PriorityTicketModal } from "./priority-ticket-modal";
+import { ChannelScheduleCard } from "./channel-schedule-card";
 
 interface LeftColumnProps {
   summary?: DashboardSummary;
@@ -90,6 +91,8 @@ export function LeftColumn({ summary, dateRange }: LeftColumnProps) {
           />
         </CardContent>
       </Card>
+
+      <ChannelScheduleCard />
 
       {/* Priority Detail Modal */}
       <PriorityTicketModal
