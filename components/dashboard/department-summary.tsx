@@ -39,9 +39,15 @@ export function DepartmentSummary({
         .data,
   });
   return (
-    <section className="mb-6" aria-label="Ringkasan departemen CES">
-      <div className="mb-4">
-        <h2 className="text-lg font-semibold">Departemen CES</h2>
+    <section
+      className="mb-6 border-t border-slate-200 pt-6 dark:border-slate-800"
+      aria-label="Ringkasan departemen CES"
+      aria-busy={query.isFetching}
+    >
+      <div className="mb-5">
+        <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+          Tiket per departemen
+        </h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Jumlah tiket unik per departemen pada periode terpilih.
         </p>
@@ -65,44 +71,71 @@ export function DepartmentSummary({
             : query.data.map((item) => (
                 <article
                   key={item.department}
-                  className="min-w-0 overflow-hidden rounded-lg border bg-card text-card-foreground"
+                  className="flex min-w-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
                 >
-                  <header className="border-b px-5 py-4">
-                    <h3 className="text-sm font-medium text-muted-foreground">
-                      {item.department === "UNRESOLVED"
-                        ? "Departemen Tiket Unresolved"
-                        : `Departemen ${item.department}`}
-                    </h3>
-                    <p className="mt-2 text-3xl font-semibold tabular-nums">
-                      {item.total.toLocaleString("id-ID")}{" "}
-                      <span className="text-sm font-normal text-muted-foreground">
-                        tiket
-                      </span>
-                    </p>
+                  <header className="flex min-h-44 flex-col border-b border-slate-200 px-5 py-5 dark:border-slate-700">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="mb-1 text-xs text-slate-500 dark:text-slate-400">
+                          Departemen
+                        </p>
+                        <h3 className="text-base font-semibold">
+                          {item.department === "UNRESOLVED"
+                            ? "Tiket Unresolved"
+                            : item.department}
+                        </h3>
+                      </div>
+                      <p className="text-right text-3xl font-semibold tracking-tight tabular-nums">
+                        {item.total.toLocaleString("id-ID")}
+                        <span className="mt-1 block text-xs font-normal tracking-normal text-slate-500 dark:text-slate-400">
+                          tiket
+                        </span>
+                      </p>
+                    </div>
                     {item.department !== "UNRESOLVED" && (
-                      <dl className="mt-4 grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <dt className="text-muted-foreground">Open</dt>
-                          <dd className="mt-1 font-semibold tabular-nums">
+                      <dl className="mt-auto grid grid-cols-2 divide-x divide-slate-200 pt-5 text-sm dark:divide-slate-700">
+                        <div className="flex items-center justify-between gap-2 pr-4">
+                          <dt className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+                            <span
+                              className="size-1.5 rounded-full bg-amber-500"
+                              aria-hidden="true"
+                            />
+                            Open
+                          </dt>
+                          <dd className="font-semibold tabular-nums">
                             {item.open.toLocaleString("id-ID")}
                           </dd>
                         </div>
-                        <div>
-                          <dt className="text-muted-foreground">Closed</dt>
-                          <dd className="mt-1 font-semibold tabular-nums">
+                        <div className="flex items-center justify-between gap-2 pl-4">
+                          <dt className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+                            <span
+                              className="size-1.5 rounded-full bg-emerald-600"
+                              aria-hidden="true"
+                            />
+                            Closed
+                          </dt>
+                          <dd className="font-semibold tabular-nums">
                             {item.closed.toLocaleString("id-ID")}
                           </dd>
                         </div>
                       </dl>
                     )}
+                    {item.department === "UNRESOLVED" && (
+                      <p className="mt-auto pt-5 text-sm text-slate-500 dark:text-slate-400">
+                        Rincian tiket menurut status penanganan.
+                      </p>
+                    )}
                   </header>
-                  <div className="max-h-80 overflow-auto">
-                    <table className="w-full text-sm">
-                      <thead className="sticky top-0 bg-muted">
+                  <div className="h-72 overflow-auto">
+                    <table
+                      className="w-full table-fixed text-sm"
+                      aria-label={`Rincian ${item.department}`}
+                    >
+                      <thead className="sticky top-0 z-10 bg-slate-50 text-slate-600 dark:bg-slate-800 dark:text-slate-300">
                         <tr>
                           <th
                             scope="col"
-                            className="px-5 py-3 text-left font-medium"
+                            className="px-5 py-3 text-left text-xs font-medium"
                           >
                             {item.department === "UNRESOLVED"
                               ? "Status"
@@ -110,7 +143,7 @@ export function DepartmentSummary({
                           </th>
                           <th
                             scope="col"
-                            className="px-5 py-3 text-right font-medium"
+                            className="w-24 px-5 py-3 text-right text-xs font-medium"
                           >
                             Tiket
                           </th>
@@ -119,11 +152,17 @@ export function DepartmentSummary({
                       <tbody>
                         {item.breakdown.length ? (
                           item.breakdown.map((row) => (
-                            <tr key={row.name} className="border-t">
-                              <td className="break-words px-5 py-3">
+                            <tr
+                              key={row.name}
+                              className="border-b border-slate-100 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800/60"
+                            >
+                              <th
+                                scope="row"
+                                className="break-words px-5 py-3 text-left font-normal leading-relaxed"
+                              >
                                 {row.name}
-                              </td>
-                              <td className="px-5 py-3 text-right tabular-nums">
+                              </th>
+                              <td className="px-5 py-3 text-right font-medium tabular-nums">
                                 {row.total.toLocaleString("id-ID")}
                               </td>
                             </tr>
@@ -132,7 +171,7 @@ export function DepartmentSummary({
                           <tr>
                             <td
                               colSpan={2}
-                              className="px-5 py-8 text-center text-muted-foreground"
+                              className="h-56 px-5 text-center text-sm text-slate-500 dark:text-slate-400"
                             >
                               Tidak ada tiket pada periode ini.
                             </td>
@@ -141,6 +180,11 @@ export function DepartmentSummary({
                       </tbody>
                     </table>
                   </div>
+                  <footer className="border-t border-slate-200 px-5 py-3 text-xs text-slate-500 dark:border-slate-700 dark:text-slate-400">
+                    {item.breakdown.length.toLocaleString("id-ID")}{" "}
+                    {item.department === "UNRESOLVED" ? "status" : "assignee"}{" "}
+                    tercatat
+                  </footer>
                 </article>
               ))}
         </div>
