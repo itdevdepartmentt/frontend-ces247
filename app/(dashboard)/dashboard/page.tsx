@@ -1,6 +1,8 @@
 "use client";
 
 import { TopRow } from "@/components/dashboard/top-row";
+import { DepartmentSummary } from "@/components/dashboard/department-summary";
+import { useQueryClient } from "@tanstack/react-query";
 import { LeftColumn } from "@/components/dashboard/left-column";
 import { ChannelColumn } from "@/components/dashboard/channel-column";
 import {
@@ -55,6 +57,7 @@ export function DashboardPageContent({
   isFcr,
   showIncidentWidget = true,
 }: DashboardPageContentProps) {
+  const queryClient = useQueryClient();
   const [syncingTickets, setSyncingTickets] = useState(false); // For the Daily Ticket sync
   const [syncingJobId, setSyncingJobId] = useState<string | null>(null);
   const [isJobProcessing, setIsJobProcessing] = useState(false);
@@ -105,6 +108,7 @@ export function DashboardPageContent({
 
         if (data.status === "completed") {
           await refetch();
+          if (isFcr) await queryClient.invalidateQueries({ queryKey: ["dashboard", "departments"] });
           toast.success("Sync Complete", {
             description: "Dashboard data updated.",
             className: "text-black",
@@ -127,7 +131,7 @@ export function DashboardPageContent({
 
     const interval = setInterval(checkStatus, 1000); // Poll every 1 seconds
     return () => clearInterval(interval);
-  }, [syncingJobId, refetch]);
+  }, [syncingJobId, refetch, isFcr, queryClient]);
 
   // 2. Updated Trigger Function
   const handleSyncDailyOca = async () => {
@@ -297,6 +301,16 @@ export function DashboardPageContent({
       </div>
 
       {showIncidentWidget && <IncidentWidget />}
+      {isFcr && (
+        <div className="mt-6">
+          <DepartmentSummary
+            dateRange={normalizedDateRange}
+            categories={selectedCategories}
+            subCategories={selectedSubCategories}
+            detailCategories={selectedDetailCategories}
+          />
+        </div>
+      )}
     </div>
   );
 }
