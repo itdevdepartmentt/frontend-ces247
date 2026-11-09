@@ -9,9 +9,11 @@ import { PriorityTicketModal } from "./priority-ticket-modal";
 interface LeftColumnProps {
   summary?: DashboardSummary;
   dateRange?: { from?: string; to?: string };
+  isFcr?: boolean;
+  fcrType?: 'kip' | 'realisasi';
 }
 
-export function LeftColumn({ summary, dateRange }: LeftColumnProps) {
+export function LeftColumn({ summary, dateRange, isFcr, fcrType }: LeftColumnProps) {
   const [selectedPriority, setSelectedPriority] =
     React.useState<PriorityType | null>(null);
 
@@ -97,6 +99,8 @@ export function LeftColumn({ summary, dateRange }: LeftColumnProps) {
         isOpen={selectedPriority !== null}
         onClose={() => setSelectedPriority(null)}
         dateRange={dateRange}
+        isFcr={isFcr}
+        fcrType={fcrType}
       />
     </div>
   );

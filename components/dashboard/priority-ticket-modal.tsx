@@ -43,6 +43,8 @@ interface PriorityTicketModalProps {
   isOpen: boolean;
   onClose: () => void;
   dateRange?: { from?: string; to?: string };
+  isFcr?: boolean;
+  fcrType?: 'kip' | 'realisasi';
 }
 
 // ─── Component ───────────────────────────────────────────────
@@ -51,6 +53,8 @@ export function PriorityTicketModal({
   isOpen,
   onClose,
   dateRange,
+  isFcr,
+  fcrType,
 }: PriorityTicketModalProps) {
   const [page, setPage] = React.useState(1);
   const [searchInput, setSearchInput] = React.useState("");
@@ -75,6 +79,8 @@ export function PriorityTicketModal({
   const { data, isLoading, isError } = usePriorityTickets({
     type,
     dateRange,
+    isFcr,
+    fcrType,
     page,
     limit: 10,
     search: debouncedSearch,

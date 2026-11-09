@@ -276,10 +276,15 @@ export function DashboardPageContent({
         </div>
       </div>
 
+      {isFcr && fcrType === "realisasi" && (
+        <p className="mb-4 text-sm text-muted-foreground">
+          Realisasi menghitung tiket FCR berdasarkan KIP yang sudah Closed/Resolved dan tidak memiliki eskalasi. SLA dihitung terpisah.
+        </p>
+      )}
       <TopRow summary={summary} />
 
       <div className="lg:grid lg:grid-cols-4 2xl:grid-cols-8 gap-4">
-        <LeftColumn summary={summary} dateRange={normalizedDateRange} />
+        <LeftColumn summary={summary} dateRange={normalizedDateRange} isFcr={isFcr} fcrType={fcrType} />
 
         {/* Change col-span based on your layout needs */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5 lg:col-span-3 2xl:col-span-7 gap-2">
