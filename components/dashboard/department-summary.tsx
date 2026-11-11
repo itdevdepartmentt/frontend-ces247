@@ -197,19 +197,19 @@ export function DepartmentSummary({
                                 className="px-3 py-3 text-right text-xs font-medium"
                                 title="Tiket valid yang selesai dalam batas waktu"
                               >
-                                IN SLA
+                                inSLA
                               </th>
                               <th
                                 scope="col"
                                 className="px-3 py-3 text-right text-xs font-medium"
-                                title="Tiket valid yang lewat batas waktu atau belum selesai"
+                                title="Out of SLA — tiket valid yang lewat batas waktu atau belum selesai"
                               >
-                                Tidak SLA
+                                OSL
                               </th>
                               <th
                                 scope="col"
                                 className="px-5 py-3 text-right text-xs font-medium"
-                                title="Tiket valid IN SLA dibagi seluruh tiket valid × 100%"
+                                title="Tiket valid inSLA dibagi seluruh tiket valid × 100%"
                               >
                                 SLA
                               </th>
@@ -280,7 +280,7 @@ export function DepartmentSummary({
                     tercatat
                     {item.department !== "UNRESOLVED" && (
                       <p className="mt-1">
-                        SLA: tiket valid IN SLA ÷ tiket valid × 100%. IN SLA + Tidak SLA = tiket valid, yang bisa lebih sedikit dari Total Tiket karena tiket uji coba dan duplikat tidak dihitung.
+                        SLA: tiket valid inSLA ÷ tiket valid × 100%. inSLA + OSL = tiket valid, yang bisa lebih sedikit dari Total Tiket karena tiket uji coba dan duplikat tidak dihitung.
                       </p>
                     )}
                   </footer>
