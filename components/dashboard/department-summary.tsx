@@ -16,6 +16,10 @@ interface DepartmentSummary {
     total: number;
     open: number;
     closed: number;
+    /** Tiket valid yang selesai dalam batas waktu. */
+    inSla: number;
+    /** Tiket valid yang lewat batas waktu atau belum selesai. */
+    outSla: number;
     slaPercentage: number | null;
   }[];
 }
@@ -187,13 +191,29 @@ export function DepartmentSummary({
                               : "Total Tiket"}
                           </th>
                           {item.department !== "UNRESOLVED" && (
-                            <th
-                              scope="col"
-                              className="px-5 py-3 text-right text-xs font-medium"
-                              title="Tiket valid IN SLA dibagi seluruh tiket valid × 100%"
-                            >
-                              SLA
-                            </th>
+                            <>
+                              <th
+                                scope="col"
+                                className="px-3 py-3 text-right text-xs font-medium"
+                                title="Tiket valid yang selesai dalam batas waktu"
+                              >
+                                IN SLA
+                              </th>
+                              <th
+                                scope="col"
+                                className="px-3 py-3 text-right text-xs font-medium"
+                                title="Tiket valid yang lewat batas waktu atau belum selesai"
+                              >
+                                Tidak SLA
+                              </th>
+                              <th
+                                scope="col"
+                                className="px-5 py-3 text-right text-xs font-medium"
+                                title="Tiket valid IN SLA dibagi seluruh tiket valid × 100%"
+                              >
+                                SLA
+                              </th>
+                            </>
                           )}
                         </tr>
                       </thead>
@@ -223,18 +243,26 @@ export function DepartmentSummary({
                                 {row.total.toLocaleString("id-ID")}
                               </td>
                               {item.department !== "UNRESOLVED" && (
-                                <td className="whitespace-nowrap px-5 py-3 text-right tabular-nums">
-                                  {row.slaPercentage == null
-                                    ? "—"
-                                    : `${row.slaPercentage.toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`}
-                                </td>
+                                <>
+                                  <td className="px-3 py-3 text-right tabular-nums text-emerald-600 dark:text-emerald-400">
+                                    {row.inSla.toLocaleString("id-ID")}
+                                  </td>
+                                  <td className="px-3 py-3 text-right tabular-nums text-rose-600 dark:text-rose-400">
+                                    {row.outSla.toLocaleString("id-ID")}
+                                  </td>
+                                  <td className="whitespace-nowrap px-5 py-3 text-right tabular-nums">
+                                    {row.slaPercentage == null
+                                      ? "—"
+                                      : `${row.slaPercentage.toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`}
+                                  </td>
+                                </>
                               )}
                             </tr>
                           ))
                         ) : (
                           <tr>
                             <td
-                              colSpan={item.department === "UNRESOLVED" ? 2 : 5}
+                              colSpan={item.department === "UNRESOLVED" ? 2 : 7}
                               className="h-56 px-5 text-center text-sm text-slate-500 dark:text-slate-400"
                             >
                               {item.department === "UNRESOLVED"
@@ -252,7 +280,7 @@ export function DepartmentSummary({
                     tercatat
                     {item.department !== "UNRESOLVED" && (
                       <p className="mt-1">
-                        SLA: tiket valid IN SLA ÷ tiket valid × 100%.
+                        SLA: tiket valid IN SLA ÷ tiket valid × 100%. IN SLA + Tidak SLA = tiket valid, yang bisa lebih sedikit dari Total Tiket karena tiket uji coba dan duplikat tidak dihitung.
                       </p>
                     )}
                   </footer>
