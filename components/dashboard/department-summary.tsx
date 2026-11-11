@@ -16,9 +16,10 @@ interface DepartmentSummary {
     total: number;
     open: number;
     closed: number;
-    /** Tiket valid yang selesai dalam batas waktu. */
+    /** Tiket valid selesai tepat waktu atau masih Open dalam batas SLA. */
     inSla: number;
-    /** Tiket valid yang lewat batas waktu atau belum selesai. */
+    openInSla: number;
+    /** Tiket valid yang tidak memenuhi SLA, termasuk data waktu tidak lengkap. */
     outSla: number;
     slaPercentage: number | null;
   }[];
@@ -45,6 +46,7 @@ export function DepartmentSummary({
   const query = useQuery({
     queryKey: ["dashboard", "departments", params],
     enabled: Boolean(dateRange?.from && dateRange?.to),
+    refetchInterval: 60_000,
     queryFn: async () =>
       (await api.get<DepartmentSummary[]>("/dashboard/departments", { params }))
         .data,
@@ -107,11 +109,7 @@ export function DepartmentSummary({
                         {item.department !== "UNRESOLVED" && (
                           <p
                             className="border-l border-slate-200 pl-5 text-right text-3xl font-semibold tracking-tight tabular-nums dark:border-slate-700"
-                            title={
-                              item.department === "FCR"
-                                ? "SLA tiket valid Realisasi di departemen FCR pada kanal dashboard"
-                                : "Rata-rata SLA per agent yang memiliki tiket valid"
-                            }
+                            title="Tiket valid IN SLA dibagi seluruh tiket valid × 100%. Tiket Open dinilai sampai waktu saat ini."
                           >
                             {item.slaPercentage == null
                               ? "—"
@@ -157,9 +155,14 @@ export function DepartmentSummary({
                       </p>
                     )}
                   </header>
-                  <div className="h-72 overflow-auto">
+                  <div
+                    className="h-72 overflow-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-slate-500"
+                    role="region"
+                    aria-label={`Tabel ${item.department}, dapat digulir`}
+                    tabIndex={0}
+                  >
                     <table
-                      className={`w-full text-sm ${item.department === "UNRESOLVED" ? "table-fixed" : "min-w-[420px]"}`}
+                      className={`w-full text-sm ${item.department === "UNRESOLVED" ? "table-fixed" : "min-w-[680px]"}`}
                       aria-label={`Rincian ${item.department}`}
                     >
                       <thead className="sticky top-0 z-10 bg-slate-50 text-slate-600 dark:bg-slate-800 dark:text-slate-300">
@@ -173,7 +176,7 @@ export function DepartmentSummary({
                               : "Agent"}
                           </th>
                           {item.department !== "UNRESOLVED" &&
-                            ["Open", "Closed"].map((label) => (
+                            ["Open", "Open IN SLA", "Closed"].map((label) => (
                               <th
                                 key={label}
                                 scope="col"
@@ -195,16 +198,16 @@ export function DepartmentSummary({
                               <th
                                 scope="col"
                                 className="px-3 py-3 text-right text-xs font-medium"
-                                title="Tiket valid yang selesai dalam batas waktu"
+                                title="Tiket valid selesai tepat waktu ditambah tiket Open yang masih dalam batas SLA"
                               >
-                                inSLA
+                                IN SLA
                               </th>
                               <th
                                 scope="col"
                                 className="px-3 py-3 text-right text-xs font-medium"
-                                title="Out of SLA — tiket valid yang lewat batas waktu atau belum selesai"
+                                title="Seluruh tiket valid dikurangi tiket IN SLA. Data waktu tidak lengkap dihitung tidak memenuhi SLA."
                               >
-                                OSL
+                                Total OSL
                               </th>
                               <th
                                 scope="col"
@@ -231,14 +234,16 @@ export function DepartmentSummary({
                                 {row.name}
                               </th>
                               {item.department !== "UNRESOLVED" &&
-                                [row.open, row.closed].map((count, index) => (
-                                  <td
-                                    key={index}
-                                    className="px-3 py-3 text-right tabular-nums"
-                                  >
-                                    {count.toLocaleString("id-ID")}
-                                  </td>
-                                ))}
+                                [row.open, row.openInSla ?? 0, row.closed].map(
+                                  (count, index) => (
+                                    <td
+                                      key={index}
+                                      className="px-3 py-3 text-right tabular-nums"
+                                    >
+                                      {count.toLocaleString("id-ID")}
+                                    </td>
+                                  ),
+                                )}
                               <td className="px-3 py-3 text-right font-medium tabular-nums">
                                 {row.total.toLocaleString("id-ID")}
                               </td>
@@ -262,7 +267,7 @@ export function DepartmentSummary({
                         ) : (
                           <tr>
                             <td
-                              colSpan={item.department === "UNRESOLVED" ? 2 : 7}
+                              colSpan={item.department === "UNRESOLVED" ? 2 : 8}
                               className="h-56 px-5 text-center text-sm text-slate-500 dark:text-slate-400"
                             >
                               {item.department === "UNRESOLVED"
