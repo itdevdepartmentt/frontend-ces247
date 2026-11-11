@@ -175,16 +175,14 @@ export function DepartmentSummary({
                               ? "Status"
                               : "Agent"}
                           </th>
-                          {item.department !== "UNRESOLVED" &&
-                            ["Open", "Open IN SLA", "Closed"].map((label) => (
-                              <th
-                                key={label}
-                                scope="col"
-                                className="px-3 py-3 text-right text-xs font-medium"
-                              >
-                                {label}
-                              </th>
-                            ))}
+                          {item.department !== "UNRESOLVED" && (
+                            <th
+                              scope="col"
+                              className="px-3 py-3 text-right text-xs font-medium"
+                            >
+                              Open
+                            </th>
+                          )}
                           <th
                             scope="col"
                             className="px-3 py-3 text-right text-xs font-medium"
@@ -198,9 +196,9 @@ export function DepartmentSummary({
                               <th
                                 scope="col"
                                 className="px-3 py-3 text-right text-xs font-medium"
-                                title="Tiket valid selesai tepat waktu ditambah tiket Open yang masih dalam batas SLA"
+                                title="Tiket yang masih berjalan dan belum melewati batas waktu"
                               >
-                                IN SLA
+                                Open In SLA
                               </th>
                               <th
                                 scope="col"
@@ -212,9 +210,9 @@ export function DepartmentSummary({
                               <th
                                 scope="col"
                                 className="px-5 py-3 text-right text-xs font-medium"
-                                title="Tiket valid inSLA dibagi seluruh tiket valid × 100%"
+                                title="Tiket valid yang memenuhi SLA dibagi seluruh tiket valid × 100%"
                               >
-                                SLA
+                                %SLA
                               </th>
                             </>
                           )}
@@ -233,24 +231,18 @@ export function DepartmentSummary({
                               >
                                 {row.name}
                               </th>
-                              {item.department !== "UNRESOLVED" &&
-                                [row.open, row.openInSla ?? 0, row.closed].map(
-                                  (count, index) => (
-                                    <td
-                                      key={index}
-                                      className="px-3 py-3 text-right tabular-nums"
-                                    >
-                                      {count.toLocaleString("id-ID")}
-                                    </td>
-                                  ),
-                                )}
+                              {item.department !== "UNRESOLVED" && (
+                                <td className="px-3 py-3 text-right tabular-nums">
+                                  {row.open.toLocaleString("id-ID")}
+                                </td>
+                              )}
                               <td className="px-3 py-3 text-right font-medium tabular-nums">
                                 {row.total.toLocaleString("id-ID")}
                               </td>
                               {item.department !== "UNRESOLVED" && (
                                 <>
                                   <td className="px-3 py-3 text-right tabular-nums text-emerald-600 dark:text-emerald-400">
-                                    {row.inSla.toLocaleString("id-ID")}
+                                    {(row.openInSla ?? 0).toLocaleString("id-ID")}
                                   </td>
                                   <td className="px-3 py-3 text-right tabular-nums text-rose-600 dark:text-rose-400">
                                     {row.outSla.toLocaleString("id-ID")}
@@ -267,7 +259,7 @@ export function DepartmentSummary({
                         ) : (
                           <tr>
                             <td
-                              colSpan={item.department === "UNRESOLVED" ? 2 : 8}
+                              colSpan={item.department === "UNRESOLVED" ? 2 : 6}
                               className="h-56 px-5 text-center text-sm text-slate-500 dark:text-slate-400"
                             >
                               {item.department === "UNRESOLVED"
