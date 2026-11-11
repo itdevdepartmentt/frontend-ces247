@@ -278,11 +278,6 @@ export function DepartmentSummary({
                     {item.breakdown.length.toLocaleString("id-ID")}{" "}
                     {item.department === "UNRESOLVED" ? "status" : "assignee"}{" "}
                     tercatat
-                    {item.department !== "UNRESOLVED" && (
-                      <p className="mt-1">
-                        SLA: tiket valid inSLA ÷ tiket valid × 100%. inSLA + OSL = tiket valid, yang bisa lebih sedikit dari Total Tiket karena tiket uji coba dan duplikat tidak dihitung.
-                      </p>
-                    )}
                   </footer>
                 </article>
               ))}
