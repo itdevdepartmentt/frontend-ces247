@@ -278,7 +278,7 @@ export function DashboardPageContent({
 
       {isFcr && fcrType === "realisasi" && (
         <p className="mb-4 text-sm text-muted-foreground">
-          Realisasi menghitung tiket FCR berdasarkan KIP yang sudah Closed/Resolved dan tidak memiliki eskalasi. SLA dihitung terpisah.
+          Realisasi mencakup tiket FCR dari semua departemen tanpa eskalasi, termasuk tiket Open. SLA dihitung dari tiket valid IN SLA dibagi seluruh tiket valid yang memenuhi syarat.
         </p>
       )}
       <TopRow summary={summary} />

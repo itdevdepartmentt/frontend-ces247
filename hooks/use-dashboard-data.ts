@@ -32,6 +32,7 @@ export function useDashboardData({ dateRange, isFcr, fcrType, categories, subCat
 
   const summaryQuery = useQuery({
     queryKey: ["dashboard", "summary", queryParams],
+    refetchInterval: isFcr === true ? 60_000 : false,
     queryFn: async () => {
       const { data } = await api.get<DashboardSummary>("/dashboard/summary", {
         params: queryParams,
@@ -42,6 +43,7 @@ export function useDashboardData({ dateRange, isFcr, fcrType, categories, subCat
 
   const channelsQuery = useQuery({
     queryKey: ["dashboard", "channels", queryParams],
+    refetchInterval: isFcr === true ? 60_000 : false,
     queryFn: async () => {
       const { data } = await api.get<ChannelData[]>("/dashboard/channels", {
         params: queryParams,
