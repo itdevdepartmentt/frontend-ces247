@@ -41,11 +41,17 @@ export default async function RootLayout({
       {/* Passing nonce to Head ensures inline styles are allowed without 'unsafe-inline' */}
       <head />
       <body>
+        {/*
+          nonce diteruskan supaya script anti-kedip next-themes lolos CSP.
+          Tanpanya script itu diblokir di setiap halaman, dan pengguna mode
+          gelap melihat kilatan terang sebelum React sempat memasang tema.
+        */}
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
+          nonce={nonce}
         >
           <QueryProvider>
             {children}

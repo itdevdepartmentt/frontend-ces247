@@ -95,7 +95,18 @@ export default function LoginPage() {
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {/*
+              method="post" penting walau pengirimannya ditangani JavaScript.
+              Kalau tombol ditekan sebelum halaman selesai hydrate, browser
+              mengirim form secara native — dan bawaannya GET, sehingga email
+              dan password masuk ke URL, riwayat browser, log akses, dan header
+              Referer. Temuan OWASP ZAP: /login?email=...&password=...
+            */}
+            <form
+              method="post"
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-4"
+            >
               <FormField
                 control={form.control}
                 name="email"

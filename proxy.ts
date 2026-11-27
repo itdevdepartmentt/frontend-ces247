@@ -10,9 +10,16 @@ export function proxy(request: NextRequest) {
 
   // 2. Define a strict CSP using the nonce
   // Note: 'strict-dynamic' helps automate trust for legitimate sub-scripts
+  //
+  // 'unsafe-eval' sengaja tidak ada di sini (temuan Medium OWASP ZAP). Next.js
+  // produksi tidak memakai eval; satu-satunya pemanggilan yang tersisa di
+  // bundel adalah Function("return this") milik decimal.js dan core-js, dan
+  // keduanya hanya cadangan saat globalThis/self tidak ada — tidak pernah
+  // tersentuh di browser modern. Header dev di bawah tetap memakainya karena
+  // React Refresh memang membutuhkannya.
   const cspHeader = `
     default-src 'self';
-    script-src 'self' 'nonce-${nonce}' 'unsafe-eval' 'strict-dynamic';
+    script-src 'self' 'nonce-${nonce}' 'strict-dynamic';
     style-src 'self' 'unsafe-inline' 'nonce-${nonce}'
       'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='
       'sha256-CIxDM5jnsGiKqXs2v7NKCY5MzdR9gu6TtiMJrDw29AY='
